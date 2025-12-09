@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     CreditCard,
     Zap,
@@ -12,28 +12,67 @@ import { Modal } from '../components/Modal/Modal';
 import './Settings.css';
 
 interface SettingsProps {
-    userEmail?: string;
-    userPlan?: 'free' | 'plus';
-    tokensUsed?: number;
-    tokensLimit?: number;
+    userEmail: string;
+    userPlan: 'free' | 'plus';
+    tokensUsed: number;
+    tokensLimit: number;
     subscriptionId?: string;
-    onLogout?: () => void;
-    onCancelPlan?: () => Promise<void>;
+    onLogout: () => void;
+    onCancelPlan: () => void;
 }
 
-export function Settings({
-    userEmail,
-    userPlan,
-    tokensUsed = 0,
-    tokensLimit = 10000,
-    subscriptionId,
-    onLogout,
-    onCancelPlan,
-}: SettingsProps) {
+export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscriptionId, onLogout, onCancelPlan }: SettingsProps) {
     const [useCustomAPI, setUseCustomAPI] = useState(false);
     const [customOpenAIKey, setCustomOpenAIKey] = useState('');
     const [isCanceling, setIsCanceling] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [appVersion, setAppVersion] = useState<string>('');
+    const [updateStatus, setUpdateStatus] = useState<string | null>(null);
+    const [downloadProgress, setDownloadProgress] = useState<any>(null);
+    const [releaseNotes, setReleaseNotes] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Get App Version
+        if ((window as any).electronAPI) {
+            (window as any).electronAPI.getAppVersion().then((ver: string) => {
+                setAppVersion(ver);
+            });
+
+            // Listen for Update Status
+            (window as any).electronAPI.onUpdateStatus((status: any) => {
+                console.log('Update Status:', status);
+                if (status.text === 'download-progress') {
+                    setDownloadProgress(status.data);
+                    setUpdateStatus(`Baixando atualização: ${Math.round(status.data.percent)}%`);
+                } else if (status.text === 'Update available.') {
+                    setUpdateStatus('Nova versão disponível! Baixando...');
+                    // Try to extract release notes if available in data
+                    if (status.data && status.data.releaseNotes) {
+                        // releaseNotes can be array or string
+                        const notes = Array.isArray(status.data.releaseNotes)
+                            ? status.data.releaseNotes.map((n: any) => n.note).join('\n')
+                            : status.data.releaseNotes;
+                        setReleaseNotes(notes);
+                    }
+                } else if (status.text === 'Update downloaded') {
+                    setUpdateStatus('Atualização pronta! Reinicie o app para instalar.');
+                    setDownloadProgress(null);
+                } else {
+                    setUpdateStatus(status.text);
+                }
+            });
+        }
+    }, []);
+
+    const handleCheckUpdates = () => {
+        if ((window as any).electronAPI) {
+            setUpdateStatus('Checking for updates...');
+            setReleaseNotes(null);
+            (window as any).electronAPI.checkForUpdates();
+        } else {
+            alert('Atualizações automáticas disponíveis apenas na versão Desktop.');
+        }
+    };
 
     // Modals state
     const [showCancelModal, setShowCancelModal] = useState(false);
@@ -258,6 +297,73 @@ export function Settings({
                             </button>
                         </div>
                     )}
+                </section>
+
+                {/* === ATUALIZAÇÕES === */}
+                <section className="settings-section">
+                    <div className="settings-section-header">
+                        <div className="settings-section-icon blue">
+                            <RefreshCw size={20} />
+                        </div>
+                        <div>
+                            <h2 className="settings-section-title">Atualizações</h2>
+                            <p className="settings-section-subtitle">
+                                Verifique novas versões e notas de lançamento
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="settings-card" style={{ marginTop: 16 }}>
+                        <div className="setting-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div className="setting-info">
+                                <span className="setting-label" style={{ display: 'block', fontWeight: 600 }}>Versão Atual</span>
+                                <span className="setting-description" style={{ color: 'var(--text-secondary)' }}>
+                                    Rovena v{appVersion || '...'}
+                                </span>
+                            </div>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={handleCheckUpdates}
+                                disabled={updateStatus === 'Checking for updates...' || (typeof updateStatus === 'string' && updateStatus.includes('Baixando'))}
+                            >
+                                {updateStatus === 'Checking for updates...' ? 'Verificando...' : 'Verificar atualizações'}
+                            </button>
+                        </div>
+
+                        {updateStatus && (
+                            <div className="setting-item" style={{ marginTop: 16, display: 'block', borderTop: '1px solid var(--border-color)', paddingTop: 16 }}>
+                                <div className="status-message" style={{ color: 'var(--accent-blue)', marginBottom: 8, fontWeight: 500 }}>
+                                    {typeof updateStatus === 'string' ? updateStatus : 'Atualizando...'}
+                                </div>
+
+                                {/* Download Progress Bar */}
+                                {downloadProgress && (
+                                    <div className="progress-bar-container" style={{ width: '100%', height: 6, background: 'var(--bg-secondary)', borderRadius: 3, overflow: 'hidden', marginTop: 8 }}>
+                                        <div
+                                            className="progress-bar-fill"
+                                            style={{
+                                                width: `${downloadProgress.percent}%`,
+                                                height: '100%',
+                                                background: 'var(--accent-blue)',
+                                                transition: 'width 0.2s ease'
+                                            }}
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Release Notes */}
+                                {releaseNotes && (
+                                    <div className="release-notes" style={{ marginTop: 16, background: 'var(--bg-secondary)', padding: 12, borderRadius: 8 }}>
+                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Novidades da versão:</h4>
+                                        <div
+                                            style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
+                                            dangerouslySetInnerHTML={{ __html: releaseNotes }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </section>
 
                 {/* Account Section */}

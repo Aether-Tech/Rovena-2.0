@@ -23,7 +23,8 @@
       {
         "provider": "github",
         "owner": "1Verona",
-        "repo": "Rovena-2.0"
+        "repo": "Rovena-2.0",
+        "releaseType": "release"
       }
     ],
     "directories": {
@@ -35,15 +36,32 @@
     ],
     "mac": {
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "public/icon.icns"
     },
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
       ],
       "icon": "public/icon.ico"
     }

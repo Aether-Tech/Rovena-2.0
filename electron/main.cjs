@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -27,20 +28,50 @@ function createWindow() {
     }
 }
 
-const { autoUpdater } = require('electron-updater');
-
 // Configure autoUpdater
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 
+// Helper to send status to renderer
+function sendStatusToWindow(text, data = null) {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-status', { text, data });
+    });
+}
+
+autoUpdater.on('checking-for-update', () => {
+    sendStatusToWindow('Checking for updates...');
+});
+
+autoUpdater.on('update-available', (info) => {
+    sendStatusToWindow('Update available.', info);
+});
+
+autoUpdater.on('update-not-available', (info) => {
+    sendStatusToWindow('Update not available.', info);
+});
+
+autoUpdater.on('error', (err) => {
+    sendStatusToWindow('Error in auto-updater. ' + err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    sendStatusToWindow('download-progress', progressObj);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+    sendStatusToWindow('Update downloaded', info);
+});
+
 app.whenReady().then(() => {
     createWindow();
 
-    // Check for updates
+    // Check for updates on startup
     if (!isDev) {
-        autoUpdater.checkForUpdatesAndNotify().catch(err => {
-            console.error('Error checking for updates:', err);
-        });
+        autoUpdater.checkForUpdatesAndNotify();
     }
 
     app.on('activate', () => {
@@ -48,15 +79,6 @@ app.whenReady().then(() => {
             createWindow();
         }
     });
-});
-
-// Update event handlers (optional logging)
-autoUpdater.on('update-available', () => {
-    console.log('Update available.');
-});
-
-autoUpdater.on('update-downloaded', () => {
-    console.log('Update downloaded. It will be installed on quit.');
 });
 
 app.on('window-all-closed', () => {
@@ -68,4 +90,10 @@ app.on('window-all-closed', () => {
 // IPC handlers
 ipcMain.handle('get-app-version', () => {
     return app.getVersion();
+});
+
+ipcMain.handle('check-for-updates', () => {
+    if (!isDev) {
+        autoUpdater.checkForUpdates();
+    }
 });
