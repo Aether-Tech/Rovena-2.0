@@ -45,29 +45,15 @@ export async function generateImage(params: ImageGenerationParams): Promise<stri
     // Pollinations.ai URL format
     const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${dimensions.width}&height=${dimensions.height}&seed=${seed}&nologo=true`;
 
-    // Pre-load the image to ensure it's ready
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-
-        img.onload = () => {
-            resolve(imageUrl);
-        };
-
-        img.onerror = () => {
-            reject(new Error('Falha ao gerar imagem. Tente novamente.'));
-        };
-
-        // Set timeout for slow generations
-        const timeout = setTimeout(() => {
-            reject(new Error('Timeout: A geração está demorando muito. Tente novamente.'));
-        }, 60000); // 60 seconds timeout
-
-        img.onload = () => {
-            clearTimeout(timeout);
-            resolve(imageUrl);
-        };
-
-        img.src = imageUrl;
-    });
+    try {
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+            throw new Error(`Erro: ${response.status} - ${response.statusText}`);
+        }
+        // If successful, return the URL (browser will load it from cache mostly)
+        return imageUrl;
+    } catch (error) {
+        console.error("Image generation error:", error);
+        throw new Error('Falha ao gerar imagem. Verifique sua conexão.');
+    }
 }

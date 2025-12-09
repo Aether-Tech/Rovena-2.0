@@ -57,6 +57,9 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                 } else if (status.text === 'Update downloaded') {
                     setUpdateStatus('Atualização pronta! Reinicie o app para instalar.');
                     setDownloadProgress(null);
+                } else if (status.text === 'Update not available' || status.text === 'Update not available.') {
+                    setUpdateStatus('Você já está na versão mais recente.');
+                    setDownloadProgress(null);
                 } else {
                     setUpdateStatus(status.text);
                 }

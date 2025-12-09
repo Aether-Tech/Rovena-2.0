@@ -92,8 +92,22 @@ ipcMain.handle('get-app-version', () => {
     return app.getVersion();
 });
 
-ipcMain.handle('check-for-updates', () => {
-    if (!isDev) {
-        autoUpdater.checkForUpdates();
+ipcMain.handle('check-for-updates', async () => {
+    if (isDev) {
+        // Simulate update check in dev mode so UI doesn't hang
+        sendStatusToWindow('Checking for updates...');
+        setTimeout(() => {
+            sendStatusToWindow('Update not available', {
+                version: app.getVersion(),
+                releaseNotes: 'Updates are only available in production builds.'
+            });
+        }, 2000);
+        return;
+    }
+
+    try {
+        await autoUpdater.checkForUpdates();
+    } catch (error) {
+        sendStatusToWindow('Error: ' + error.message);
     }
 });
