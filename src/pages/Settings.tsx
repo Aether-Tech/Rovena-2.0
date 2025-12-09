@@ -6,6 +6,7 @@ import {
     LogOut,
     ExternalLink,
 } from 'lucide-react';
+import { cancelSubscription } from '../services/firebase';
 import './Settings.css';
 
 interface SettingsProps {
@@ -15,23 +16,25 @@ interface SettingsProps {
     tokensLimit?: number;
     subscriptionId?: string;
     onLogout?: () => void;
-    onCancelPlan?: () => void;
+    onCancelPlan?: () => Promise<void>;
 }
 
 export function Settings({
-    userEmail = 'usuario@email.com',
-    userPlan = 'plus',
-    tokensUsed = 1000000,
-    tokensLimit = 3000000,
+    userEmail,
+    userPlan,
+    tokensUsed = 0,
+    tokensLimit = 10000,
+    subscriptionId,
     onLogout,
     onCancelPlan,
 }: SettingsProps) {
     const [useCustomAPI, setUseCustomAPI] = useState(false);
     const [customOpenAIKey, setCustomOpenAIKey] = useState('');
     const [isCanceling, setIsCanceling] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const tokensRemaining = tokensLimit - tokensUsed;
-    const tokenPercentage = Math.round((tokensRemaining / tokensLimit) * 100);
+    const tokenPercentage = tokensLimit > 0 ? Math.round((tokensRemaining / tokensLimit) * 100) : 0;
 
     const formatNumber = (num: number) => {
         if (num >= 1000000) {
@@ -43,6 +46,11 @@ export function Settings({
     };
 
     const handleCancelPlan = async () => {
+        if (!subscriptionId) {
+            alert('Nenhuma assinatura ativa encontrada.');
+            return;
+        }
+
         if (!window.confirm('Tem certeza que deseja cancelar seu plano? Você perderá acesso aos recursos Plus.')) {
             return;
         }
@@ -50,6 +58,8 @@ export function Settings({
         setIsCanceling(true);
         try {
             // Call Stripe cancellation via Firebase Function
+            await cancelSubscription({ subscriptionId });
+            alert('Plano cancelado com sucesso. Você manterá acesso até o fim do período atual.');
             if (onCancelPlan) {
                 await onCancelPlan();
             }
@@ -58,6 +68,25 @@ export function Settings({
             alert('Erro ao cancelar plano. Tente novamente.');
         } finally {
             setIsCanceling(false);
+        }
+    };
+
+    const handleSaveCustomAPI = async () => {
+        if (!customOpenAIKey.startsWith('sk-')) {
+            alert('A chave da API deve começar com "sk-"');
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            // Save to localStorage for now (in production, save to Firestore)
+            localStorage.setItem('rovena-custom-openai-key', customOpenAIKey);
+            alert('Configurações salvas com sucesso!');
+        } catch (error) {
+            console.error('Error saving API key:', error);
+            alert('Erro ao salvar configurações.');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -98,12 +127,12 @@ export function Settings({
                         </div>
                         <div className="plan-item">
                             <p className="plan-item-label">Email</p>
-                            <p className="plan-item-value">{userEmail}</p>
+                            <p className="plan-item-value">{userEmail || 'Não disponível'}</p>
                         </div>
                     </div>
 
                     <div className="plan-actions">
-                        {userPlan === 'plus' ? (
+                        {userPlan === 'plus' && subscriptionId ? (
                             <button
                                 className="btn btn-danger"
                                 onClick={handleCancelPlan}
@@ -111,7 +140,7 @@ export function Settings({
                             >
                                 {isCanceling ? 'Cancelando...' : 'Cancelar Plano'}
                             </button>
-                        ) : (
+                        ) : userPlan !== 'plus' ? (
                             <a
                                 href="https://buy.stripe.com/your-link"
                                 target="_blank"
@@ -122,7 +151,7 @@ export function Settings({
                                 Fazer Upgrade para Plus
                                 <ExternalLink size={14} />
                             </a>
-                        )}
+                        ) : null}
                     </div>
                 </section>
 
@@ -149,7 +178,7 @@ export function Settings({
                             <div className="progress-bar">
                                 <div
                                     className="progress-fill"
-                                    style={{ width: `${tokenPercentage}%` }}
+                                    style={{ width: `${Math.max(0, Math.min(100, tokenPercentage))}%` }}
                                 />
                             </div>
                         </div>
@@ -205,8 +234,13 @@ export function Settings({
                                     onChange={(e) => setCustomOpenAIKey(e.target.value)}
                                 />
                             </div>
-                            <button className="btn btn-secondary" style={{ alignSelf: 'flex-start' }}>
-                                Salvar Configurações
+                            <button
+                                className="btn btn-secondary"
+                                style={{ alignSelf: 'flex-start' }}
+                                onClick={handleSaveCustomAPI}
+                                disabled={isSaving || !customOpenAIKey}
+                            >
+                                {isSaving ? 'Salvando...' : 'Salvar Configurações'}
                             </button>
                         </div>
                     )}

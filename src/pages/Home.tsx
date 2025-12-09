@@ -29,10 +29,10 @@ interface HomeProps {
 }
 
 export function Home({
-    tokensUsed = 1000000,
-    tokensLimit = 3000000,
-    messagesLast30Days = 127,
-    interactionsLast30Days = 342,
+    tokensUsed = 0,
+    tokensLimit = 10000,
+    messagesLast30Days = 0,
+    interactionsLast30Days = 0,
 }: HomeProps) {
     const navigate = useNavigate();
     const [quickMessage, setQuickMessage] = useState('');
@@ -49,7 +49,7 @@ export function Home({
     }, [todos]);
 
     const tokensRemaining = tokensLimit - tokensUsed;
-    const tokenPercentage = Math.round((tokensRemaining / tokensLimit) * 100);
+    const tokenPercentage = tokensLimit > 0 ? Math.round((tokensRemaining / tokensLimit) * 100) : 0;
 
     const handleQuickChat = (e: React.FormEvent) => {
         e.preventDefault();
@@ -139,7 +139,7 @@ export function Home({
                         <div className="progress-bar">
                             <div
                                 className="progress-fill"
-                                style={{ width: `${tokenPercentage}%` }}
+                                style={{ width: `${Math.max(0, Math.min(100, tokenPercentage))}%` }}
                             />
                         </div>
                         <div className="token-details">
