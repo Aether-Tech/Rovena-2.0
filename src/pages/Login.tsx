@@ -85,7 +85,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
         <div className="login-page">
             <div className="login-container">
                 <header className="login-header">
-                    <img src="/logo.png" alt="Rovena" className="login-logo-img" />
+                    <img src="./logo.png" alt="Rovena" className="login-logo-img" />
                     <h1 className="login-title">Rovena</h1>
                     <p className="login-subtitle">
                         Central de interação IA x Humano
