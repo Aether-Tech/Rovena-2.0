@@ -12,6 +12,10 @@ import {
     updateProfile
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
+import {
+    checkSubscription,
+    getUserTokens
+} from './services/firebase';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { Home } from './pages/Home';
 import { Chats } from './pages/Chats';
@@ -170,14 +174,59 @@ function LoginPage() {
 function App() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userPlan, setUserPlan] = useState<'free' | 'plus'>('free');
+    const [tokensUsed, setTokensUsed] = useState(0);
+    const [tokensLimit, setTokensLimit] = useState(10000);
+    const [subscriptionId, setSubscriptionId] = useState<string | undefined>(undefined);
+    const [productId, setProductId] = useState<string | undefined>(undefined);
+
+    const fetchUserData = async () => {
+        if (!user) return;
+        try {
+            // Fetch Subscription Status
+            const subResult: any = await checkSubscription();
+            if (subResult.data) {
+                setUserPlan(subResult.data.plan);
+                setTokensLimit(subResult.data.tokensLimit);
+                setSubscriptionId(subResult.data.subscriptionId);
+                setProductId(subResult.data.productId);
+            }
+
+            // Fetch Token Usage
+            const tokenResult: any = await getUserTokens();
+            if (tokenResult.data) {
+                setTokensUsed(tokenResult.data.tokensUsed || 0);
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
             setUser(u);
-            setLoading(false);
+            if (u) {
+                // Initial fetch when user logs in
+                fetchUserData();
+            } else {
+                setLoading(false);
+            }
         });
         return () => unsub();
     }, []);
+
+    // Also fetch data when user is already set (e.g. after refresh)
+    useEffect(() => {
+        if (user) {
+            fetchUserData().finally(() => setLoading(false));
+
+            // Auto-refresh when window gains focus
+            const onFocus = () => fetchUserData();
+            window.addEventListener('focus', onFocus);
+
+            return () => window.removeEventListener('focus', onFocus);
+        }
+    }, [user]);
 
     const handleLogout = () => signOut(auth);
 
@@ -201,19 +250,29 @@ function App() {
                         <div className="app-container">
                             <Sidebar
                                 userEmail={displayName}
-                                userPlan="free"
+                                userPlan={userPlan}
                                 onLogout={handleLogout}
                             />
                             <main className="main-content">
                                 <Routes>
-                                    <Route path="/" element={<Home tokensUsed={0} tokensLimit={10000} />} />
+                                    <Route path="/" element={<Home tokensUsed={tokensUsed} tokensLimit={tokensLimit} />} />
                                     <Route path="/chats" element={<Chats />} />
                                     <Route path="/images" element={<Images />} />
                                     <Route path="/canva" element={<Canva />} />
                                     <Route path="/archives" element={<Archives />} />
                                     <Route path="/charts" element={<Charts />} />
                                     <Route path="/presentations" element={<Presentations />} />
-                                    <Route path="/settings" element={<Settings userEmail={user.email || ''} userPlan="free" onLogout={handleLogout} />} />
+                                    <Route path="/settings" element={
+                                        <Settings
+                                            userEmail={user.email || ''}
+                                            userPlan={userPlan}
+                                            tokensUsed={tokensUsed}
+                                            tokensLimit={tokensLimit}
+                                            subscriptionId={subscriptionId}
+                                            onLogout={handleLogout}
+                                            onCancelPlan={fetchUserData}
+                                        />
+                                    } />
                                     <Route path="*" element={<Navigate to="/" />} />
                                 </Routes>
                             </main>

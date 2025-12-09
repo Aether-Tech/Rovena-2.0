@@ -5,8 +5,10 @@ import {
     Key,
     LogOut,
     ExternalLink,
+    RefreshCw,
 } from 'lucide-react';
 import { cancelSubscription } from '../services/firebase';
+import { Modal } from '../components/Modal/Modal';
 import './Settings.css';
 
 interface SettingsProps {
@@ -33,6 +35,11 @@ export function Settings({
     const [isCanceling, setIsCanceling] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
+    // Modals state
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+
     const tokensRemaining = tokensLimit - tokensUsed;
     const tokenPercentage = tokensLimit > 0 ? Math.round((tokensRemaining / tokensLimit) * 100) : 0;
 
@@ -47,28 +54,32 @@ export function Settings({
 
     const handleCancelPlan = async () => {
         if (!subscriptionId) {
-            alert('Nenhuma assinatura ativa encontrada.');
-            return;
-        }
-
-        if (!window.confirm('Tem certeza que deseja cancelar seu plano? Você perderá acesso aos recursos Plus.')) {
+            // Should theoretically not happen if button is shown only when subsId exists, but safe check
             return;
         }
 
         setIsCanceling(true);
         try {
-            // Call Stripe cancellation via Firebase Function
             await cancelSubscription({ subscriptionId });
-            alert('Plano cancelado com sucesso. Você manterá acesso até o fim do período atual.');
+            setShowCancelModal(false);
+            setSuccessMessage('Plano cancelado com sucesso. Você manterá acesso até o fim do período atual.');
+            setShowSuccessModal(true);
+
             if (onCancelPlan) {
                 await onCancelPlan();
             }
         } catch (error) {
             console.error('Error canceling plan:', error);
-            alert('Erro ao cancelar plano. Tente novamente.');
+            alert('Erro ao cancelar plano. Tente novamente.'); // Keeping alert for explicit error for now
         } finally {
             setIsCanceling(false);
         }
+    };
+
+    const handleRefresh = async () => {
+        if (onCancelPlan) await onCancelPlan();
+        setSuccessMessage('Dados atualizados com sucesso!');
+        setShowSuccessModal(true);
     };
 
     const handleSaveCustomAPI = async () => {
@@ -79,9 +90,9 @@ export function Settings({
 
         setIsSaving(true);
         try {
-            // Save to localStorage for now (in production, save to Firestore)
             localStorage.setItem('rovena-custom-openai-key', customOpenAIKey);
-            alert('Configurações salvas com sucesso!');
+            setSuccessMessage('Configurações salvas com sucesso!');
+            setShowSuccessModal(true);
         } catch (error) {
             console.error('Error saving API key:', error);
             alert('Erro ao salvar configurações.');
@@ -135,14 +146,14 @@ export function Settings({
                         {userPlan === 'plus' && subscriptionId ? (
                             <button
                                 className="btn btn-danger"
-                                onClick={handleCancelPlan}
+                                onClick={() => setShowCancelModal(true)}
                                 disabled={isCanceling}
                             >
                                 {isCanceling ? 'Cancelando...' : 'Cancelar Plano'}
                             </button>
                         ) : userPlan !== 'plus' ? (
                             <a
-                                href="https://buy.stripe.com/your-link"
+                                href="https://rovena.vercel.app/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn btn-primary"
@@ -152,6 +163,14 @@ export function Settings({
                                 <ExternalLink size={14} />
                             </a>
                         ) : null}
+                        <button
+                            className="btn btn-secondary"
+                            onClick={handleRefresh}
+                            title="Atualizar dados da assinatura"
+                        >
+                            <RefreshCw size={18} />
+                            Atualizar
+                        </button>
                     </div>
                 </section>
 
@@ -276,6 +295,39 @@ export function Settings({
                     </div>
                 </section>
             </div>
+
+            {/* Cancel Confirm Modal */}
+            <Modal
+                isOpen={showCancelModal}
+                onClose={() => setShowCancelModal(false)}
+                title="Cancelar Assinatura"
+                footer={
+                    <>
+                        <button className="btn btn-secondary" onClick={() => setShowCancelModal(false)}>
+                            Voltar
+                        </button>
+                        <button className="btn btn-danger" onClick={handleCancelPlan} disabled={isCanceling}>
+                            {isCanceling ? 'Cancelando...' : 'Sim, Cancelar'}
+                        </button>
+                    </>
+                }
+            >
+                <p>Tem certeza que deseja cancelar seu plano? Você manterá o acesso aos recursos Plus até o final do período atual, mas sua assinatura não será renovada.</p>
+            </Modal>
+
+            {/* Success Info Modal */}
+            <Modal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                title="Sucesso"
+                footer={
+                    <button className="btn btn-primary" onClick={() => setShowSuccessModal(false)}>
+                        OK
+                    </button>
+                }
+            >
+                <p>{successMessage}</p>
+            </Modal>
         </div>
     );
 }

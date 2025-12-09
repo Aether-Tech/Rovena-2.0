@@ -56,47 +56,79 @@ export const checkSubscription = functions
         }
 
         try {
-            const stripe = getStripe();
-            // Search for customer by email
-            const customers = await stripe.customers.list({
-                email: email,
-                limit: 1,
-            });
-
-            if (customers.data.length === 0) {
-                return { plan: 'free', tokensLimit: TOKEN_LIMITS.free };
-            }
-
-            const customer = customers.data[0];
-
-            // Get active subscriptions
-            const subscriptions = await stripe.subscriptions.list({
-                customer: customer.id,
-                status: 'active',
-                limit: 10,
-            });
-
-            // Check if any subscription matches our product IDs
-            for (const subscription of subscriptions.data) {
-                for (const item of subscription.items.data) {
-                    const productId = item.price.product as string;
-                    if (Object.values(PRODUCT_IDS).includes(productId)) {
-                        return {
-                            plan: 'plus',
-                            tokensLimit: TOKEN_LIMITS.plus,
-                            subscriptionId: subscription.id,
-                            productId: productId,
-                        };
-                    }
-                }
-            }
-
-            return { plan: 'free', tokensLimit: TOKEN_LIMITS.free };
+            return await getUserPlan(email);
         } catch (error) {
             console.error('Error checking subscription:', error);
             throw new functions.https.HttpsError('internal', 'Error checking subscription');
         }
     });
+
+/**
+ * Helper to determine user plan based on subscriptions and one-time purchases
+ */
+async function getUserPlan(email: string) {
+    const stripe = getStripe();
+
+    // 1. Search for customers (fetch all that match email)
+    const customers = await stripe.customers.list({
+        email: email,
+        limit: 10, // Check up to 10 customer profiles with same email should be enough
+    });
+
+    if (customers.data.length === 0) {
+        return { plan: 'free', tokensLimit: TOKEN_LIMITS.free };
+    }
+
+    // Check ALL found customers
+    for (const customer of customers.data) {
+        // 2. Check active subscriptions (Monthly/Annual)
+        const subscriptions = await stripe.subscriptions.list({
+            customer: customer.id,
+            status: 'active',
+            limit: 10,
+        });
+
+        for (const subscription of subscriptions.data) {
+            for (const item of subscription.items.data) {
+                const productId = item.price.product as string;
+                if (Object.values(PRODUCT_IDS).includes(productId)) {
+                    return {
+                        plan: 'plus',
+                        tokensLimit: TOKEN_LIMITS.plus,
+                        subscriptionId: subscription.id,
+                        productId: productId,
+                    };
+                }
+            }
+        }
+
+        // 3. Check one-time purchases (Lifetime) via Checkout Sessions
+        const sessions = await stripe.checkout.sessions.list({
+            customer: customer.id,
+            status: 'complete',
+            limit: 10,
+            expand: ['data.line_items'],
+        });
+
+        for (const session of sessions.data) {
+            if (session.line_items) {
+                for (const item of session.line_items.data) {
+                    const price = item.price;
+                    if (price && price.product === PRODUCT_IDS.LIFETIME) {
+                        return {
+                            plan: 'plus',
+                            tokensLimit: TOKEN_LIMITS.plus,
+                            subscriptionId: 'lifetime',
+                            productId: PRODUCT_IDS.LIFETIME,
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+    return { plan: 'free', tokensLimit: TOKEN_LIMITS.free };
+}
 
 /**
  * Cancel user subscription
@@ -111,6 +143,10 @@ export const cancelSubscription = functions
         const { subscriptionId } = data;
         if (!subscriptionId) {
             throw new functions.https.HttpsError('invalid-argument', 'Subscription ID required');
+        }
+
+        if (subscriptionId === 'lifetime') {
+            throw new functions.https.HttpsError('invalid-argument', 'Cannot cancel a lifetime plan');
         }
 
         try {
@@ -178,35 +214,13 @@ export const sendChatMessage = functions
             const userDoc = await db.collection('users').doc(userId).get();
             const userData = userDoc.data() || { tokensUsed: 0 }; // Default if user doc missing
 
-            // Check subscription locally inside to avoid extra HTTP call overhead if possible,
-            // but for now calling the internal logic is safer to reuse code.
-            // Or better: Reimplement logic here to avoid self-call HTTP overhead/latency issues in Functions.
-            // Let's reuse logic by calling getStripe() directly if needed, but for simplicity let's stick to logic below.
-
-            // We'll reimplement simple check here to avoid "calling a function from a function" latency via HTTP
-            // Actually, let's just use a hard limit for free/plus based on a simplistic check or trust the client? NO.
-            // We MUST verify plan.
-
-            let tokensLimit = TOKEN_LIMITS.free;
-            const stripe = getStripe();
+            // Verify plan using the shared helper
             const email = context.auth.token.email;
+            let tokensLimit = TOKEN_LIMITS.free;
 
             if (email) {
-                const customers = await stripe.customers.list({ email: email, limit: 1 });
-                if (customers.data.length > 0) {
-                    const subs = await stripe.subscriptions.list({
-                        customer: customers.data[0].id,
-                        status: 'active',
-                        limit: 5
-                    });
-                    for (const s of subs.data) {
-                        for (const i of s.items.data) {
-                            if (Object.values(PRODUCT_IDS).includes(i.price.product as string)) {
-                                tokensLimit = TOKEN_LIMITS.plus;
-                            }
-                        }
-                    }
-                }
+                const planData = await getUserPlan(email);
+                tokensLimit = planData.tokensLimit;
             }
 
             if ((userData.tokensUsed || 0) >= tokensLimit) {
