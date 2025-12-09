@@ -1,0 +1,540 @@
+/* Canva Page Styles - Excalidraw-like Interface */
+.canva-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--bg-primary);
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-left: 240px;
+    /* Account for sidebar */
+}
+
+/* Toolbar */
+.canva-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: 8px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.toolbar-btn:hover:not(:disabled):not(.active) {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.toolbar-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.toolbar-btn.active {
+    background: var(--accent-green);
+    color: #000;
+}
+
+.toolbar-btn.active:hover {
+    background: var(--accent-green-hover, #16a34a);
+    /* Darker green or fallback */
+    color: #000;
+}
+
+
+
+.toolbar-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 28px;
+    background: var(--border-color);
+    margin: 0 var(--spacing-xs);
+}
+
+.toolbar-left {
+    flex: 1;
+}
+
+.toolbar-center {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.toolbar-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+}
+
+/* Zoom Controls */
+.zoom-controls {
+    gap: 0;
+}
+
+.zoom-label {
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-width: 50px;
+    text-align: center;
+}
+
+.zoom-label:hover {
+    color: var(--text-primary);
+}
+
+/* Export Button */
+.export-btn {
+    padding: 8px 16px !important;
+    background: var(--accent-green) !important;
+    color: #000 !important;
+    font-weight: 500;
+}
+
+.export-btn:hover:not(:disabled) {
+    background: var(--accent-green-hover) !important;
+}
+
+/* Canvas Container */
+.canva-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.canva-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+/* Floating Properties Panel */
+.floating-panel {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 220px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.panel-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.panel-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Color Grid */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+}
+
+.color-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+    border-color: var(--border-hover);
+}
+
+.color-btn.active {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+}
+
+.color-btn.transparent {
+    background: linear-gradient(135deg,
+            #fff 25%,
+            #ccc 25%,
+            #ccc 50%,
+            #fff 50%,
+            #fff 75%,
+            #ccc 75%);
+    background-size: 8px 8px;
+}
+
+/* Stroke Grid */
+.stroke-grid {
+    display: flex;
+    gap: 4px;
+}
+
+.stroke-btn {
+    flex: 1;
+    padding: 10px 8px;
+    background: var(--bg-tertiary);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stroke-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+}
+
+.stroke-btn.active {
+    border-color: var(--accent-green);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.stroke-line {
+    width: 100%;
+    background: var(--text-primary);
+    border-radius: 2px;
+}
+
+/* Style Grid - for stroke style, roughness, edges */
+.style-grid {
+    display: flex;
+    gap: 4px;
+}
+
+.style-btn {
+    flex: 1;
+    padding: 10px 8px;
+    background: var(--bg-tertiary);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.style-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.style-btn.active {
+    border-color: var(--accent-green);
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--accent-green);
+}
+
+.style-line {
+    width: 24px;
+    height: 2px;
+    background: currentColor;
+}
+
+.style-line.dashed {
+    background: linear-gradient(90deg, currentColor 60%, transparent 60%);
+    background-size: 8px 100%;
+}
+
+.style-line.dotted {
+    background: linear-gradient(90deg, currentColor 30%, transparent 30%);
+    background-size: 5px 100%;
+}
+
+.edges-grid {
+    flex-wrap: wrap;
+}
+
+.edges-grid .style-btn {
+    flex: 0 0 calc(50% - 2px);
+}
+
+/* Opacity Control */
+.opacity-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.opacity-slider {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    outline: none;
+}
+
+.opacity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+}
+
+.opacity-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.opacity-value {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 28px;
+    text-align: right;
+}
+
+/* Layer Buttons */
+.layer-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.layer-btn {
+    flex: 1;
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 0.625rem;
+    transition: all var(--transition-fast);
+}
+
+.layer-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+.action-btn.active {
+    background: var(--accent-green);
+    color: #000000;
+    border-color: var(--accent-green);
+}
+
+.action-btn:nth-child(2):hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+/* Text Edit Input */
+.text-edit-input {
+    position: absolute;
+    background: transparent;
+    border: 2px solid var(--accent-green);
+    border-radius: 4px;
+    padding: 4px 8px;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    resize: none;
+    min-width: 100px;
+    min-height: 30px;
+    z-index: 50;
+}
+
+/* Help Text */
+.canva-help {
+    position: absolute;
+    bottom: var(--spacing-md);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    opacity: 0.8;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.canva-help kbd {
+    display: inline-block;
+    padding: 2px 5px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .canva-page {
+        margin-left: 200px;
+    }
+
+    .floating-panel {
+        width: 200px;
+        padding: var(--spacing-sm);
+    }
+
+    .color-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .canva-page {
+        margin-left: 0;
+    }
+
+    .canva-toolbar {
+        padding: var(--spacing-xs);
+        gap: var(--spacing-xs);
+    }
+
+    .toolbar-group {
+        padding: 2px;
+    }
+
+    .toolbar-btn {
+        padding: 6px;
+    }
+
+    .floating-panel {
+        width: 180px;
+        top: auto;
+        bottom: 60px;
+        right: var(--spacing-sm);
+    }
+
+    .canva-help {
+        font-size: 0.625rem;
+        padding: var(--spacing-xs) var(--spacing-sm);
+    }
+}
+
+/* Cursor styles */
+.canva-canvas.hand-cursor {
+    cursor: grab;
+}
+
+.canva-canvas.hand-cursor:active {
+    cursor: grabbing;
+}
+
+.canva-canvas.crosshair-cursor {
+    cursor: crosshair;
+}
+
+.canva-canvas.move-cursor {
+    cursor: move;
+}

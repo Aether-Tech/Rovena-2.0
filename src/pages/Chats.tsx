@@ -151,7 +151,17 @@ export function Chats() {
                     messages.map((msg) => (
                         <div key={msg.id} className={`message ${msg.role}`}>
                             <div className="message-avatar">
-                                {msg.role === 'user' ? 'U' : 'R'}
+                                {msg.role === 'user' ? (
+                                    user?.photoURL ? (
+                                        <img
+                                            src={user.photoURL}
+                                            alt="Foto do usuário"
+                                            className="avatar-image"
+                                        />
+                                    ) : (
+                                        (user?.displayName?.[0] || user?.email?.[0] || 'U').toUpperCase()
+                                    )
+                                ) : 'R'}
                             </div>
                             <div className="message-content">
                                 {msg.content}

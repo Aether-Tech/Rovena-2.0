@@ -16,6 +16,7 @@ import { Sidebar } from './components/Sidebar/Sidebar';
 import { Home } from './pages/Home';
 import { Chats } from './pages/Chats';
 import { Images } from './pages/Images';
+import { Canva } from './pages/Canva';
 import { Archives } from './pages/Archives';
 import { Charts } from './pages/Charts';
 import { Presentations } from './pages/Presentations';
@@ -47,6 +48,8 @@ function LoginPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,8 +97,62 @@ function LoginPage() {
                     <form className="login-form" onSubmit={handleSubmit}>
                         {!isLogin && <input type="text" className="form-input" placeholder="Nome completo" value={name} onChange={e => setName(e.target.value)} />}
                         <input type="email" className="form-input" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-                        <input type="password" className="form-input" placeholder="Senha" value={password} onChange={e => setPassword(e.target.value)} />
-                        {!isLogin && <input type="password" className="form-input" placeholder="Confirmar Senha" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />}
+                        <div className="password-input-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className="form-input"
+                                placeholder="Senha"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                className="password-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                            >
+                                {showPassword ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                        <line x1="1" y1="1" x2="23" y2="23" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
+                        {!isLogin && (
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    className="form-input"
+                                    placeholder="Confirmar Senha"
+                                    value={confirmPassword}
+                                    onChange={e => setConfirmPassword(e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                                >
+                                    {showConfirmPassword ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                            <line x1="1" y1="1" x2="23" y2="23" />
+                                        </svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                        )}
                         <button type="submit" className="login-button" disabled={loading}>{loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar Conta')}</button>
                     </form>
                     <div className="login-divider">ou continue com</div>
@@ -152,6 +209,7 @@ function App() {
                                     <Route path="/" element={<Home tokensUsed={0} tokensLimit={10000} />} />
                                     <Route path="/chats" element={<Chats />} />
                                     <Route path="/images" element={<Images />} />
+                                    <Route path="/canva" element={<Canva />} />
                                     <Route path="/archives" element={<Archives />} />
                                     <Route path="/charts" element={<Charts />} />
                                     <Route path="/presentations" element={<Presentations />} />

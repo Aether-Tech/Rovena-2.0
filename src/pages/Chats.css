@@ -82,11 +82,20 @@
 .message.user .message-avatar {
     background: var(--bg-tertiary);
     color: var(--text-primary);
+    overflow: hidden;
 }
 
 .message.assistant .message-avatar {
     background: var(--gradient-accent);
     color: #000;
+}
+
+/* Avatar Image (User Profile Photo) */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
 }
 
 .message-content {
