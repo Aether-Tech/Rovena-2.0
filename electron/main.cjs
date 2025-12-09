@@ -27,14 +27,36 @@ function createWindow() {
     }
 }
 
+const { autoUpdater } = require('electron-updater');
+
+// Configure autoUpdater
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
 app.whenReady().then(() => {
     createWindow();
+
+    // Check for updates
+    if (!isDev) {
+        autoUpdater.checkForUpdatesAndNotify().catch(err => {
+            console.error('Error checking for updates:', err);
+        });
+    }
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
         }
     });
+});
+
+// Update event handlers (optional logging)
+autoUpdater.on('update-available', () => {
+    console.log('Update available.');
+});
+
+autoUpdater.on('update-downloaded', () => {
+    console.log('Update downloaded. It will be installed on quit.');
 });
 
 app.on('window-all-closed', () => {

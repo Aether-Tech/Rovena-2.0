@@ -19,6 +19,13 @@
   "build": {
     "appId": "com.aethertech.rovena",
     "productName": "Rovena",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "1Verona",
+        "repo": "Rovena-2.0"
+      }
+    ],
     "directories": {
       "output": "release"
     },
@@ -45,6 +52,7 @@
     "concurrently": "^9.2.1",
     "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
+    "electron-updater": "^6.6.2",
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.556.0",
