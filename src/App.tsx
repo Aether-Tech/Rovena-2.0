@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { initializeApp } from 'firebase/app';
 import {
     getAuth,
@@ -108,7 +108,7 @@ function App() {
     const displayName = user?.displayName || user?.email?.split('@')[0] || 'Usuário';
 
     return (
-        <BrowserRouter>
+        <HashRouter>
             <Routes>
                 <Route path="/login" element={!user ? <Login onAuthSuccess={() => { }} /> : <Navigate to="/" />} />
 
@@ -149,7 +149,7 @@ function App() {
                     )
                 } />
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 
