@@ -181,6 +181,7 @@ export function Canva() {
     // Eraser state
     const [eraserPath, setEraserPath] = useState<{ x: number, y: number, timestamp: number }[] | null>(null);
     const [erasedIds, setErasedIds] = useState<Set<string>>(new Set());
+    const lastEraserPosRef = useRef<Point | null>(null);
 
     // Get the first selected element for the floating panel
     const selectedElement = elements.find(el => selectedElements.includes(el.id));
@@ -201,7 +202,7 @@ export function Canva() {
     }, [offset, scale]);
 
     // Helper: Check if point is inside element
-    const isPointInElement = useCallback((point: Point, el: CanvasElement): boolean => {
+    const isPointInElement = useCallback((point: Point, el: CanvasElement, tolerance: number = 0): boolean => {
         const cos = Math.cos(-el.rotation);
         const sin = Math.sin(-el.rotation);
         const cx = el.x + el.width / 2;
@@ -211,7 +212,7 @@ export function Canva() {
         const localX = dx * cos - dy * sin + el.width / 2;
         const localY = dx * sin + dy * cos + el.height / 2;
 
-        return localX >= 0 && localX <= el.width && localY >= 0 && localY <= el.height;
+        return localX >= -tolerance && localX <= el.width + tolerance && localY >= -tolerance && localY <= el.height + tolerance;
     }, []);
 
     // Helper: Calculate text height with wrapping
@@ -578,11 +579,7 @@ export function Canva() {
         ctx.rotate(element.rotation);
         ctx.translate(-cx, -cy);
 
-        if (erasedIds.has(element.id)) {
-            ctx.globalAlpha = element.opacity * 0.5;
-        } else {
-            ctx.globalAlpha = element.opacity;
-        }
+        ctx.globalAlpha = element.opacity;
         ctx.strokeStyle = element.stroke;
         ctx.fillStyle = element.fill;
         ctx.lineWidth = element.strokeWidth;
@@ -971,7 +968,8 @@ export function Canva() {
 
         elements.forEach(element => {
             if (erasedIds.has(element.id)) {
-                drawElement(ctx, { ...element, opacity: element.opacity * 0.3 });
+                // Show as 50% opacity when marked for erasure
+                drawElement(ctx, { ...element, opacity: element.opacity * 0.5 });
             } else {
                 drawElement(ctx, element);
             }
@@ -1077,23 +1075,28 @@ export function Canva() {
         // Draw Eraser Trail
         if (eraserPath && eraserPath.length > 1) {
             const now = Date.now();
-            const visibleEraserPoints = eraserPath.filter(p => now - p.timestamp < 500);
+            const maxAge = 250;
+            const visibleEraserPoints = eraserPath.filter(p => now - p.timestamp < maxAge);
 
             if (visibleEraserPoints.length > 1) {
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
-                ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                ctx.shadowColor = 'rgba(190, 190, 190, 0.7)';
                 ctx.shadowBlur = 10;
 
-                // Draw white core with pinkish glow
-                ctx.strokeStyle = 'rgba(255, 192, 203, 0.8)';
-
                 for (let i = 1; i < visibleEraserPoints.length; i++) {
-                    ctx.beginPath();
-                    // Make it vary in width based on pressure or just static for now, maybe taper at ends?
-                    // Let's use simple line for now or tapered
                     const age = now - visibleEraserPoints[i].timestamp;
-                    ctx.lineWidth = Math.max(2, 10 * (1 - age / 500));
+                    const progress = age / maxAge;
+
+                    // Fade out opacity from 0.8 to 0.1
+                    const opacity = Math.max(0.1, 0.8 * (1 - progress));
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(185, 185, 185, ${opacity})`;
+
+                    // Width tapers from 10 to 2
+                    ctx.lineWidth = Math.max(2, 10 * (1 - progress));
+
                     ctx.moveTo(visibleEraserPoints[i - 1].x, visibleEraserPoints[i - 1].y);
                     ctx.lineTo(visibleEraserPoints[i].x, visibleEraserPoints[i].y);
                     ctx.stroke();
@@ -1264,10 +1267,12 @@ export function Canva() {
                 setInteractionMode('drawing');
                 const newPoint = { x: point.x, y: point.y, timestamp: Date.now() };
                 setEraserPath([newPoint]);
+                lastEraserPosRef.current = point;
 
-                // Check initial collision
+                // Check initial collision with tolerance
+                const eraserTolerance = 5 / scale;
                 elements.forEach(el => {
-                    if (!el.locked && isPointInElement(point, el)) {
+                    if (!el.locked && isPointInElement(point, el, eraserTolerance)) {
                         setErasedIds(prev => {
                             const newSet = new Set(prev);
                             newSet.add(el.id);
@@ -1277,7 +1282,7 @@ export function Canva() {
                 });
             }
         }
-    }, [selectedTool, elements, selectedElements, getCanvasCoords, duplicateElements, getResizeHandle, isOnRotationHandle, getLineHandle]);
+    }, [selectedTool, elements, selectedElements, getCanvasCoords, duplicateElements, getResizeHandle, isOnRotationHandle, getLineHandle, defaultStyles]);
 
     // Mouse move handler
     const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -1485,17 +1490,44 @@ export function Canva() {
             setEraserPath(prev => {
                 const now = Date.now();
                 const path = prev ? [...prev, newPoint] : [newPoint];
-                return path.filter(p => now - p.timestamp < 500);
+                return path.filter(p => now - p.timestamp < 250);
             });
 
-            // Check collision
-            elements.forEach(el => {
-                if (!el.locked && isPointInElement(point, el)) {
-                    setErasedIds(prev => {
-                        const newSet = new Set(prev);
-                        newSet.add(el.id);
-                        return newSet;
+            // Interpolate between last point and current point to catch fast movements
+            const lastPoint = lastEraserPosRef.current;
+            const pointsToCheck = [point];
+
+            if (lastPoint) {
+                const dist = Math.sqrt(Math.pow(point.x - lastPoint.x, 2) + Math.pow(point.y - lastPoint.y, 2));
+                const steps = Math.ceil(dist / (2 / scale)); // Check every 2px approx for extreme precision
+
+                for (let i = 1; i < steps; i++) {
+                    const t = i / steps;
+                    pointsToCheck.push({
+                        x: lastPoint.x + (point.x - lastPoint.x) * t,
+                        y: lastPoint.y + (point.y - lastPoint.y) * t
                     });
+                }
+            }
+
+            // Update ref
+            lastEraserPosRef.current = point;
+
+            // Check collision for all interpolated points
+            const eraserTolerance = 5 / scale;
+
+            elements.forEach(el => {
+                if (!el.locked && !erasedIds.has(el.id)) {
+                    for (const p of pointsToCheck) {
+                        if (isPointInElement(p, el, eraserTolerance)) {
+                            setErasedIds(prev => {
+                                const newSet = new Set(prev);
+                                newSet.add(el.id);
+                                return newSet;
+                            });
+                            break; // Stop checking points for this element if already hit
+                        }
+                    }
                 }
             });
         }
@@ -1657,6 +1689,7 @@ export function Canva() {
             setEraserPath(null);
         } else if (selectedTool === 'eraser') {
             setEraserPath(null);
+            lastEraserPosRef.current = null;
         }
 
         setInteractionMode('none');
@@ -1665,7 +1698,7 @@ export function Canva() {
         setActiveLineHandle(null);
         setIsRotating(false);
         setInitialElementState(null);
-    }, [isPanning, interactionMode, currentElement, elements, selectedElements, addToHistory, selectionBox, finishLaserStroke]);
+    }, [isPanning, interactionMode, currentElement, elements, selectedElements, addToHistory, selectionBox, finishLaserStroke, erasedIds, selectedTool]);
 
     // Double click for text editing
     const handleDoubleClick = useCallback((e: React.MouseEvent) => {
@@ -1749,8 +1782,23 @@ export function Canva() {
         e.preventDefault();
 
         if (e.ctrlKey || e.metaKey) {
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            setScale(Math.min(Math.max(0.1, scale * delta), 5));
+            // Zoom centered on mouse
+            const rect = canvasRef.current?.getBoundingClientRect();
+            if (!rect) return;
+
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = Math.min(Math.max(0.1, scale * zoomFactor), 5);
+
+            // Calculate new offset to keep the point under mouse stationary
+            // formula: newOffset = mouse - (mouse - oldOffset) * (newScale / oldScale)
+            const newOffsetX = mouseX - (mouseX - offset.x) * (newScale / scale);
+            const newOffsetY = mouseY - (mouseY - offset.y) * (newScale / scale);
+
+            setScale(newScale);
+            setOffset({ x: newOffsetX, y: newOffsetY });
         } else if (e.shiftKey) {
             setOffset({
                 x: offset.x - e.deltaY,
@@ -1787,18 +1835,18 @@ export function Canva() {
         };
     }, []);
 
-    // Animate laser strokes fade - continuous loop while strokes exist
+    // Animate laser strokes and eraser fade - continuous loop while strokes exist
     useEffect(() => {
         let animationId: number;
 
         const animate = () => {
-            if (laserStrokes.length > 0 || currentLaserStroke) {
+            if (laserStrokes.length > 0 || currentLaserStroke || (eraserPath && eraserPath.length > 0)) {
                 render();
                 animationId = requestAnimationFrame(animate);
             }
         };
 
-        if (laserStrokes.length > 0 || currentLaserStroke) {
+        if (laserStrokes.length > 0 || currentLaserStroke || (eraserPath && eraserPath.length > 0)) {
             animationId = requestAnimationFrame(animate);
         }
 
@@ -1807,7 +1855,7 @@ export function Canva() {
                 cancelAnimationFrame(animationId);
             }
         };
-    }, [laserStrokes.length, currentLaserStroke, render]);
+    }, [laserStrokes.length, currentLaserStroke, eraserPath, render]);
 
     // Resize canvas
     useEffect(() => {
