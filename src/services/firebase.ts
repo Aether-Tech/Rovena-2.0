@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getAnalytics } from 'firebase/analytics';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -23,13 +22,6 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app);
 export const googleProvider = new GoogleAuthProvider();
-
-// Initialize Analytics (only in browser)
-let analytics = null;
-if (typeof window !== 'undefined') {
-    analytics = getAnalytics(app);
-}
-export { analytics };
 
 // Callable functions
 export const checkSubscription = httpsCallable(functions, 'checkSubscription');
