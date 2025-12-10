@@ -152,5 +152,6 @@ ipcMain.handle('check-for-updates', async () => {
 });
 
 ipcMain.handle('quit-and-install', () => {
-    autoUpdater.quitAndInstall();
+    console.log('User requested quit and install...');
+    autoUpdater.quitAndInstall(false, true);
 });
