@@ -8,5 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onUpdateError: (callback) => ipcRenderer.on('update-error', (event, value) => callback(value)),
     removeUpdateStatusListener: (callback) => ipcRenderer.removeListener('update-status', callback),
     removeUpdateErrorListener: (callback) => ipcRenderer.removeListener('update-error', callback),
-    quitAndInstall: () => ipcRenderer.invoke('quit-and-install')
+    quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
+    getLatestReleaseUrl: () => ipcRenderer.invoke('get-latest-release-url'),
+    openExternalUrl: (url) => ipcRenderer.invoke('open-external-url', url)
 });

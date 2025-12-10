@@ -1,7 +1,7 @@
 {
-  "projectId": "1bcf5194-00fb-4f08-85d1-d175ea3f807f",
-  "createdAt": 1765317408744,
+  "projectId": "1fc52f8f-18a7-42b8-a3a2-6947cb4378ec",
+  "createdAt": 1765394944298,
   "startupCommands": [
-    "cd C:\\Users\\lucas\\orchids-projects\\Rovena-2.0; npm run dev"
+    "bun install; bun run dev"
   ]
 }

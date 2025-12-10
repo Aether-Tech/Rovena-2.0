@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
+const https = require('https');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
@@ -65,6 +66,44 @@ async function createWindow() {
             console.error('Failed to load local server:', err);
         }
     }
+}
+
+// Helper to get latest release DMG URL from GitHub
+function getLatestReleaseUrl() {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'api.github.com',
+            path: '/repos/1Verona/Rovena-2.0/releases/latest',
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Rovena-App'
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const release = JSON.parse(data);
+                    const dmgAsset = release.assets?.find(a => a.name.endsWith('.dmg'));
+                    const zipAsset = release.assets?.find(a => a.name.endsWith('.zip') && a.name.includes('mac'));
+                    
+                    resolve({
+                        version: release.tag_name,
+                        dmgUrl: dmgAsset?.browser_download_url || null,
+                        zipUrl: zipAsset?.browser_download_url || null,
+                        releaseUrl: release.html_url
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.end();
+    });
 }
 
 // Configure autoUpdater
@@ -141,12 +180,43 @@ ipcMain.handle('start-download', async () => {
 });
 
 ipcMain.handle('quit-and-install', () => {
-    console.log('IPC: quit-and-install received. Executing autoUpdater.quitAndInstall(false, true)');
+    console.log('IPC: quit-and-install received. Preparing for installation...');
     try {
-        autoUpdater.quitAndInstall(false, true);
+        // On macOS, we need to remove blocking event listeners before quitAndInstall
+        // Otherwise the app may not properly quit and restart
+        if (process.platform === 'darwin') {
+            app.removeAllListeners('window-all-closed');
+            BrowserWindow.getAllWindows().forEach(win => {
+                win.removeAllListeners('close');
+            });
+        }
+        
+        // Use setImmediate to ensure IPC response is sent before quitting
+        setImmediate(() => {
+            autoUpdater.quitAndInstall(false, true);
+        });
     } catch (err) {
         console.error('Error in quitAndInstall:', err);
         sendErrorToWindow(err);
+    }
+});
+
+ipcMain.handle('get-latest-release-url', async () => {
+    try {
+        return await getLatestReleaseUrl();
+    } catch (error) {
+        console.error('Error getting latest release:', error);
+        return null;
+    }
+});
+
+ipcMain.handle('open-external-url', async (event, url) => {
+    try {
+        await shell.openExternal(url);
+        return true;
+    } catch (error) {
+        console.error('Error opening external URL:', error);
+        return false;
     }
 });
 
@@ -189,4 +259,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
