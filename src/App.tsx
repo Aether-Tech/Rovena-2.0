@@ -22,6 +22,7 @@ const Archives = lazy(() => import('./pages/Archives').then(module => ({ default
 const Charts = lazy(() => import('./pages/Charts').then(module => ({ default: module.Charts })));
 const Presentations = lazy(() => import('./pages/Presentations').then(module => ({ default: module.Presentations })));
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
+const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: module.Profile })));
 import { Login } from './pages/Login';
 import './pages/Login.css';
 import './index.css';
@@ -49,6 +50,7 @@ function App() {
     const [tokensLimit, setTokensLimit] = useState(10000);
     const [subscriptionId, setSubscriptionId] = useState<string | undefined>(undefined);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [profileUpdateKey, setProfileUpdateKey] = useState(0);
 
     const fetchUserData = async () => {
         if (!user) return;
@@ -108,6 +110,10 @@ function App() {
         }
     }, [user]);
 
+    const handleProfileUpdate = () => {
+        setProfileUpdateKey(prev => prev + 1);
+    };
+
     const handleLogout = () => signOut(auth);
 
     if (loading) {
@@ -119,6 +125,7 @@ function App() {
     }
 
     const displayName = user?.displayName || user?.email?.split('@')[0] || 'Usuário';
+    const userPhotoURL = user?.photoURL || undefined;
 
     return (
         <HashRouter>
@@ -129,8 +136,10 @@ function App() {
                     user ? (
                         <div className="app-container">
                             <Sidebar
+                                key={profileUpdateKey}
                                 userEmail={displayName}
                                 userPlan={userPlan}
+                                userPhotoURL={userPhotoURL}
                                 onLogout={handleLogout}
                             />
                             <main className="main-content">
@@ -147,6 +156,7 @@ function App() {
                                         <Route path="/archives" element={<Archives />} />
                                         <Route path="/charts" element={<Charts />} />
                                         <Route path="/presentations" element={<Presentations />} />
+                                        <Route path="/profile" element={<Profile onProfileUpdate={handleProfileUpdate} />} />
                                         <Route path="/settings" element={
                                             <Settings
                                                 userEmail={user.email || ''}
