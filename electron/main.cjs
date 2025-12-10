@@ -4,8 +4,12 @@ const { autoUpdater } = require('electron-updater');
 
 const isDev = process.env.NODE_ENV === 'development';
 
-const serve = require('electron-serve');
-const loadURL = serve({ directory: path.join(__dirname, '../dist') });
+let loadURL;
+
+(async () => {
+    const serve = (await import('electron-serve')).default;
+    loadURL = serve({ directory: path.join(__dirname, '../dist') });
+})();
 
 async function createWindow() {
     const mainWindow = new BrowserWindow({
