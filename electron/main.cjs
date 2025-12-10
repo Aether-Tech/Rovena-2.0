@@ -4,12 +4,38 @@ const { autoUpdater } = require('electron-updater');
 
 const isDev = process.env.NODE_ENV === 'development';
 
-let loadURL;
+const http = require('http');
 
-(async () => {
-    const serve = (await import('electron-serve')).default;
-    loadURL = serve({ directory: path.join(__dirname, '../dist') });
-})();
+let activeServerUrl = null;
+
+async function startLocalServer() {
+    if (activeServerUrl) return activeServerUrl;
+
+    const handler = (await import('serve-handler')).default;
+
+    return new Promise((resolve, reject) => {
+        const server = http.createServer((request, response) => {
+            return handler(request, response, {
+                public: path.join(__dirname, '../dist'),
+                rewrites: [
+                    { source: '**', destination: '/index.html' }
+                ]
+            });
+        });
+
+        server.listen(0, () => {
+            const port = server.address().port;
+            activeServerUrl = `http://localhost:${port}`;
+            console.log('Server running at:', activeServerUrl);
+            resolve(activeServerUrl);
+        });
+
+        server.on('error', (err) => {
+            console.error('Server failed to start:', err);
+            reject(err);
+        });
+    });
+}
 
 async function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -32,7 +58,12 @@ async function createWindow() {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
     } else {
-        await loadURL(mainWindow);
+        try {
+            const url = await startLocalServer();
+            mainWindow.loadURL(url);
+        } catch (err) {
+            console.error('Failed to load local server:', err);
+        }
     }
 }
 
