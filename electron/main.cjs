@@ -4,7 +4,10 @@ const { autoUpdater } = require('electron-updater');
 
 const isDev = process.env.NODE_ENV === 'development';
 
-function createWindow() {
+const serve = require('electron-serve');
+const loadURL = serve({ directory: path.join(__dirname, '../dist') });
+
+async function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
@@ -25,7 +28,7 @@ function createWindow() {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
     } else {
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        await loadURL(mainWindow);
     }
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "rovena-2.0",
   "private": true,
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Central de interação IA x Humano + gerenciamento de produtividade",
   "main": "electron/main.cjs",
   "author": "Aether Tech",
@@ -66,6 +66,7 @@
     }
   },
   "dependencies": {
+    "electron-serve": "^3.0.0",
     "electron-updater": "^6.1.7",
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.25",
