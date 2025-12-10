@@ -168,12 +168,6 @@ ipcMain.handle('check-for-updates', async () => {
 });
 
 ipcMain.on('quit-and-install', () => {
-    console.log('IPC: quit-and-install received. Executing autoUpdater.quitAndInstall(false, true)');
-
-    // Attempt to quit and install
-    try {
-        autoUpdater.quitAndInstall(false, true);
-    } catch (e) {
-        console.error('Error executing quitAndInstall:', e);
-    }
+    console.log('IPC: quit-and-install received. Executing autoUpdater.quitAndInstall()');
+    autoUpdater.quitAndInstall();
 });
