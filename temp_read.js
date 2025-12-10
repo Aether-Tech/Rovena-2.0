@@ -1,0 +1,1 @@
+const fs = require(\"fs\");const p = \"C:/Users/lucas/orchids-projects/Rovena-2.0/src/pages/Canva.tsx\";try{const c=fs.readFileSync(p,\"utf8\");console.log(\"File size:\",c.length)}catch(e){console.error(e.message)}  

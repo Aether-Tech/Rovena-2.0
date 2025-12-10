@@ -6,6 +6,7 @@ import {
     LogOut,
     ExternalLink,
     RefreshCw,
+    Download,
 } from 'lucide-react';
 import { cancelSubscription } from '../services/firebase';
 import { Modal } from '../components/Modal/Modal';
@@ -30,6 +31,9 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
     const [updateStatus, setUpdateStatus] = useState<string | null>(null);
     const [downloadProgress, setDownloadProgress] = useState<any>(null);
     const [releaseNotes, setReleaseNotes] = useState<string | null>(null);
+    const [updateAvailableInfo, setUpdateAvailableInfo] = useState<any>(null);
+    const [updateError, setUpdateError] = useState<string | null>(null);
+    const [fallbackReleaseInfo, setFallbackReleaseInfo] = useState<any>(null);
 
     useEffect(() => {
         // Get App Version
@@ -41,29 +45,59 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
             // Listen for Update Status
             (window as any).electronAPI.onUpdateStatus((status: any) => {
                 console.log('Update Status:', status);
+                setUpdateError(null);
                 if (status.text === 'download-progress') {
                     setDownloadProgress(status.data);
                     setUpdateStatus(`Baixando atualização: ${Math.round(status.data.percent)}%`);
-                } else if (status.text === 'Update available.') {
-                    setUpdateStatus('Nova versão disponível! Baixando...');
-                    // Try to extract release notes if available in data
+                } else if (status.text === 'update-available') {
+                    const info = status.data;
+                    const skipped = localStorage.getItem('skipped-version');
+                    if (skipped === info.version) {
+                    }
+
+                    setUpdateStatus('Nova versão disponível!');
+                    setUpdateAvailableInfo(info);
+
                     if (status.data && status.data.releaseNotes) {
-                        // releaseNotes can be array or string
                         const notes = Array.isArray(status.data.releaseNotes)
                             ? status.data.releaseNotes.map((n: any) => n.note).join('\n')
                             : status.data.releaseNotes;
                         setReleaseNotes(notes);
                     }
-                } else if (status.text === 'Update downloaded') {
+                } else if (status.text === 'update-downloaded') {
                     setUpdateStatus('Atualização pronta! Reinicie o app para instalar.');
                     setDownloadProgress(null);
-                } else if (status.text === 'Update not available' || status.text === 'Update not available.') {
+                } else if (status.text === 'update-not-available') {
                     setUpdateStatus('Você já está na versão mais recente.');
                     setDownloadProgress(null);
+                    setUpdateAvailableInfo(null);
+                    setReleaseNotes(null);
                 } else {
-                    setUpdateStatus(status.text);
+                    if (status.text) setUpdateStatus(status.text);
                 }
             });
+
+            if ((window as any).electronAPI.onUpdateError) {
+                (window as any).electronAPI.onUpdateError(async (error: string) => {
+                    console.error("Update Error received:", error);
+                    setUpdateError(error);
+                    setDownloadProgress(null);
+                    
+                    if (error.includes('command') || error.includes('bundle') || error.includes('ENOENT') || error.includes('spawn')) {
+                        setUpdateStatus('Erro no atualizador automático. Use o download manual abaixo.');
+                        try {
+                            const releaseInfo = await (window as any).electronAPI.getLatestReleaseUrl();
+                            if (releaseInfo) {
+                                setFallbackReleaseInfo(releaseInfo);
+                            }
+                        } catch (e) {
+                            console.error('Error fetching fallback release:', e);
+                        }
+                    } else {
+                        setUpdateStatus('Erro na atualização: ' + error);
+                    }
+                });
+            }
         }
     }, []);
 
@@ -71,6 +105,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
         if ((window as any).electronAPI) {
             setUpdateStatus('Checking for updates...');
             setReleaseNotes(null);
+            setUpdateAvailableInfo(null);
             (window as any).electronAPI.checkForUpdates();
         } else {
             alert('Atualizações automáticas disponíveis apenas na versão Desktop.');
@@ -336,8 +371,50 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                         {updateStatus && (
                             <div className="setting-item" style={{ marginTop: 16, display: 'block', borderTop: '1px solid var(--border-color)', paddingTop: 16 }}>
                                 <div className="status-message" style={{ color: 'var(--accent-blue)', marginBottom: 8, fontWeight: 500 }}>
-                                    {typeof updateStatus === 'string' ? updateStatus : 'Atualizando...'}
+                                    {updateStatus}
                                 </div>
+
+                                {/* Actions: Download / Skip / Restart */}
+                                {updateAvailableInfo && !downloadProgress && updateStatus !== 'Atualização pronta! Reinicie o app para instalar.' && (
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: 10 }}>
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={() => {
+                                                if ((window as any).electronAPI) {
+                                                    (window as any).electronAPI.startDownload();
+                                                }
+                                            }}
+                                        >
+                                            Baixar Atualização (v{updateAvailableInfo.version})
+                                        </button>
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={() => {
+                                                // Skip logic
+                                                localStorage.setItem('skipped-version', updateAvailableInfo.version);
+                                                setUpdateStatus('Versão ignorada.');
+                                                setUpdateAvailableInfo(null);
+                                                setReleaseNotes(null);
+                                            }}
+                                        >
+                                            Pular esta versão
+                                        </button>
+                                    </div>
+                                )}
+
+                                {updateStatus === 'Atualização pronta! Reinicie o app para instalar.' && (
+                                    <button
+                                        className="btn btn-primary"
+                                        style={{ marginTop: 10 }}
+                                        onClick={() => {
+                                            if ((window as any).electronAPI) {
+                                                (window as any).electronAPI.quitAndInstall();
+                                            }
+                                        }}
+                                    >
+                                        Reiniciar e Instalar
+                                    </button>
+                                )}
 
                                 {/* Download Progress Bar */}
                                 {downloadProgress && (
@@ -354,10 +431,60 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                     </div>
                                 )}
 
+                                {/* Fallback Download quando auto-update falha */}
+                                {updateError && fallbackReleaseInfo && (
+                                    <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-tertiary)', borderRadius: 8, border: '1px solid var(--accent-yellow)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                                            <Download size={18} style={{ color: 'var(--accent-yellow)' }} />
+                                            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Download Manual Disponível</span>
+                                        </div>
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                                            O atualizador automático não está funcionando (comum em apps não assinados). 
+                                            Você pode baixar a nova versão manualmente:
+                                        </p>
+                                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                            {fallbackReleaseInfo.dmgUrl && (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={() => {
+                                                        (window as any).electronAPI.openExternalUrl(fallbackReleaseInfo.dmgUrl);
+                                                    }}
+                                                >
+                                                    <Download size={16} />
+                                                    Baixar .dmg {fallbackReleaseInfo.version}
+                                                </button>
+                                            )}
+                                            {fallbackReleaseInfo.zipUrl && (
+                                                <button
+                                                    className="btn btn-secondary"
+                                                    onClick={() => {
+                                                        (window as any).electronAPI.openExternalUrl(fallbackReleaseInfo.zipUrl);
+                                                    }}
+                                                >
+                                                    <Download size={16} />
+                                                    Baixar .zip
+                                                </button>
+                                            )}
+                                            <button
+                                                className="btn btn-secondary"
+                                                onClick={() => {
+                                                    (window as any).electronAPI.openExternalUrl(fallbackReleaseInfo.releaseUrl);
+                                                }}
+                                            >
+                                                <ExternalLink size={16} />
+                                                Ver no GitHub
+                                            </button>
+                                        </div>
+                                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 10 }}>
+                                            Após baixar, feche o Rovena e instale a nova versão.
+                                        </p>
+                                    </div>
+                                )}
+
                                 {/* Release Notes */}
                                 {releaseNotes && (
                                     <div className="release-notes" style={{ marginTop: 16, background: 'var(--bg-secondary)', padding: 12, borderRadius: 8 }}>
-                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Novidades da versão:</h4>
+                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Novidades da versão v{updateAvailableInfo?.version}:</h4>
                                         <div
                                             style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
                                             dangerouslySetInnerHTML={{ __html: releaseNotes }}

@@ -1,10 +1,44 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
+const https = require('https');
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
-function createWindow() {
+const http = require('http');
+
+let activeServerUrl = null;
+
+async function startLocalServer() {
+    if (activeServerUrl) return activeServerUrl;
+
+    const handler = (await import('serve-handler')).default;
+
+    return new Promise((resolve, reject) => {
+        const server = http.createServer((request, response) => {
+            return handler(request, response, {
+                public: path.join(__dirname, '../dist'),
+                rewrites: [
+                    { source: '**', destination: '/index.html' }
+                ]
+            });
+        });
+
+        server.listen(5173, () => {
+            const port = 5173;
+            activeServerUrl = `http://localhost:${port}`;
+            console.log('Server running at:', activeServerUrl);
+            resolve(activeServerUrl);
+        });
+
+        server.on('error', (err) => {
+            console.error('Server failed to start:', err);
+            reject(err);
+        });
+    });
+}
+
+async function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
@@ -18,19 +52,70 @@ function createWindow() {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.cjs'),
         },
+        autoHideMenuBar: true,
     });
 
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
     } else {
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        try {
+            const url = await startLocalServer();
+            mainWindow.loadURL(url);
+        } catch (err) {
+            console.error('Failed to load local server:', err);
+        }
     }
 }
 
+// Helper to get latest release DMG URL from GitHub
+function getLatestReleaseUrl() {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'api.github.com',
+            path: '/repos/1Verona/Rovena-2.0/releases/latest',
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Rovena-App'
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => { data += chunk; });
+            res.on('end', () => {
+                try {
+                    const release = JSON.parse(data);
+                    const dmgAsset = release.assets?.find(a => a.name.endsWith('.dmg'));
+                    const zipAsset = release.assets?.find(a => a.name.endsWith('.zip') && a.name.includes('mac'));
+                    
+                    resolve({
+                        version: release.tag_name,
+                        dmgUrl: dmgAsset?.browser_download_url || null,
+                        zipUrl: zipAsset?.browser_download_url || null,
+                        releaseUrl: release.html_url
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.end();
+    });
+}
+
 // Configure autoUpdater
-autoUpdater.autoDownload = true;
-autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.logger = console;
+autoUpdater.autoDownload = false; // Disable auto-download to allow user choice
+autoUpdater.autoInstallOnAppQuit = false; // We want explicit install
+autoUpdater.allowPrerelease = true; // Allow prereleases for testing/dev
+
+// In dev mode, we want to test the real updater
+if (isDev) {
+    autoUpdater.forceDevUpdateConfig = true;
+}
 
 // Helper to send status to renderer
 function sendStatusToWindow(text, data = null) {
@@ -39,52 +124,36 @@ function sendStatusToWindow(text, data = null) {
     });
 }
 
+function sendErrorToWindow(error) {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-error', error.message || error.toString());
+    });
+}
+
 autoUpdater.on('checking-for-update', () => {
-    sendStatusToWindow('Checking for updates...');
+    sendStatusToWindow('checking-for-update');
 });
 
 autoUpdater.on('update-available', (info) => {
-    sendStatusToWindow('Update available.', info);
+    sendStatusToWindow('update-available', info);
 });
 
 autoUpdater.on('update-not-available', (info) => {
-    sendStatusToWindow('Update not available.', info);
+    sendStatusToWindow('update-not-available', info);
 });
 
 autoUpdater.on('error', (err) => {
-    sendStatusToWindow('Error in auto-updater. ' + err);
+    console.error('AutoUpdater Error:', err);
+    // If it's the specific "No published versions" error in dev, we might frame it better, but raw error is fine for now
+    sendErrorToWindow(err);
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     sendStatusToWindow('download-progress', progressObj);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-    sendStatusToWindow('Update downloaded', info);
-});
-
-app.whenReady().then(() => {
-    createWindow();
-
-    // Check for updates on startup
-    if (!isDev) {
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        }
-    });
-});
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+    sendStatusToWindow('update-downloaded', info);
 });
 
 // IPC handlers
@@ -93,21 +162,100 @@ ipcMain.handle('get-app-version', () => {
 });
 
 ipcMain.handle('check-for-updates', async () => {
-    if (isDev) {
-        // Simulate update check in dev mode so UI doesn't hang
-        sendStatusToWindow('Checking for updates...');
-        setTimeout(() => {
-            sendStatusToWindow('Update not available', {
-                version: app.getVersion(),
-                releaseNotes: 'Updates are only available in production builds.'
-            });
-        }, 2000);
-        return;
-    }
-
     try {
         await autoUpdater.checkForUpdates();
     } catch (error) {
-        sendStatusToWindow('Error: ' + error.message);
+        console.error('Error checking for updates:', error);
+        sendErrorToWindow(error);
+    }
+});
+
+ipcMain.handle('start-download', async () => {
+    try {
+        await autoUpdater.downloadUpdate();
+    } catch (error) {
+        console.error('Error starting download:', error);
+        sendErrorToWindow(error);
+    }
+});
+
+ipcMain.handle('quit-and-install', () => {
+    console.log('IPC: quit-and-install received. Preparing for installation...');
+    try {
+        // On macOS, we need to remove blocking event listeners before quitAndInstall
+        // Otherwise the app may not properly quit and restart
+        if (process.platform === 'darwin') {
+            app.removeAllListeners('window-all-closed');
+            BrowserWindow.getAllWindows().forEach(win => {
+                win.removeAllListeners('close');
+            });
+        }
+        
+        // Use setImmediate to ensure IPC response is sent before quitting
+        setImmediate(() => {
+            autoUpdater.quitAndInstall(false, true);
+        });
+    } catch (err) {
+        console.error('Error in quitAndInstall:', err);
+        sendErrorToWindow(err);
+    }
+});
+
+ipcMain.handle('get-latest-release-url', async () => {
+    try {
+        return await getLatestReleaseUrl();
+    } catch (error) {
+        console.error('Error getting latest release:', error);
+        return null;
+    }
+});
+
+ipcMain.handle('open-external-url', async (event, url) => {
+    try {
+        await shell.openExternal(url);
+        return true;
+    } catch (error) {
+        console.error('Error opening external URL:', error);
+        return false;
+    }
+});
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        const windows = BrowserWindow.getAllWindows();
+        if (windows.length > 0) {
+            const mainWindow = windows[0];
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+
+    app.whenReady().then(() => {
+        createWindow();
+
+        // Check for updates on startup
+        if (!isDev) {
+            // In production we can rely on the manual check or this one usually check download notify
+            // But since we disabled autoDownload, checkForUpdatesAndNotify might behave differently.
+            // autoUpdater.checkForUpdates(); // simple check
+        }
+        // Actually, let's just create window. The user can check manually or we can trigger check via IPC from frontend on mount if we want.
+        // For now, let's keep it simple.
+
+        app.on('activate', () => {
+            if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow();
+            }
+        });
+    });
+}
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
     }
 });

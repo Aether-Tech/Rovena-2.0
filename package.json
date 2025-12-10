@@ -1,7 +1,7 @@
 {
   "name": "rovena-2.0",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.1.12",
   "description": "Central de interação IA x Humano + gerenciamento de produtividade",
   "main": "electron/main.cjs",
   "author": "Aether Tech",
@@ -32,22 +32,25 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "package.json"
     ],
+    "asarUnpack": [
+      "**/node_modules/electron-updater/**/*"
+    ],
+    "generateUpdatesFilesForAllChannels": true,
     "mac": {
       "target": [
         {
           "target": "dmg",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "x64",
-            "arm64"
+            "x64"
           ]
         }
       ],
@@ -58,8 +61,7 @@
         {
           "target": "nsis",
           "arch": [
-            "x64",
-            "ia32"
+            "x64"
           ]
         }
       ],
@@ -70,12 +72,14 @@
     }
   },
   "dependencies": {
+    "electron-updater": "^6.1.7",
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.556.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.10.1"
+    "react-router-dom": "^7.10.1",
+    "serve-handler": "^6.1.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -87,7 +91,6 @@
     "cross-env": "^10.1.0",
     "electron": "^39.2.6",
     "electron-builder": "^26.0.12",
-    "electron-updater": "^6.1.7",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
