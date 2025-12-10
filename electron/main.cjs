@@ -68,6 +68,7 @@ async function createWindow() {
 }
 
 // Configure autoUpdater
+autoUpdater.logger = console;
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 
@@ -105,20 +106,35 @@ autoUpdater.on('update-downloaded', (info) => {
     sendStatusToWindow('Update downloaded', info);
 });
 
-app.whenReady().then(() => {
-    createWindow();
+const gotTheLock = app.requestSingleInstanceLock();
 
-    // Check for updates on startup
-    if (!isDev) {
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        const windows = BrowserWindow.getAllWindows();
+        if (windows.length > 0) {
+            const mainWindow = windows[0];
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
         }
     });
-});
+
+    app.whenReady().then(() => {
+        createWindow();
+
+        // Check for updates on startup
+        if (!isDev) {
+            autoUpdater.checkForUpdatesAndNotify();
+        }
+
+        app.on('activate', () => {
+            if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow();
+            }
+        });
+    });
+}
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
