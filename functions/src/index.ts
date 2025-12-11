@@ -303,3 +303,72 @@ export const resetMonthlyTokens = functions.pubsub
             console.error('Error resetting tokens:', error);
         }
     });
+
+/**
+ * Parse chart data using AI
+ */
+export const parseChartData = functions
+    .runWith({ secrets: ["OPENAI_API_KEY"] })
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+        }
+
+        const { rawData, chartType } = data;
+
+        if (!rawData || typeof rawData !== 'string') {
+            throw new functions.https.HttpsError('invalid-argument', 'Raw data string required');
+        }
+
+        try {
+            const openai = getOpenAI();
+
+            const response = await openai.chat.completions.create({
+                model: 'gpt-4-turbo-preview',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a data parser assistant. Extract data from user input and return a JSON object with:
+- labels: array of strings (categories/labels)
+- values: array of numbers (corresponding values)
+- title: string (a descriptive title for the chart)
+- interpretation: string (a brief analysis/interpretation of the data in Portuguese)
+
+The chart type is: ${chartType || 'bar'}
+
+Return ONLY valid JSON, no markdown, no explanation. Example:
+{"labels":["Jan","Feb","Mar"],"values":[10,20,30],"title":"Monthly Sales","interpretation":"Os dados mostram um crescimento constante..."}`
+                    },
+                    {
+                        role: 'user',
+                        content: rawData
+                    }
+                ],
+                max_tokens: 1000,
+                temperature: 0.3,
+            });
+
+            const content = response.choices[0].message.content || '';
+            
+            // Parse the JSON response
+            const parsed = JSON.parse(content);
+
+            if (!Array.isArray(parsed.labels) || !Array.isArray(parsed.values)) {
+                throw new Error('Invalid data structure');
+            }
+
+            return {
+                labels: parsed.labels,
+                values: parsed.values,
+                title: parsed.title || 'Gráfico',
+                interpretation: parsed.interpretation || '',
+            };
+
+        } catch (error: any) {
+            console.error('Error parsing chart data:', error);
+            if (error instanceof SyntaxError) {
+                throw new functions.https.HttpsError('internal', 'Não foi possível interpretar os dados. Tente reformular.');
+            }
+            throw new functions.https.HttpsError('internal', error.message || 'Erro ao processar dados');
+        }
+    });

@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Archive,
     MessageSquare,
     Image as ImageIcon,
     MonitorPlay,
+    BarChart3,
     Settings as SettingsIcon,
     Trash2,
     Clock,
@@ -17,12 +18,13 @@ import type {
     ArchivedItem,
     ArchivedChat,
     ArchivedImage,
+    ArchivedChart,
     ArchiveSettings
 } from '../services/localStorage';
 import { Modal } from '../components/Modal/Modal';
 import './Archives.css';
 
-type Tab = 'all' | 'chat' | 'image' | 'presentation' | 'settings';
+type Tab = 'all' | 'chat' | 'image' | 'presentation' | 'chart' | 'settings';
 
 export function Archives() {
     const navigate = useNavigate();
@@ -31,14 +33,9 @@ export function Archives() {
     const [settings, setSettings] = useState<ArchiveSettings>(LocalStorageService.getSettings());
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedImage, setSelectedImage] = useState<ArchivedImage | null>(null);
+    const [selectedChart, setSelectedChart] = useState<ArchivedChart | null>(null);
 
-    // Load items on mount and when tab/search changes
-    useEffect(() => {
-        loadItems();
-    }, [activeTab]);
-
-    const loadItems = () => {
-        // Run cleanup first to ensure we don't show expired items
+    const loadItems = useCallback(() => {
         LocalStorageService.runCleanup();
 
         const allItems = LocalStorageService.getItems();
@@ -49,7 +46,12 @@ export function Archives() {
         }
 
         setItems(filtered);
-    };
+    }, [activeTab]);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        loadItems();
+    }, [loadItems]);
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -73,6 +75,33 @@ export function Archives() {
         document.body.removeChild(link);
     };
 
+    const handleDownloadChart = (chart: ArchivedChart, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!chart.svgData) return;
+        
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+
+        canvas.width = 800;
+        canvas.height = 500;
+
+        img.onload = () => {
+            if (ctx) {
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            }
+            
+            const link = document.createElement('a');
+            link.download = `grafico-${chart.id}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(chart.svgData)));
+    };
+
     const handleUpdateSettings = (type: keyof ArchiveSettings['retentionDays'], days: number) => {
         const newSettings = {
             ...settings,
@@ -89,6 +118,7 @@ export function Archives() {
         const searchLower = searchTerm.toLowerCase();
         if (item.title?.toLowerCase().includes(searchLower)) return true;
         if (item.type === 'image' && (item as ArchivedImage).prompt?.toLowerCase().includes(searchLower)) return true;
+        if (item.type === 'chart' && (item as ArchivedChart).interpretation?.toLowerCase().includes(searchLower)) return true;
         return false;
     });
 
@@ -97,6 +127,7 @@ export function Archives() {
             case 'chat': return <MessageSquare size={20} className="item-icon-chat" />;
             case 'image': return <ImageIcon size={20} className="item-icon-image" />;
             case 'presentation': return <MonitorPlay size={20} className="item-icon-pres" />;
+            case 'chart': return <BarChart3 size={20} className="item-icon-chart" />;
             default: return <Archive size={20} />;
         }
     };
@@ -151,6 +182,21 @@ export function Archives() {
                         className="retention-slider"
                     />
                 </div>
+
+                <div className="retention-control">
+                    <div className="control-header">
+                        <span className="control-label"><BarChart3 size={16} /> Gráficos</span>
+                        <span className="control-value">{settings.retentionDays.chart} dias</span>
+                    </div>
+                    <input
+                        type="range"
+                        min="1"
+                        max="365"
+                        value={settings.retentionDays.chart}
+                        onChange={(e) => handleUpdateSettings('chart', parseInt(e.target.value))}
+                        className="retention-slider"
+                    />
+                </div>
             </div>
             <p className="cleanup-note"><Clock size={14} /> A limpeza automática ocorre sempre que você visita esta página.</p>
         </div>
@@ -168,6 +214,7 @@ export function Archives() {
                     <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>Todos</button>
                     <button className={`tab-btn ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>Chats</button>
                     <button className={`tab-btn ${activeTab === 'image' ? 'active' : ''}`} onClick={() => setActiveTab('image')}>Imagens</button>
+                    <button className={`tab-btn ${activeTab === 'chart' ? 'active' : ''}`} onClick={() => setActiveTab('chart')}>Gráficos</button>
                     <button className={`tab-btn ${activeTab === 'presentation' ? 'active' : ''}`} onClick={() => setActiveTab('presentation')}>Apresentações</button>
                     <button className={`tab-btn settings ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
                         <SettingsIcon size={16} /> Configurar
@@ -194,7 +241,7 @@ export function Archives() {
                     <div className="empty-archives">
                         <Archive size={48} />
                         <h3>Nenhum arquivo encontrado</h3>
-                        <p>Seus chats, imagens e apresentações salvos aparecerão aqui.</p>
+                        <p>Seus chats, imagens, gráficos e apresentações salvos aparecerão aqui.</p>
                     </div>
                 ) : (
                     <div className="archives-grid">
@@ -202,6 +249,7 @@ export function Archives() {
                             <div key={item.id} className="archive-card" onClick={() => {
                                 if (item.type === 'chat') handleOpenChat(item as ArchivedChat);
                                 if (item.type === 'image') setSelectedImage(item as ArchivedImage);
+                                if (item.type === 'chart') setSelectedChart(item as ArchivedChart);
                             }}>
                                 <div className="card-header">
                                     <div className="card-type">
@@ -221,13 +269,22 @@ export function Archives() {
                                     </div>
                                 )}
 
+                                {item.type === 'chart' && (item as ArchivedChart).svgData && (
+                                    <div className="card-chart-preview" dangerouslySetInnerHTML={{ __html: (item as ArchivedChart).svgData || '' }} />
+                                )}
+
                                 <div className="card-body">
                                     <h3 className="card-title">
-                                        {item.title || (item.type === 'image' ? (item as ArchivedImage).prompt : 'Sem título')}
+                                        {item.title || (item.type === 'image' ? (item as ArchivedImage).prompt : item.type === 'chart' ? (item as ArchivedChart).chartType : 'Sem título')}
                                     </h3>
                                     {item.type === 'chat' && (
                                         <p className="card-preview">
                                             {(item as ArchivedChat).messages.length} mensagens
+                                        </p>
+                                    )}
+                                    {item.type === 'chart' && (item as ArchivedChart).interpretation && (
+                                        <p className="card-preview">
+                                            {(item as ArchivedChart).interpretation?.slice(0, 80)}...
                                         </p>
                                     )}
                                 </div>
@@ -238,6 +295,11 @@ export function Archives() {
                                     )}
                                     {item.type === 'image' && (
                                         <button className="download-btn" onClick={(e) => handleDownloadImage(item as ArchivedImage, e)}>
+                                            <Download size={14} /> Baixar
+                                        </button>
+                                    )}
+                                    {item.type === 'chart' && (
+                                        <button className="download-btn" onClick={(e) => handleDownloadChart(item as ArchivedChart, e)}>
                                             <Download size={14} /> Baixar
                                         </button>
                                     )}
@@ -263,6 +325,29 @@ export function Archives() {
                     <div className="image-modal-content">
                         <img src={selectedImage.url} alt={selectedImage.prompt} className="full-image" />
                         <p className="image-prompt">{selectedImage.prompt}</p>
+                    </div>
+                )}
+            </Modal>
+
+            {/* Chart Modal */}
+            <Modal
+                isOpen={!!selectedChart}
+                onClose={() => setSelectedChart(null)}
+                title="Visualizar Gráfico"
+                footer={
+                    <button className="btn btn-primary" onClick={(e) => selectedChart && handleDownloadChart(selectedChart, e)}>
+                        <Download size={16} /> Baixar Gráfico
+                    </button>
+                }
+            >
+                {selectedChart && (
+                    <div className="chart-modal-content">
+                        {selectedChart.svgData && (
+                            <div className="chart-modal-svg" dangerouslySetInnerHTML={{ __html: selectedChart.svgData }} />
+                        )}
+                        {selectedChart.interpretation && (
+                            <p className="chart-interpretation">{selectedChart.interpretation}</p>
+                        )}
                     </div>
                 )}
             </Modal>

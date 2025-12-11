@@ -1,6 +1,4 @@
-
-
-export type ArchiveType = 'chat' | 'image' | 'presentation';
+export type ArchiveType = 'chat' | 'image' | 'presentation' | 'chart';
 
 export interface ArchivedItem {
     id: string;
@@ -11,7 +9,7 @@ export interface ArchivedItem {
 
 export interface ArchivedChat extends ArchivedItem {
     type: 'chat';
-    messages: any[]; // Using any[] for flexibility, matching Chat message structure
+    messages: any[];
     title: string;
 }
 
@@ -24,9 +22,20 @@ export interface ArchivedImage extends ArchivedItem {
 
 export interface ArchivedPresentation extends ArchivedItem {
     type: 'presentation';
-    content: string; // Markdown or HTML content
+    content: string;
     title: string;
     slideCount?: number;
+}
+
+export interface ArchivedChart extends ArchivedItem {
+    type: 'chart';
+    title: string;
+    chartType: 'bar' | 'line' | 'pie' | 'area';
+    colorTheme: string;
+    labels: string[];
+    values: number[];
+    interpretation?: string;
+    svgData?: string;
 }
 
 export interface ArchiveSettings {
@@ -34,6 +43,7 @@ export interface ArchiveSettings {
         chat: number;
         image: number;
         presentation: number;
+        chart: number;
     };
 }
 
@@ -47,6 +57,7 @@ const DEFAULT_SETTINGS: ArchiveSettings = {
         chat: 30,
         image: 30,
         presentation: 30,
+        chart: 30,
     },
 };
 

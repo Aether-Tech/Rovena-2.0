@@ -129,6 +129,14 @@
     font-weight: 600;
     font-size: 0.875rem;
     color: #000;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.user-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .user-info {

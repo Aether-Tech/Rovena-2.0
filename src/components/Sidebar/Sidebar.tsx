@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     Home,
     MessageSquare,
@@ -35,18 +35,25 @@ const bottomNavItems: NavItem[] = [
 interface SidebarProps {
     userEmail?: string;
     userPlan?: 'free' | 'plus';
+    userPhotoURL?: string;
     onLogout?: () => void;
 }
 
 export function Sidebar({
     userEmail,
     userPlan = 'free',
+    userPhotoURL,
     onLogout
 }: SidebarProps) {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const getInitials = (email: string) => {
         return email.charAt(0).toUpperCase();
+    };
+
+    const handleProfileClick = () => {
+        navigate('/profile');
     };
 
     return (
@@ -83,9 +90,13 @@ export function Sidebar({
             </nav>
 
             <div className="sidebar-footer">
-                <div className="user-profile">
+                <div className="user-profile" onClick={handleProfileClick} title="Ver perfil">
                     <div className="user-avatar">
-                        {userEmail ? getInitials(userEmail) : 'U'}
+                        {userPhotoURL ? (
+                            <img src={userPhotoURL} alt="Foto de perfil" className="user-avatar-img" />
+                        ) : (
+                            userEmail ? getInitials(userEmail) : 'U'
+                        )}
                     </div>
                     <div className="user-info">
                         <div className="user-name">{userEmail || 'User'}</div>
@@ -94,7 +105,10 @@ export function Sidebar({
                     {onLogout && (
                         <button
                             className="btn btn-ghost"
-                            onClick={onLogout}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onLogout();
+                            }}
                             title="Logout"
                         >
                             <LogOut size={18} />
