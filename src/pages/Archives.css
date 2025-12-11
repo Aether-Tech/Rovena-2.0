@@ -332,3 +332,21 @@
     border-radius: var(--radius-md);
     line-height: 1.5;
 }
+
+.card-pres-preview {
+    height: 120px;
+    background: linear-gradient(135deg, var(--bg-tertiary), rgba(34, 197, 94, 0.1));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    color: var(--accent-green);
+    border-radius: var(--radius-md);
+}
+
+.card-pres-preview span {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}

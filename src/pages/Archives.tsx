@@ -12,6 +12,7 @@ import {
     Download,
     ExternalLink,
     Search,
+    Presentation,
 } from 'lucide-react';
 import { LocalStorageService } from '../services/localStorage';
 import type {
@@ -19,6 +20,7 @@ import type {
     ArchivedChat,
     ArchivedImage,
     ArchivedChart,
+    ArchivedPresentation,
     ArchiveSettings
 } from '../services/localStorage';
 import { Modal } from '../components/Modal/Modal';
@@ -250,6 +252,7 @@ export function Archives() {
                                 if (item.type === 'chat') handleOpenChat(item as ArchivedChat);
                                 if (item.type === 'image') setSelectedImage(item as ArchivedImage);
                                 if (item.type === 'chart') setSelectedChart(item as ArchivedChart);
+                                if (item.type === 'presentation') navigate('/presentations', { state: { restoredPresentation: item } });
                             }}>
                                 <div className="card-header">
                                     <div className="card-type">
@@ -273,6 +276,13 @@ export function Archives() {
                                     <div className="card-chart-preview" dangerouslySetInnerHTML={{ __html: (item as ArchivedChart).svgData || '' }} />
                                 )}
 
+                                {item.type === 'presentation' && (
+                                    <div className="card-pres-preview">
+                                        <Presentation size={32} />
+                                        <span>{(item as ArchivedPresentation).slideCount || 0} slides</span>
+                                    </div>
+                                )}
+
                                 <div className="card-body">
                                     <h3 className="card-title">
                                         {item.title || (item.type === 'image' ? (item as ArchivedImage).prompt : item.type === 'chart' ? (item as ArchivedChart).chartType : 'Sem título')}
@@ -285,6 +295,11 @@ export function Archives() {
                                     {item.type === 'chart' && (item as ArchivedChart).interpretation && (
                                         <p className="card-preview">
                                             {(item as ArchivedChart).interpretation?.slice(0, 80)}...
+                                        </p>
+                                    )}
+                                    {item.type === 'presentation' && (
+                                        <p className="card-preview">
+                                            {(item as ArchivedPresentation).slideCount || 0} slides
                                         </p>
                                     )}
                                 </div>
@@ -302,6 +317,9 @@ export function Archives() {
                                         <button className="download-btn" onClick={(e) => handleDownloadChart(item as ArchivedChart, e)}>
                                             <Download size={14} /> Baixar
                                         </button>
+                                    )}
+                                    {item.type === 'presentation' && (
+                                        <span className="action-link">Abrir Editor <ExternalLink size={14} /></span>
                                     )}
                                 </div>
                             </div>
