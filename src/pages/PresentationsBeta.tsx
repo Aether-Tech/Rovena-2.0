@@ -528,7 +528,7 @@ export function PresentationsBeta() {
 
                     <div className="webview-preview">
                         <webview
-                            ref={webviewRef}
+                            ref={webviewRef as any}
                             src={gammaResult.gammaUrl}
                             style={{ width: '100%', height: '100%' }}
                             allowpopups="true"
@@ -579,16 +579,14 @@ export function PresentationsBeta() {
                     </button>
                 </div>
 
-                <div className="webview-container">
+                <div className="webview-container" ref={containerRef}>
                     {isLoading && (
                         <div className="loading-overlay">
                             <div className="loading-spinner"></div>
                             <span>Carregando Gamma.app...</span>
                         </div>
                     )}
-                    {isElectron ? (
-                        <div className="browser-surface" ref={containerRef}></div>
-                    ) : (
+                    {!isElectron && (
                         <webview
                             ref={webviewRef}
                             src={url}

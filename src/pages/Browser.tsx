@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 import {
     Globe,
     RefreshCw,
@@ -34,10 +33,6 @@ export function Browser() {
     const [currentUrl, setCurrentUrl] = useState('');
     const [isElectron] = useState(!!window.electron);
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const location = useLocation();
-    const state = location.state as { url?: string } | null;
-    const initialUrlFromState = state?.url;
-    const hasAppliedInitialUrl = useRef(false);
 
     const getBounds = useCallback(() => {
         const container = containerRef.current;
@@ -67,16 +62,7 @@ export function Browser() {
 
     useEffect(() => {
         if (!isElectron || !window.electron?.browser) return;
-        let cancelled = false;
         attachView().then(async () => {
-            if (cancelled) return;
-            if (initialUrlFromState && !hasAppliedInitialUrl.current) {
-                await window.electron.browser.navigate(initialUrlFromState);
-                setCurrentUrl(initialUrlFromState);
-                setInputUrl(initialUrlFromState);
-                hasAppliedInitialUrl.current = true;
-                return;
-            }
             const url = await window.electron?.browser.getUrl();
             if (url) {
                 setCurrentUrl(url);
@@ -100,13 +86,12 @@ export function Browser() {
         window.addEventListener('scroll', handleWindowChange, true);
 
         return () => {
-            cancelled = true;
             resizeObserver.disconnect();
             window.removeEventListener('resize', handleWindowChange);
             window.removeEventListener('scroll', handleWindowChange, true);
             window.electron?.browser.destroy();
         };
-    }, [attachView, updateViewBounds, isElectron, initialUrlFromState]);
+    }, [attachView, updateViewBounds, isElectron]);
 
     const handleNavigate = async () => {
         if (!window.electron?.browser) return;
