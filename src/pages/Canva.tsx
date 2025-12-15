@@ -537,6 +537,7 @@ export function Canva() {
             for (let n = 0; n < words.length; n++) {
                 const word = words[n];
 
+
                 // Check if single word is wider than maxWidth
                 const wordWidth = ctx.measureText(word).width;
                 if (wordWidth > maxWidth) {
@@ -545,6 +546,7 @@ export function Canva() {
                         totalLines++;
                         line = '';
                     }
+
 
                     // Break word character by character
                     let charLine = '';
@@ -597,6 +599,7 @@ export function Canva() {
             for (let n = 0; n < words.length; n++) {
                 const word = words[n];
 
+
                 // Check if single word is wider than maxWidth - need to break it character by character
                 const wordWidth = ctx.measureText(word).width;
                 if (wordWidth > maxWidth) {
@@ -605,6 +608,7 @@ export function Canva() {
                         lines.push(line);
                         line = '';
                     }
+
 
                     // Break word character by character
                     let charLine = '';
@@ -2139,6 +2143,7 @@ export function Canva() {
                             ctx.font = `${fontSize}px ${element.fontFamily || 'Inter, sans-serif'}`;
                             const text = element.text || 'Texto';
 
+
                             const wrappedLines = getWrappedTextLines(ctx, text, newWidth);
                             const lineHeight = fontSize * 1.2;
                             const textPaddingTop = 2; // Same as rendering padding
@@ -3015,10 +3020,12 @@ export function Canva() {
 
                                             ctx.font = `${newFontSize}px ${newFontFamily}`;
 
+
                                             // Keep the current width and recalculate height based on wrapping
                                             // This preserves the text box width and rewraps the text
                                             const currentWidth = selectedElement.width;
                                             const wrappedLines = getWrappedTextLines(ctx, text, currentWidth);
+
 
                                             // Line height approximation
                                             const lineHeight = newFontSize * 1.2;
@@ -3146,8 +3153,9 @@ export function Canva() {
                                                         value={currentStyle.fontFamily || 'Inter, sans-serif'}
                                                         onChange={(value) => handleStyleUpdate({ fontFamily: value })}
                                                     />
+
                                                 </div>
-                                            </div>
+                                            </div >
 
                                             <div className="panel-section">
                                                 <span className="panel-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -3369,7 +3377,8 @@ export function Canva() {
                                                 </>
                                             )}
                                         </>
-                                    )}
+                                    )
+                                    }
 
                                     <div className="panel-section">
                                         <span className="panel-label">Opacidade</span>
@@ -3387,46 +3396,48 @@ export function Canva() {
                                     </div>
 
 
-                                    {!isEditingDefault && (
-                                        <>
-                                            <div className="panel-section">
-                                                <span className="panel-label">Camadas</span>
-                                                <div className="layer-buttons">
-                                                    <button className="layer-btn" onClick={() => moveElementLayer('down')} title="Mover para trás">
-                                                        <ChevronDown size={16} />
-                                                    </button>
-                                                    <button className="layer-btn" onClick={() => moveElementLayer('up')} title="Mover para frente">
-                                                        <ChevronUp size={16} />
-                                                    </button>
-                                                    <button className="layer-btn" onClick={() => moveElementLayer('bottom')} title="Enviar para trás">
-                                                        <Layers size={16} />↓
-                                                    </button>
-                                                    <button className="layer-btn" onClick={() => moveElementLayer('top')} title="Trazer para frente">
-                                                        <Layers size={16} />↑
-                                                    </button>
+                                    {
+                                        !isEditingDefault && (
+                                            <>
+                                                <div className="panel-section">
+                                                    <span className="panel-label">Camadas</span>
+                                                    <div className="layer-buttons">
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('down')} title="Mover para trás">
+                                                            <ChevronDown size={16} />
+                                                        </button>
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('up')} title="Mover para frente">
+                                                            <ChevronUp size={16} />
+                                                        </button>
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('bottom')} title="Enviar para trás">
+                                                            <Layers size={16} />↓
+                                                        </button>
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('top')} title="Trazer para frente">
+                                                            <Layers size={16} />↑
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="panel-section">
-                                                <span className="panel-label">Ações</span>
-                                                <div className="action-buttons">
-                                                    <button className="action-btn" onClick={copySelected} title="Copiar">
-                                                        <Copy size={16} />
-                                                    </button>
-                                                    <button className="action-btn" onClick={deleteSelected} title="Excluir">
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                    <button
-                                                        className={`action-btn ${currentStyle.locked ? 'active' : ''}`}
-                                                        onClick={toggleLock}
-                                                        title="Bloquear/Desbloquear"
-                                                    >
-                                                        {currentStyle.locked ? <Unlock size={16} /> : <Lock size={16} />}
-                                                    </button>
+                                                <div className="panel-section">
+                                                    <span className="panel-label">Ações</span>
+                                                    <div className="action-buttons">
+                                                        <button className="action-btn" onClick={copySelected} title="Copiar">
+                                                            <Copy size={16} />
+                                                        </button>
+                                                        <button className="action-btn" onClick={deleteSelected} title="Excluir">
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                        <button
+                                                            className={`action-btn ${currentStyle.locked ? 'active' : ''}`}
+                                                            onClick={toggleLock}
+                                                            title="Bloquear/Desbloquear"
+                                                        >
+                                                            {currentStyle.locked ? <Unlock size={16} /> : <Lock size={16} />}
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </>
-                                    )}
+                                            </>
+                                        )
+                                    }
                                 </>
                             );
                         })()}
@@ -3434,9 +3445,10 @@ export function Canva() {
                 )}
 
                 {/* Text editing overlay */}
-                {editingTextId && (() => {
-                    const textElement = elements.find(el => el.id === editingTextId);
-                    if (!textElement) return null;
+                {
+                    editingTextId && (() => {
+                        const textElement = elements.find(el => el.id === editingTextId);
+                        if (!textElement) return null;
 
                     // For shapes, we need to center the text input
                     const isShape = textElement.type === 'rectangle' || textElement.type === 'ellipse' || textElement.type === 'diamond';
@@ -3560,38 +3572,95 @@ export function Canva() {
                                                 ? { ...el, text: newText }
                                                 : el
                                         ));
-                                    }
-                                } else {
-                                    if (ctx) {
-                                        const fontSize = textElement.fontSize || 20;
-                                        const fontFamily = textElement.fontFamily || 'Inter, sans-serif';
-                                        const newHeight = calculateTextHeight(ctx, newText, textElement.width, fontSize, fontFamily);
-                                        setElements(elements.map(el =>
-                                            el.id === editingTextId
-                                                ? { ...el, text: newText, height: newHeight }
-                                                : el
-                                        ));
+                                    lineHeight: '1.2',
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                    boxSizing: 'border-box',
+                                    zIndex: 50
+                                }}
+                                value={textElement.text || ''}
+                                onChange={(e) => {
+                                    const newText = e.target.value;
+                                    const ctx = canvasRef.current?.getContext('2d');
+
+
+                                    if (isShape) {
+                                        // For shapes, only expand HEIGHT (up and down), keep width fixed
+                                        if (ctx) {
+                                            const fontSize = textElement.fontSize || 16;
+                                            const fontFamily = textElement.fontFamily || 'Inter, sans-serif';
+                                            ctx.font = `${fontSize}px ${fontFamily}`;
+                                            const lineHeight = fontSize * 1.2;
+                                            const textPadding = 16;
+
+                                            // Width stays fixed, text wraps
+                                            const currentMaxWidth = textElement.width - textPadding;
+                                            const lines = getWrappedTextLines(ctx, newText, currentMaxWidth);
+
+                                            // Calculate required height based on number of lines
+                                            const totalTextHeight = lines.length * lineHeight;
+                                            const minHeight = 60; // minimum shape height
+                                            const requiredHeight = Math.max(minHeight, totalTextHeight + textPadding + 10);
+
+
+                                            // If height needs to change, grow equally up and down
+                                            const currentHeight = textElement.height;
+                                            let newHeight = currentHeight;
+                                            let newY = textElement.y;
+
+
+                                            if (requiredHeight > currentHeight) {
+                                                const heightDiff = requiredHeight - currentHeight;
+                                                newHeight = requiredHeight;
+                                                // Grow upward by half the difference to keep center stable
+                                                newY = textElement.y - (heightDiff / 2);
+                                            }
+
+
+                                            setElements(elements.map(el =>
+                                                el.id === editingTextId
+                                                    ? { ...el, text: newText, height: newHeight, y: newY }
+                                                    : el
+                                            ));
+                                        } else {
+                                            setElements(elements.map(el =>
+                                                el.id === editingTextId
+                                                    ? { ...el, text: newText }
+                                                    : el
+                                            ));
+                                        }
                                     } else {
-                                        setElements(elements.map(el =>
-                                            el.id === editingTextId
-                                                ? { ...el, text: newText }
-                                                : el
-                                        ));
+                                        if (ctx) {
+                                            const fontSize = textElement.fontSize || 20;
+                                            const fontFamily = textElement.fontFamily || 'Inter, sans-serif';
+                                            const newHeight = calculateTextHeight(ctx, newText, textElement.width, fontSize, fontFamily);
+                                            setElements(elements.map(el =>
+                                                el.id === editingTextId
+                                                    ? { ...el, text: newText, height: newHeight }
+                                                    : el
+                                            ));
+                                        } else {
+                                            setElements(elements.map(el =>
+                                                el.id === editingTextId
+                                                    ? { ...el, text: newText }
+                                                    : el
+                                            ));
+                                        }
                                     }
-                                }
-                            }}
-                            onBlur={() => {
-                                setEditingTextId(null);
-                                addToHistory(elements);
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
+                                }}
+                                onBlur={() => {
                                     setEditingTextId(null);
-                                }
-                            }}
-                        />
-                    );
-                })()}
+                                    addToHistory(elements);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') {
+                                        setEditingTextId(null);
+                                    }
+                                }}
+                            />
+                        );
+                    })()
+                }
 
                 {/* Help text */}
                 <div className="canva-help">
