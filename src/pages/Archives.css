@@ -113,35 +113,38 @@
     color: var(--text-muted);
 }
 
-.item-icon-chat {
-    color: var(--accent-blue);
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.item-icon-image {
-    color: var(--accent-purple);
-}
-
-.item-icon-pres {
-    color: var(--accent-green);
-}
-
-.item-icon-chart {
-    color: var(--accent-orange, #f97316);
-}
-
-.delete-btn {
+.archive-action-btn {
     background: transparent;
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    padding: 4px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     border-radius: var(--radius-sm);
     opacity: 0.6;
     transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.delete-btn:hover {
+.archive-action-btn:hover {
     opacity: 1;
+}
+
+.archive-action-btn.download-icon:hover {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--accent-green);
+}
+
+.archive-action-btn.delete-btn:hover {
     background-color: rgba(239, 68, 68, 0.1);
     color: var(--accent-red);
 }
@@ -189,8 +192,7 @@
     justify-content: flex-end;
 }
 
-.action-link,
-.download-btn {
+.action-link {
     font-size: 0.75rem;
     color: var(--accent-primary);
     display: flex;
@@ -199,10 +201,6 @@
     background: transparent;
     border: none;
     cursor: pointer;
-}
-
-.download-btn:hover {
-    text-decoration: underline;
 }
 
 /* Settings & Empty State */

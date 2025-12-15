@@ -1,7 +1,71 @@
-import { useState, useRef, useEffect } from 'react';
-import { Mountain, Brush, Pencil, Camera, Sparkles, ImageIcon, Download, RefreshCw, AlertCircle, ChevronDown, Palette, RatioIcon, RotateCcw } from 'lucide-react';
+import { useState, useRef, useEffect, Component } from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
+import { Mountain, Brush, Pencil, Camera, Sparkles, FileImage, Download, RefreshCw, AlertCircle, ChevronDown, Palette, Scan, RotateCcw } from 'lucide-react';
 import { generateImage } from '../services/imageGeneration';
+import { LocalStorageService } from '../services/localStorage';
+import type { ArchivedImage } from '../services/localStorage';
 import './Images.css';
+
+// Error Boundary Component
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+    constructor(props: { children: ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        console.error("Images Component Error:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="error-boundary-container" style={{
+                    padding: '2rem',
+                    textAlign: 'center',
+                    color: 'var(--text-primary)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '400px'
+                }}>
+                    <AlertCircle size={48} className="text-red-500 mb-4" />
+                    <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Algo deu errado nesta aba</h2>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                        Não foi possível carregar o gerador de imagens.
+                    </p>
+                    <code style={{
+                        background: 'rgba(0,0,0,0.3)',
+                        padding: '1rem',
+                        borderRadius: '0.5rem',
+                        textAlign: 'left',
+                        maxWidth: '100%',
+                        overflowX: 'auto',
+                        display: 'block',
+                        marginBottom: '1rem'
+                    }}>
+                        {this.state.error?.message}
+                    </code>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="retry-btn"
+                        style={{ marginTop: '1rem' }}
+                    >
+                        <RefreshCw size={16} style={{ marginRight: '8px' }} />
+                        Recarregar Página
+                    </button>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
 
 // Types
 type ImageStyle = 'realistic' | 'digital-art' | 'sketch' | 'photography';
@@ -10,7 +74,7 @@ type AspectRatio = '1:1' | '16:9' | '4:3' | '9:16';
 interface StyleOption {
     id: ImageStyle;
     label: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
 }
 
 interface RatioOption {
@@ -19,23 +83,7 @@ interface RatioOption {
     boxClass: string;
 }
 
-// Style options
-const styleOptions: StyleOption[] = [
-    { id: 'realistic', label: 'Realista', icon: <Mountain size={16} className="icon" /> },
-    { id: 'digital-art', label: 'Arte Digital', icon: <Brush size={16} className="icon" /> },
-    { id: 'sketch', label: 'Esboço', icon: <Pencil size={16} className="icon" /> },
-    { id: 'photography', label: 'Fotografia', icon: <Camera size={16} className="icon" /> },
-];
-
-// Ratio options
-const ratioOptions: RatioOption[] = [
-    { id: '1:1', label: '1:1', boxClass: 'ratio-1-1' },
-    { id: '16:9', label: '16:9', boxClass: 'ratio-16-9' },
-    { id: '4:3', label: '4:3', boxClass: 'ratio-4-3' },
-    { id: '9:16', label: '9:16', boxClass: 'ratio-9-16' },
-];
-
-export function Images() {
+function ImagesContent() {
     const [prompt, setPrompt] = useState('');
     const [selectedStyle, setSelectedStyle] = useState<ImageStyle>('realistic');
     const [selectedRatio, setSelectedRatio] = useState<AspectRatio>('1:1');
@@ -49,6 +97,27 @@ export function Images() {
 
     const styleDropdownRef = useRef<HTMLDivElement>(null);
     const ratioDropdownRef = useRef<HTMLDivElement>(null);
+
+    // Define options inside component to ensure safe rendering
+    const styleOptions: StyleOption[] = [
+        { id: 'realistic', label: 'Realista', icon: <Mountain size={16} className="icon" /> },
+        { id: 'digital-art', label: 'Arte Digital', icon: <Brush size={16} className="icon" /> },
+        { id: 'sketch', label: 'Esboço', icon: <Pencil size={16} className="icon" /> },
+        { id: 'photography', label: 'Fotografia', icon: <Camera size={16} className="icon" /> },
+    ];
+
+    const ratioOptions: RatioOption[] = [
+        { id: '1:1', label: '1:1', boxClass: 'ratio-1-1' },
+        { id: '16:9', label: '16:9', boxClass: 'ratio-16-9' },
+        { id: '4:3', label: '4:3', boxClass: 'ratio-4-3' },
+        { id: '9:16', label: '9:16', boxClass: 'ratio-9-16' },
+    ];
+
+    // Debug: Log when component mounts
+    useEffect(() => {
+        console.log('✅ Images component mounted successfully');
+        return () => console.log('Images component unmounted');
+    }, []);
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -79,6 +148,22 @@ export function Images() {
             });
 
             setGeneratedImage(imageUrl);
+
+            // Save to Archives automatically
+            try {
+                const archivedImage: ArchivedImage = {
+                    id: `image-${Date.now()}`,
+                    type: 'image',
+                    url: imageUrl,
+                    prompt: prompt,
+                    aspectRatio: selectedRatio,
+                    createdAt: Date.now(),
+                };
+                LocalStorageService.saveItem(archivedImage);
+            } catch (saveError) {
+                console.error('Error saving to archive:', saveError);
+                // Continue even if save fails
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Erro ao gerar imagem');
             console.error('Image generation error:', err);
@@ -184,7 +269,7 @@ export function Images() {
                                     disabled={isGenerating}
                                     type="button"
                                 >
-                                    <RatioIcon size={16} />
+                                    <Scan size={16} />
                                     <span>{currentRatio?.label}</span>
                                     <ChevronDown size={14} className="chevron" />
                                 </button>
@@ -273,13 +358,21 @@ export function Images() {
                         </div>
                     ) : (
                         <div className="result-preview-hint">
-                            <ImageIcon size={48} strokeWidth={1} />
+                            <FileImage size={48} strokeWidth={1} />
                             <span>Sua imagem aparecerá aqui</span>
                         </div>
                     )}
                 </div>
             </div>
         </div>
+    );
+}
+
+export function Images() {
+    return (
+        <ErrorBoundary>
+            <ImagesContent />
+        </ErrorBoundary>
     );
 }
 

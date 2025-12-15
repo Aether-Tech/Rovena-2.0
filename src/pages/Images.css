@@ -280,6 +280,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-sm);
+    min-width: 110px;
     padding: 6px 16px;
     font-size: 0.875rem;
     font-weight: 600;
@@ -292,6 +293,10 @@
     color: #000;
     cursor: pointer;
     transition: all var(--transition-fast);
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: auto;
+    max-width: 200px;
 }
 
 .generate-btn:hover:not(:disabled) {

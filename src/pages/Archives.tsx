@@ -22,6 +22,7 @@ import type {
     ArchiveSettings
 } from '../services/localStorage';
 import { Modal } from '../components/Modal/Modal';
+import { ConfirmModal } from '../components/Modal/ConfirmModal';
 import './Archives.css';
 
 type Tab = 'all' | 'chat' | 'image' | 'presentation' | 'chart' | 'settings';
@@ -34,6 +35,7 @@ export function Archives() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedImage, setSelectedImage] = useState<ArchivedImage | null>(null);
     const [selectedChart, setSelectedChart] = useState<ArchivedChart | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; item: ArchivedItem } | null>(null);
 
     const loadItems = useCallback(() => {
         LocalStorageService.runCleanup();
@@ -55,9 +57,47 @@ export function Archives() {
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Tem certeza que deseja excluir este item?')) {
-            LocalStorageService.deleteItem(id);
+        const item = items.find(i => i.id === id);
+        if (item) {
+            setDeleteConfirm({ id, item });
+        }
+    };
+
+    const confirmDelete = () => {
+        if (deleteConfirm) {
+            LocalStorageService.deleteItem(deleteConfirm.id);
             loadItems();
+            setDeleteConfirm(null);
+        }
+    };
+
+    const getDeleteMessage = (item: ArchivedItem): string => {
+        switch (item.type) {
+            case 'chat':
+                return `Tem certeza que deseja excluir esta conversa? Ela contém ${(item as ArchivedChat).messages.length} mensagens.`;
+            case 'image':
+                return `Tem certeza que deseja excluir esta imagem gerada? "${(item as ArchivedImage).prompt.slice(0, 50)}${(item as ArchivedImage).prompt.length > 50 ? '...' : ''}"`;
+            case 'chart':
+                return `Tem certeza que deseja excluir este gráfico? "${(item as ArchivedChart).chartType}"`;
+            case 'presentation':
+                return `Tem certeza que deseja excluir esta apresentação?`;
+            default:
+                return 'Tem certeza que deseja excluir este item?';
+        }
+    };
+
+    const getDeleteTitle = (type: string): string => {
+        switch (type) {
+            case 'chat':
+                return 'Excluir Conversa';
+            case 'image':
+                return 'Excluir Imagem';
+            case 'chart':
+                return 'Excluir Gráfico';
+            case 'presentation':
+                return 'Excluir Apresentação';
+            default:
+                return 'Excluir Item';
         }
     };
 
@@ -78,7 +118,7 @@ export function Archives() {
     const handleDownloadChart = (chart: ArchivedChart, e: React.MouseEvent) => {
         e.stopPropagation();
         if (!chart.svgData) return;
-        
+
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
@@ -92,7 +132,7 @@ export function Archives() {
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
             }
-            
+
             const link = document.createElement('a');
             link.download = `grafico-${chart.id}.png`;
             link.href = canvas.toDataURL('image/png');
@@ -258,9 +298,33 @@ export function Archives() {
                                             {new Date(item.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <button className="delete-btn" onClick={(e) => handleDelete(item.id, e)}>
-                                        <Trash2 size={16} />
-                                    </button>
+                                    <div className="card-actions">
+                                        {item.type === 'image' && (
+                                            <button
+                                                className="archive-action-btn download-icon"
+                                                onClick={(e) => handleDownloadImage(item as ArchivedImage, e)}
+                                                title="Baixar imagem"
+                                            >
+                                                <Download size={16} />
+                                            </button>
+                                        )}
+                                        {item.type === 'chart' && (
+                                            <button
+                                                className="archive-action-btn download-icon"
+                                                onClick={(e) => handleDownloadChart(item as ArchivedChart, e)}
+                                                title="Baixar gráfico"
+                                            >
+                                                <Download size={16} />
+                                            </button>
+                                        )}
+                                        <button
+                                            className="archive-action-btn delete-btn"
+                                            onClick={(e) => handleDelete(item.id, e)}
+                                            title="Excluir"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {item.type === 'image' && (
@@ -289,21 +353,11 @@ export function Archives() {
                                     )}
                                 </div>
 
-                                <div className="card-footer">
-                                    {item.type === 'chat' && (
+                                {item.type === 'chat' && (
+                                    <div className="card-footer">
                                         <span className="action-link">Abrir Conversa <ExternalLink size={14} /></span>
-                                    )}
-                                    {item.type === 'image' && (
-                                        <button className="download-btn" onClick={(e) => handleDownloadImage(item as ArchivedImage, e)}>
-                                            <Download size={14} /> Baixar
-                                        </button>
-                                    )}
-                                    {item.type === 'chart' && (
-                                        <button className="download-btn" onClick={(e) => handleDownloadChart(item as ArchivedChart, e)}>
-                                            <Download size={14} /> Baixar
-                                        </button>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -351,6 +405,18 @@ export function Archives() {
                     </div>
                 )}
             </Modal>
+
+            {/* Delete Confirm Modal */}
+            <ConfirmModal
+                isOpen={!!deleteConfirm}
+                onClose={() => setDeleteConfirm(null)}
+                onConfirm={confirmDelete}
+                title={deleteConfirm ? getDeleteTitle(deleteConfirm.item.type) : ''}
+                message={deleteConfirm ? getDeleteMessage(deleteConfirm.item) : ''}
+                confirmText="Excluir"
+                cancelText="Cancelar"
+                type="danger"
+            />
         </div>
     );
 }
