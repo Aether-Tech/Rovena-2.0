@@ -1,0 +1,118 @@
+.cropper-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.cropper-container {
+    width: 90%;
+    max-width: 500px;
+    height: 600px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+}
+
+.cropper-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-tertiary);
+}
+
+.cropper-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.close-btn:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.cropper-area {
+    position: relative;
+    flex: 1;
+    background-color: #000;
+}
+
+.cropper-controls {
+    padding: var(--spacing-lg);
+    background-color: var(--bg-tertiary);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.zoom-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.control-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    min-width: 40px;
+}
+
+.zoom-range {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.zoom-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    border: 2px solid var(--bg-secondary);
+    cursor: grab;
+    transition: transform var(--transition-fast);
+}
+
+.zoom-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.save-crop-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: var(--spacing-sm);
+}

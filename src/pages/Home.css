@@ -237,7 +237,8 @@
 
 .quick-chat-submit:hover {
     transform: translateY(-1px);
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-glow),
+        0 4px 16px rgba(34, 197, 94, 0.3);
 }
 
 /* Todos Section */
@@ -415,6 +416,8 @@
 
 .add-todo-btn:hover {
     transform: translateY(-1px);
+    box-shadow: var(--shadow-glow),
+        0 4px 16px rgba(250, 204, 21, 0.3);
 }
 
 /* Empty State */

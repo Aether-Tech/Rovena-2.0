@@ -3,6 +3,7 @@ import { getAuth, updatePassword, updateProfile, reauthenticateWithCredential, E
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ArrowLeft, User, Mail, Lock, Camera, Check, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ImageCropper } from '../components/ImageCropper/ImageCropper';
 import './Profile.css';
 
 interface ProfileProps {
@@ -33,30 +34,47 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
     const [isUpdatingName, setIsUpdatingName] = useState(false);
     const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
+
     const handlePhotoClick = () => {
         fileInputRef.current?.click();
     };
 
-    const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !user) return;
+        if (!file) return;
 
-        const maxSize = 5 * 1024 * 1024;
+        const maxSize = 20 * 1024 * 1024;
         if (file.size > maxSize) {
-            setNameError('A imagem deve ter no máximo 5MB');
+            setNameError('A imagem deve ter no máximo 20MB');
             return;
         }
+
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            setImageSrc(reader.result?.toString() || null);
+        });
+        reader.readAsDataURL(file);
+
+        // Reset input so same file can be selected again
+        e.target.value = '';
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        if (!user) return;
+        setImageSrc(null); // Close cropper
 
         setIsUploading(true);
         setNameError('');
 
         try {
             const storage = getStorage();
-            const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}-${file.name}`);
-            
-            await uploadBytes(storageRef, file);
+            // Use 'profile.jpg' or similar name, or keep unique timestamp
+            const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}-profile.jpg`);
+
+            await uploadBytes(storageRef, croppedBlob);
             const downloadURL = await getDownloadURL(storageRef);
-            
+
             await updateProfile(user, { photoURL: downloadURL });
             setPhotoURL(downloadURL);
             setNameSuccess(true);
@@ -119,7 +137,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
             const credential = EmailAuthProvider.credential(user.email, currentPassword);
             await reauthenticateWithCredential(user, credential);
             await updatePassword(user, newPassword);
-            
+
             setPasswordSuccess(true);
             setCurrentPassword('');
             setNewPassword('');
@@ -143,6 +161,13 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
 
     return (
         <div className="profile-page">
+            {imageSrc && (
+                <ImageCropper
+                    imageSrc={imageSrc}
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => setImageSrc(null)}
+                />
+            )}
             <header className="profile-header">
                 <button className="btn btn-ghost" onClick={() => navigate(-1)}>
                     <ArrowLeft size={20} />
