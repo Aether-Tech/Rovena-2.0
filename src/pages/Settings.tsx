@@ -7,6 +7,7 @@ import {
     ExternalLink,
     RefreshCw,
     Download,
+    BookOpen,
 } from 'lucide-react';
 import { cancelSubscription } from '../services/firebase';
 import { Modal } from '../components/Modal/Modal';
@@ -20,9 +21,10 @@ interface SettingsProps {
     subscriptionId?: string;
     onLogout: () => void;
     onCancelPlan: () => void;
+    onShowOnboarding?: () => void;
 }
 
-export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscriptionId, onLogout, onCancelPlan }: SettingsProps) {
+export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscriptionId, onLogout, onCancelPlan, onShowOnboarding }: SettingsProps) {
     const [useCustomAPI, setUseCustomAPI] = useState(false);
     const [customOpenAIKey, setCustomOpenAIKey] = useState('');
     const [isCanceling, setIsCanceling] = useState(false);
@@ -511,6 +513,18 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     </div>
 
                     <div className="account-actions">
+                        <div className="account-action">
+                            <div className="account-action-info">
+                                <span className="account-action-label">Ver tour do aplicativo</span>
+                                <span className="account-action-description">
+                                    Reveja o tutorial inicial
+                                </span>
+                            </div>
+                            <button className="btn btn-secondary" onClick={onShowOnboarding}>
+                                <BookOpen size={18} />
+                                Ver Tour
+                            </button>
+                        </div>
                         <div className="account-action">
                             <div className="account-action-info">
                                 <span className="account-action-label">Sair da conta</span>

@@ -126,6 +126,7 @@ html, body, #root {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  min-height: 0;
 }
 
 .main-content {
@@ -134,6 +135,12 @@ html, body, #root {
   flex-direction: column;
   overflow: hidden;
   background-color: var(--bg-primary);
+  min-height: 0;
+}
+
+.main-content > * {
+    flex: 1;
+    min-height: 0;
 }
 
 .page-content {

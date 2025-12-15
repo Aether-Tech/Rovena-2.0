@@ -7,6 +7,8 @@ import {
     Archive,
     BarChart3,
     Presentation,
+    FlaskConical,
+    Globe,
     Settings,
     LogOut,
 } from 'lucide-react';
@@ -16,6 +18,7 @@ interface NavItem {
     icon: React.ElementType;
     label: string;
     path: string;
+    badge?: string;
 }
 
 const mainNavItems: NavItem[] = [
@@ -26,6 +29,8 @@ const mainNavItems: NavItem[] = [
     { icon: Archive, label: 'Archives', path: '/archives' },
     { icon: BarChart3, label: 'Charts', path: '/charts' },
     { icon: Presentation, label: 'Presentations', path: '/presentations' },
+    { icon: FlaskConical, label: 'Presentations Beta', path: '/presentations-beta', badge: 'Beta' },
+    { icon: Globe, label: 'Browser', path: '/browser' },
 ];
 
 const bottomNavItems: NavItem[] = [
@@ -73,6 +78,7 @@ export function Sidebar({
                     >
                         <item.icon className="nav-icon" />
                         <span>{item.label}</span>
+                        {item.badge && <span className="nav-badge">{item.badge}</span>}
                     </Link>
                 ))}
 

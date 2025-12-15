@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, BaseWindow, WebContentsView } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 const https = require('https');
@@ -8,6 +8,9 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const http = require('http');
 
 let activeServerUrl = null;
+let mainWindow = null;
+let browserView = null;
+let browserBounds = null;
 
 async function startLocalServer() {
     if (activeServerUrl) return activeServerUrl;
@@ -38,8 +41,32 @@ async function startLocalServer() {
     });
 }
 
+function ensureBrowserView() {
+    if (!mainWindow || browserView) return;
+    browserView = new WebContentsView({
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: true,
+        }
+    });
+    mainWindow.contentView.addChildView(browserView);
+    browserView.webContents.loadURL('https://gamma.app');
+}
+
+function applyBrowserBounds(bounds) {
+    if (!browserView || !bounds) return;
+    browserBounds = bounds;
+    browserView.setBounds({
+        x: Math.round(bounds.x),
+        y: Math.round(bounds.y),
+        width: Math.round(bounds.width),
+        height: Math.round(bounds.height),
+    });
+}
+
 async function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
         minWidth: 1000,
@@ -66,6 +93,22 @@ async function createWindow() {
             console.error('Failed to load local server:', err);
         }
     }
+
+    mainWindow.on('resize', () => {
+        if (browserView && browserBounds) {
+            applyBrowserBounds(browserBounds);
+        }
+    });
+
+    mainWindow.on('closed', () => {
+        if (browserView) {
+            mainWindow?.contentView.removeChildView(browserView);
+            browserView.webContents.destroy();
+            browserView = null;
+            browserBounds = null;
+        }
+        mainWindow = null;
+    });
 }
 
 // Helper to get latest release DMG URL from GitHub
@@ -218,6 +261,72 @@ ipcMain.handle('open-external-url', async (event, url) => {
         console.error('Error opening external URL:', error);
         return false;
     }
+});
+
+ipcMain.handle('browser-attach', (event, bounds) => {
+    ensureBrowserView();
+    applyBrowserBounds(bounds);
+    return true;
+});
+
+ipcMain.handle('browser-update-bounds', (event, bounds) => {
+    applyBrowserBounds(bounds);
+    return true;
+});
+
+ipcMain.handle('browser-destroy', () => {
+    if (browserView) {
+        mainWindow?.contentView.removeChildView(browserView);
+        browserView.webContents.destroy();
+        browserView = null;
+        browserBounds = null;
+    }
+    return true;
+});
+
+ipcMain.handle('browser-navigate', (event, url) => {
+    if (!browserView) return false;
+    let finalUrl = url;
+    if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+        finalUrl = 'https://' + finalUrl;
+    }
+    browserView.webContents.loadURL(finalUrl);
+    return true;
+});
+
+ipcMain.handle('browser-back', () => {
+    if (!browserView) return false;
+    if (browserView.webContents.canGoBack()) {
+        browserView.webContents.goBack();
+        return true;
+    }
+    return false;
+});
+
+ipcMain.handle('browser-forward', () => {
+    if (!browserView) return false;
+    if (browserView.webContents.canGoForward()) {
+        browserView.webContents.goForward();
+        return true;
+    }
+    return false;
+});
+
+ipcMain.handle('browser-refresh', () => {
+    if (!browserView) return false;
+    browserView.webContents.reload();
+    return true;
+});
+
+ipcMain.handle('browser-home', () => {
+    if (!browserView) return false;
+    browserView.webContents.loadURL('https://gamma.app');
+    return true;
+});
+
+ipcMain.handle('browser-get-url', () => {
+    if (!browserView) return '';
+    return browserView.webContents.getURL();
 });
 
 const gotTheLock = app.requestSingleInstanceLock();

@@ -13,6 +13,7 @@ import {
 } from './services/firebase';
 import { Modal } from './components/Modal/Modal';
 import { Sidebar } from './components/Sidebar/Sidebar';
+import { Onboarding } from './components/Onboarding/Onboarding';
 // Lazy load pages for performance optimization
 const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
 const Chats = lazy(() => import('./pages/Chats').then(module => ({ default: module.Chats })));
@@ -21,6 +22,8 @@ const Canva = lazy(() => import('./pages/Canva').then(module => ({ default: modu
 const Archives = lazy(() => import('./pages/Archives').then(module => ({ default: module.Archives })));
 const Charts = lazy(() => import('./pages/Charts').then(module => ({ default: module.Charts })));
 const Presentations = lazy(() => import('./pages/Presentations').then(module => ({ default: module.Presentations })));
+const PresentationsBeta = lazy(() => import('./pages/PresentationsBeta').then(module => ({ default: module.PresentationsBeta })));
+const Browser = lazy(() => import('./pages/Browser').then(module => ({ default: module.Browser })));
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: module.Profile })));
 import { Login } from './pages/Login';
@@ -51,6 +54,7 @@ function App() {
     const [subscriptionId, setSubscriptionId] = useState<string | undefined>(undefined);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [profileUpdateKey, setProfileUpdateKey] = useState(0);
+    const [showOnboarding, setShowOnboarding] = useState(false);
 
     const fetchUserData = async () => {
         if (!user) return;
@@ -78,14 +82,17 @@ function App() {
         const unsub = onAuthStateChanged(auth, (u) => {
             setUser(u);
             if (u) {
-                // Initial fetch when user logs in
                 fetchUserData();
+                const onboardingKey = `rovena-onboarding-completed-${u.uid}`;
+                const hasCompletedOnboarding = localStorage.getItem(onboardingKey);
+                if (!hasCompletedOnboarding) {
+                    setShowOnboarding(true);
+                }
             } else {
                 setLoading(false);
             }
         });
 
-        // Listen for updates globally
         if ((window as any).electronAPI) {
             (window as any).electronAPI.onUpdateStatus((status: any) => {
                 if (status && status.text === 'Update downloaded') {
@@ -115,6 +122,18 @@ function App() {
     };
 
     const handleLogout = () => signOut(auth);
+
+    const handleOnboardingComplete = () => {
+        if (user) {
+            const onboardingKey = `rovena-onboarding-completed-${user.uid}`;
+            localStorage.setItem(onboardingKey, 'true');
+        }
+        setShowOnboarding(false);
+    };
+
+    const handleShowOnboarding = () => {
+        setShowOnboarding(true);
+    };
 
     if (loading) {
         return (
@@ -156,6 +175,8 @@ function App() {
                                         <Route path="/archives" element={<Archives />} />
                                         <Route path="/charts" element={<Charts />} />
                                         <Route path="/presentations" element={<Presentations />} />
+                                        <Route path="/presentations-beta" element={<PresentationsBeta />} />
+                                        <Route path="/browser" element={<Browser />} />
                                         <Route path="/profile" element={<Profile onProfileUpdate={handleProfileUpdate} />} />
                                         <Route path="/settings" element={
                                             <Settings
@@ -166,6 +187,7 @@ function App() {
                                                 subscriptionId={subscriptionId}
                                                 onLogout={handleLogout}
                                                 onCancelPlan={fetchUserData}
+                                                onShowOnboarding={handleShowOnboarding}
                                             />
                                         } />
                                         <Route path="*" element={<Navigate to="/" />} />
@@ -178,6 +200,8 @@ function App() {
                     )
                 } />
             </Routes>
+
+            {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
 
             {/* Global Update Modal */}
             <Modal

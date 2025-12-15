@@ -3083,9 +3083,8 @@ export function Canva() {
                                                         value={currentStyle.fontFamily || 'Inter, sans-serif'}
                                                         onChange={(value) => handleStyleUpdate({ fontFamily: value })}
                                                     />
-
-                                                </div >
-                                            </div >
+                                                </div>
+                                            </div>
 
                                             <div className="panel-section">
                                                 <span className="panel-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -3451,78 +3450,128 @@ export function Canva() {
                         const textElement = elements.find(el => el.id === editingTextId);
                         if (!textElement) return null;
 
-                        // For shapes, we need to center the text input
-                        const isShape = textElement.type === 'rectangle' || textElement.type === 'ellipse' || textElement.type === 'diamond';
-                        const shapeTextAlign = textElement.textAlign || 'center';
+                    // For shapes, we need to center the text input
+                    const isShape = textElement.type === 'rectangle' || textElement.type === 'ellipse' || textElement.type === 'diamond';
+                    const shapeTextAlign = textElement.textAlign || 'center';
 
-
-                        // Calculate vertical centering for shapes
-                        let shapePaddingTop = 0;
-                        if (isShape) {
-                            const fontSize = (textElement.fontSize || 16);
-                            const lineHeight = fontSize * 1.2;
-                            const ctx = canvasRef.current?.getContext('2d');
-                            let numLines = 1;
-                            if (ctx && textElement.text) {
-                                ctx.font = `${fontSize}px ${textElement.fontFamily || 'Inter, sans-serif'}`;
-                                const maxTextWidth = textElement.width - 16;
-                                const words = textElement.text.split(/(\s+)/);
-                                let line = '';
-                                numLines = 1;
-                                for (const word of words) {
-                                    const testLine = line + word;
-                                    if (ctx.measureText(testLine).width > maxTextWidth && line !== '') {
-                                        numLines++;
-                                        line = word;
-                                    } else {
-                                        line = testLine;
-                                    }
+                    // Calculate vertical centering for shapes
+                    let shapePaddingTop = 0;
+                    if (isShape) {
+                        const fontSize = (textElement.fontSize || 16);
+                        const lineHeight = fontSize * 1.2;
+                        const ctx = canvasRef.current?.getContext('2d');
+                        let numLines = 1;
+                        if (ctx && textElement.text) {
+                            ctx.font = `${fontSize}px ${textElement.fontFamily || 'Inter, sans-serif'}`;
+                            const maxTextWidth = textElement.width - 16;
+                            const words = textElement.text.split(/(\s+)/);
+                            let line = '';
+                            numLines = 1;
+                            for (const word of words) {
+                                const testLine = line + word;
+                                if (ctx.measureText(testLine).width > maxTextWidth && line !== '') {
+                                    numLines++;
+                                    line = word;
+                                } else {
+                                    line = testLine;
                                 }
                             }
-                            const totalTextHeight = numLines * lineHeight;
-                            shapePaddingTop = (textElement.height - totalTextHeight) / 2;
-                            if (shapePaddingTop < 0) shapePaddingTop = 0;
                         }
+                        const totalTextHeight = numLines * lineHeight;
+                        shapePaddingTop = (textElement.height - totalTextHeight) / 2;
+                        if (shapePaddingTop < 0) shapePaddingTop = 0;
+                    }
 
-                        return (
-                            <textarea
-                                ref={(el) => {
-                                    if (el) {
-                                        // Robust auto-focus
-                                        el.focus();
-                                        // Only select all if it's the initial "Texto"
-                                        if (textElement.text === 'Texto') {
-                                            el.select();
-                                        }
+                    return (
+                        <textarea
+                            ref={(el) => {
+                                if (el) {
+                                    // Robust auto-focus
+                                    el.focus();
+                                    // Only select all if it's the initial "Texto"
+                                    if (textElement.text === 'Texto') {
+                                        el.select();
                                     }
-                                }}
-                                style={{
-                                    position: 'absolute',
-                                    left: isShape
-                                        ? (textElement.x + 8) * scale + offset.x
-                                        : textElement.x * scale + offset.x,
-                                    top: isShape
-                                        ? (textElement.y + shapePaddingTop) * scale + offset.y
-                                        : textElement.y * scale + offset.y,
-                                    fontSize: (textElement.fontSize || (isShape ? 16 : 20)) * scale,
-                                    color: textElement.stroke,
-                                    fontFamily: textElement.fontFamily || 'Inter, sans-serif',
-                                    width: isShape
-                                        ? (textElement.width - 16) * scale
-                                        : textElement.width * scale,
-                                    height: isShape
+                                }
+                            }}
+                            style={{
+                                position: 'absolute',
+                                left: isShape
+                                    ? (textElement.x + 8) * scale + offset.x
+                                    : textElement.x * scale + offset.x,
+                                top: isShape
+                                    ? (textElement.y + shapePaddingTop) * scale + offset.y
+                                    : textElement.y * scale + offset.y,
+                                fontSize: (textElement.fontSize || (isShape ? 16 : 20)) * scale,
+                                color: textElement.stroke,
+                                fontFamily: textElement.fontFamily || 'Inter, sans-serif',
+                                width: isShape
+                                    ? (textElement.width - 16) * scale
+                                    : textElement.width * scale,
+                                height: isShape
+                                    ? (textElement.height - shapePaddingTop * 2) * scale
+                                    : textElement.height * scale,
+                                border: 'none',
+                                outline: isShape ? 'none' : '1px dashed #22c55e',
+                                background: 'transparent',
+                                padding: '0',
+                                margin: '0',
+                                overflow: 'hidden',
+                                resize: 'none',
+                                textAlign: isShape ? shapeTextAlign : (textElement.textAlign || 'left'),
+                                direction: 'ltr',
+                                lineHeight: '1.2',
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word',
+                                boxSizing: 'border-box',
+                                zIndex: 50
+                            }}
+                            value={textElement.text || ''}
+                            onChange={(e) => {
+                                const newText = e.target.value;
+                                const ctx = canvasRef.current?.getContext('2d');
 
-                                        ? (textElement.height - shapePaddingTop * 2) * scale
-                                        : textElement.height * scale,
-                                    border: 'none',
-                                    outline: isShape ? 'none' : '1px dashed #22c55e',
-                                    background: 'transparent',
-                                    padding: '0',
-                                    margin: '0',
-                                    overflow: 'hidden',
-                                    resize: 'none',
-                                    textAlign: isShape ? shapeTextAlign : (textElement.textAlign || 'left'),
-                                    direction: 'ltr',
+                                if (isShape) {
+                                    // For shapes, only expand HEIGHT (up and down), keep width fixed
+                                    if (ctx) {
+                                        const fontSize = textElement.fontSize || 16;
+                                        const fontFamily = textElement.fontFamily || 'Inter, sans-serif';
+                                        ctx.font = `${fontSize}px ${fontFamily}`;
+                                        const lineHeight = fontSize * 1.2;
+                                        const textPadding = 16;
+
+                                        // Width stays fixed, text wraps
+                                        const currentMaxWidth = textElement.width - textPadding;
+                                        const lines = getWrappedTextLines(ctx, newText, currentMaxWidth);
+
+                                        // Calculate required height based on number of lines
+                                        const totalTextHeight = lines.length * lineHeight;
+                                        const minHeight = 60; // minimum shape height
+                                        const requiredHeight = Math.max(minHeight, totalTextHeight + textPadding + 10);
+
+                                        // If height needs to change, grow equally up and down
+                                        const currentHeight = textElement.height;
+                                        let newHeight = currentHeight;
+                                        let newY = textElement.y;
+
+                                        if (requiredHeight > currentHeight) {
+                                            const heightDiff = requiredHeight - currentHeight;
+                                            newHeight = requiredHeight;
+                                            // Grow upward by half the difference to keep center stable
+                                            newY = textElement.y - (heightDiff / 2);
+                                        }
+
+                                        setElements(elements.map(el =>
+                                            el.id === editingTextId
+                                                ? { ...el, text: newText, height: newHeight, y: newY }
+                                                : el
+                                        ));
+                                    } else {
+                                        setElements(elements.map(el =>
+                                            el.id === editingTextId
+                                                ? { ...el, text: newText }
+                                                : el
+                                        ));
                                     lineHeight: '1.2',
                                     whiteSpace: 'pre-wrap',
                                     wordBreak: 'break-word',
@@ -3629,7 +3678,7 @@ export function Canva() {
                     onChange={handleFileInputChange}
                     style={{ display: 'none' }}
                 />
-            </div >
+            </div>
 
             {showClearConfirm && (
                 <div className="clear-confirm-overlay" onClick={() => setShowClearConfirm(false)}>
@@ -3653,7 +3702,7 @@ export function Canva() {
                     </div>
                 </div>
             )}
-        </div >
+        </div>
     );
 }
 
