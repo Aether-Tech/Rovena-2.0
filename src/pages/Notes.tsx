@@ -482,9 +482,10 @@ export function Notes() {
                                     <FilePlus size={16} /> Criar Nova Nota
                                 </button>
                             </div>
-                        ))}
-                    </div>
-            </div>
+                          )}
+                      </div>
+              </div>
+
 
               <Modal
                 isOpen={showNewNoteModal}
