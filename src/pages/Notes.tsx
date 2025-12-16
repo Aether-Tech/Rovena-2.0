@@ -12,7 +12,6 @@ import {
     Search,
     X,
 } from 'lucide-react';
-import { wrappingInputRule } from '@tiptap/core';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
@@ -35,22 +34,40 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
                     class: 'task-list',
                 },
             }),
-            TaskItem.configure({
+            TaskItem.extend({
+                addInputRules() {
+                    const originalRules = this.parent?.() || [];
+                    return [
+                        {
+                            find: /^-\[\s?\]\s$/,
+                            handler: ({ state, range, match }) => {
+                                const { tr } = state;
+                                const start = range.from;
+                                let end = range.to;
+
+                                tr.delete(start, end);
+                                
+                                const taskListType = state.schema.nodes.taskList;
+                                const taskItemType = state.schema.nodes.taskItem;
+                                
+                                if (taskListType && taskItemType) {
+                                    const taskList = taskListType.create(null, [
+                                        taskItemType.create({ checked: false })
+                                    ]);
+                                    tr.replaceWith(start, start, taskList);
+                                    tr.setSelection(state.selection.constructor.near(tr.doc.resolve(start + 2)));
+                                }
+                                
+                                return tr;
+                            },
+                        },
+                        ...originalRules,
+                    ];
+                },
+            }).configure({
                 nested: true,
                 HTMLAttributes: {
                     class: 'task-item',
-                },
-            }).extend({
-                addInputRules() {
-                    return [
-                        wrappingInputRule({
-                            find: /^-\[([ x])\]\s$/,
-                            type: this.type,
-                            getAttributes: (match) => ({
-                                checked: match[1] === 'x',
-                            }),
-                        }),
-                    ];
                 },
             }),
             Markdown.configure({
