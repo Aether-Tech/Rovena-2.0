@@ -264,6 +264,11 @@
     cursor: pointer;
 }
 
+.tiptap-container .ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked + div {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
 .tiptap-container .ProseMirror h1,
 .tiptap-container .ProseMirror h2,
 .tiptap-container .ProseMirror h3,
