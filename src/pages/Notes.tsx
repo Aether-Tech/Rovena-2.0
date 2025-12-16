@@ -268,58 +268,41 @@ export function Notes() {
                     </div>
                 </div>
 
-                <div className="notes-content">
-                    {selectedNote ? (
-                        <div className="note-viewer">
-                            <div className="note-header">
-                                <h1>{selectedNote.title}</h1>
-                                <div className="note-meta">
-                                    <span>Atualizado: {new Date(selectedNote.updatedAt).toLocaleString()}</span>
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={() => {
-                                            setIsEditing(true);
-                                            setEditTitle(selectedNote.title);
-                                            setEditContent(selectedNote.content);
-                                        }}
-                                    >
-                                        <Edit2 size={16} /> Editar
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            {isEditing ? (
-                                <div className="note-editor">
-                                    <input
-                                        type="text"
-                                        className="title-input"
-                                        value={editTitle}
-                                        onChange={(e) => setEditTitle(e.target.value)}
-                                        placeholder="Título da nota"
-                                    />
-                                    <textarea
-                                        className="content-input"
-                                        value={editContent}
-                                        onChange={(e) => setEditContent(e.target.value)}
-                                        placeholder="Escreva sua nota em Markdown..."
-                                    />
-                                    <div className="editor-actions">
-                                        <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>
-                                            Cancelar
-                                        </button>
-                                        <button className="btn btn-primary" onClick={handleSaveNote}>
-                                            Salvar
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="markdown-content">
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        {selectedNote.content}
-                                    </ReactMarkdown>
-                                </div>
-                            )}
-                        </div>
+                  <div className="notes-content">
+                      {selectedNote ? (
+                          <div className="note-viewer">
+                              {isEditing ? (
+                                  <div className="note-editor">
+                                      <input
+                                          type="text"
+                                          className="title-input"
+                                          value={editTitle}
+                                          onChange={(e) => setEditTitle(e.target.value)}
+                                          placeholder="Título da nota"
+                                      />
+                                      <textarea
+                                          className="content-input"
+                                          value={editContent}
+                                          onChange={(e) => setEditContent(e.target.value)}
+                                          placeholder="Escreva sua nota em Markdown..."
+                                      />
+                                      <div className="editor-actions">
+                                          <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>
+                                              Cancelar
+                                          </button>
+                                          <button className="btn btn-primary" onClick={handleSaveNote}>
+                                              Salvar
+                                          </button>
+                                      </div>
+                                  </div>
+                              ) : (
+                                  <div className="markdown-content">
+                                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                          {selectedNote.content}
+                                      </ReactMarkdown>
+                                  </div>
+                              )}
+                          </div>
                     ) : (
                         <div className="empty-state">
                             <FileText size={64} />
