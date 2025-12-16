@@ -12,6 +12,7 @@ import {
     Search,
     X,
 } from 'lucide-react';
+import { wrappingInputRule } from '@tiptap/core';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
@@ -42,16 +43,13 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
             }).extend({
                 addInputRules() {
                     return [
-                        {
+                        wrappingInputRule({
                             find: /^-\[([ x])\]\s$/,
-                            handler: ({ state, range, match }) => {
-                                const checked = match[1] === 'x';
-                                const { tr } = state;
-                                tr.delete(range.from, range.to);
-                                tr.setBlockType(range.from, range.from, this.type, { checked });
-                                return true;
-                            },
-                        },
+                            type: this.type,
+                            getAttributes: (match) => ({
+                                checked: match[1] === 'x',
+                            }),
+                        }),
                     ];
                 },
             }),
