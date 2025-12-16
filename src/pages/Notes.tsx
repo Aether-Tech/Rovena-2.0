@@ -44,8 +44,11 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
                 addInputRules() {
                     return [
                         wrappingInputRule({
-                            find: /^-\[]\s$/,
+                            find: /^-\[([ x])\]\s$/,
                             type: this.type,
+                            getAttributes: (match) => ({
+                                checked: match[1] === 'x',
+                            }),
                         }),
                     ];
                 },

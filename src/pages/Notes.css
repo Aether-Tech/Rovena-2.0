@@ -248,15 +248,16 @@
 .tiptap-container .ProseMirror ul[data-type="taskList"] li {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin: 0.25rem 0;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
 }
 
 .tiptap-container .ProseMirror ul[data-type="taskList"] li > label {
-    margin: 0;
     user-select: none;
     display: flex;
+    align-items: center;
     cursor: pointer;
+    margin: 0;
     flex-shrink: 0;
 }
 
@@ -267,7 +268,6 @@
 
 .tiptap-container .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
     appearance: none;
-    -webkit-appearance: none;
     width: 18px;
     height: 18px;
     margin: 0;
@@ -276,7 +276,7 @@
     background: transparent;
     cursor: pointer;
     position: relative;
-    flex-shrink: 0;
+    transition: all 0.2s;
 }
 
 .tiptap-container .ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked {
@@ -294,7 +294,7 @@
     font-weight: bold;
 }
 
-.tiptap-container .ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked + div {
+.tiptap-container .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
     text-decoration: line-through;
     color: var(--text-muted);
 }
