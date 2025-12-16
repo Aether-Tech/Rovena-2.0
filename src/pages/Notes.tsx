@@ -34,37 +34,7 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
                     class: 'task-list',
                 },
             }),
-            TaskItem.extend({
-                addInputRules() {
-                    const originalRules = this.parent?.() || [];
-                    return [
-                        {
-                            find: /^-\[\s?\]\s$/,
-                            handler: ({ state, range, match }) => {
-                                const { tr } = state;
-                                const start = range.from;
-                                let end = range.to;
-
-                                tr.delete(start, end);
-                                
-                                const taskListType = state.schema.nodes.taskList;
-                                const taskItemType = state.schema.nodes.taskItem;
-                                
-                                if (taskListType && taskItemType) {
-                                    const taskList = taskListType.create(null, [
-                                        taskItemType.create({ checked: false })
-                                    ]);
-                                    tr.replaceWith(start, start, taskList);
-                                    tr.setSelection(state.selection.constructor.near(tr.doc.resolve(start + 2)));
-                                }
-                                
-                                return tr;
-                            },
-                        },
-                        ...originalRules,
-                    ];
-                },
-            }).configure({
+            TaskItem.configure({
                 nested: true,
                 HTMLAttributes: {
                     class: 'task-item',
@@ -81,7 +51,7 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
         editorProps: {
             attributes: {
                 class: 'markdown-content focus:outline-none h-full',
-                'data-placeholder': 'Digite -[ ] e pressione espaço para criar checkbox',
+                'data-placeholder': 'Digite - [ ] e pressione espaço para criar checkbox',
             },
         },
     });
