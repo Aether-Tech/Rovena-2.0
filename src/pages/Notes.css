@@ -57,6 +57,11 @@
     color: var(--text-primary);
 }
 
+.icon-btn.active {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--accent-green);
+}
+
 .search-bar {
     padding: var(--spacing-md) var(--spacing-lg);
     border-bottom: 1px solid var(--border-color);

@@ -12,6 +12,8 @@ import {
     Search,
     X,
     Tag,
+    Network,
+    List,
 } from 'lucide-react';
 import { wrappingInputRule } from '@tiptap/core';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -21,6 +23,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import { Markdown } from 'tiptap-markdown';
 import { NotesStorage, type Note, type Folder } from '../services/notesStorage';
 import { Modal } from '../components/Modal/Modal';
+import { GraphView } from '../components/GraphView';
 import './Notes.css';
 
 const DEFAULT_NOTE_TITLE = 'Nova Nota';
@@ -133,6 +136,7 @@ export function Notes() {
     const [newFolderName, setNewFolderName] = useState('');
     const [showRenameModal, setShowRenameModal] = useState(false);
     const [renameTarget, setRenameTarget] = useState<{ type: 'note' | 'folder'; id: string; name: string } | null>(null);
+    const [viewMode, setViewMode] = useState<'list' | 'graph'>('list');
     const [, forceUpdate] = useState({});
 
     useEffect(() => {
@@ -328,24 +332,38 @@ export function Notes() {
         <div className="notes-page page-content">
             <div className="notes-container">
                 <div className="notes-sidebar">
-                    <div className="sidebar-header">
-                        <h2>Notas</h2>
-                        <div className="sidebar-actions">
-                            <button
-                                className="icon-btn"
-                                onClick={() => {
-                                    setNewNoteTitle(DEFAULT_NOTE_TITLE);
-                                    setShowNewNoteModal(true);
-                                }}
-                                title="Nova nota"
-                            >
-                                <FilePlus size={18} />
-                            </button>
-                            <button className="icon-btn" onClick={() => setShowNewFolderModal(true)} title="Nova pasta">
-                                <FolderPlus size={18} />
-                            </button>
-                        </div>
-                    </div>
+                      <div className="sidebar-header">
+                          <h2>Notas</h2>
+                          <div className="sidebar-actions">
+                              <button
+                                  className={`icon-btn ${viewMode === 'list' ? 'active' : ''}`}
+                                  onClick={() => setViewMode('list')}
+                                  title="Visualização em lista"
+                              >
+                                  <List size={18} />
+                              </button>
+                              <button
+                                  className={`icon-btn ${viewMode === 'graph' ? 'active' : ''}`}
+                                  onClick={() => setViewMode('graph')}
+                                  title="Visualização em grafo"
+                              >
+                                  <Network size={18} />
+                              </button>
+                              <button
+                                  className="icon-btn"
+                                  onClick={() => {
+                                      setNewNoteTitle(DEFAULT_NOTE_TITLE);
+                                      setShowNewNoteModal(true);
+                                  }}
+                                  title="Nova nota"
+                              >
+                                  <FilePlus size={18} />
+                              </button>
+                              <button className="icon-btn" onClick={() => setShowNewFolderModal(true)} title="Nova pasta">
+                                  <FolderPlus size={18} />
+                              </button>
+                          </div>
+                      </div>
 
                     <div className="search-bar">
                         <Search size={16} />
@@ -362,11 +380,25 @@ export function Notes() {
                         )}
                     </div>
 
-                    <div className="notes-tree">{renderFolderTree(null)}</div>
-                </div>
+                      {viewMode === 'list' && <div className="notes-tree">{renderFolderTree(null)}</div>}
+                  </div>
 
-                  <div className="notes-content">
-                      {selectedNote ? (
+                    <div className="notes-content">
+                        {viewMode === 'graph' ? (
+                            <GraphView
+                                notes={NotesStorage.getNotes()}
+                                folders={NotesStorage.getFolders()}
+                                onNodeClick={(nodeId, type) => {
+                                    if (type === 'note') {
+                                        const note = NotesStorage.getNoteById(nodeId);
+                                        if (note) setSelectedNote(note);
+                                    } else {
+                                        setSelectedFolder(nodeId);
+                                        setViewMode('list');
+                                    }
+                                }}
+                            />
+                        ) : selectedNote ? (
                           <div className="note-editor-wrapper">
                               <div className="note-tags-section">
                                   <div className="tags-list">
@@ -432,26 +464,26 @@ export function Notes() {
                                       NotesStorage.saveNote(updatedNote);
                                       setSelectedNote(updatedNote);
                                       loadData();
-                                  }}
-                              />
-                          </div>
-                      ) : (
-                          <div className="empty-state">
-                              <FileText size={64} />
-                              <h2>Nenhuma nota selecionada</h2>
-                              <p>Selecione uma nota ou crie uma nova para começar</p>
-                              <button
-                                  className="btn btn-primary"
-                                  onClick={() => {
-                                      setNewNoteTitle(DEFAULT_NOTE_TITLE);
-                                      setShowNewNoteModal(true);
-                                  }}
-                              >
-                                  <FilePlus size={16} /> Criar Nova Nota
-                              </button>
-                          </div>
-                      )}
-                  </div>
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <FileText size={64} />
+                                <h2>Nenhuma nota selecionada</h2>
+                                <p>Selecione uma nota ou crie uma nova para começar</p>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                        setNewNoteTitle(DEFAULT_NOTE_TITLE);
+                                        setShowNewNoteModal(true);
+                                    }}
+                                >
+                                    <FilePlus size={16} /> Criar Nova Nota
+                                </button>
+                            </div>
+                        ))}
+                    </div>
             </div>
 
               <Modal
