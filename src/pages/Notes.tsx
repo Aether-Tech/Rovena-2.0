@@ -11,19 +11,10 @@ import {
     Search,
     X,
 } from 'lucide-react';
-import MdEditor from 'react-markdown-editor-lite';
-import MarkdownIt from 'markdown-it';
-import 'react-markdown-editor-lite/lib/index.css';
+import ReactMarkdown from 'react-markdown';
 import { NotesStorage, type Note, type Folder } from '../services/notesStorage';
 import { Modal } from '../components/Modal/Modal';
 import './Notes.css';
-
-const mdParser = new MarkdownIt({
-    html: true,
-    linkify: true,
-    typographer: true,
-    breaks: true,
-});
 
 export function Notes() {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -279,24 +270,26 @@ export function Notes() {
                   <div className="notes-content">
                       {selectedNote ? (
                           <div className="note-viewer">
-                              <MdEditor
-                                  value={selectedNote.content}
-                                  style={{ height: '100%' }}
-                                  renderHTML={text => mdParser.render(text)}
-                                  onChange={({ text }) => {
-                                      const updatedNote = {
-                                          ...selectedNote,
-                                          content: text,
-                                          updatedAt: Date.now(),
-                                      };
-                                      NotesStorage.saveNote(updatedNote);
-                                      setSelectedNote(updatedNote);
-                                      loadData();
-                                  }}
-                                  placeholder="Comece a escrever..."
-                                  view={{ menu: true, md: true, html: true }}
-                                  canView={{ menu: true, md: true, html: true, fullScreen: true, hideMenu: true }}
-                              />
+                              <div className="markdown-editor-split">
+                                  <textarea
+                                      className="markdown-editor-input"
+                                      value={selectedNote.content}
+                                      onChange={(e) => {
+                                          const updatedNote = {
+                                              ...selectedNote,
+                                              content: e.target.value,
+                                              updatedAt: Date.now(),
+                                          };
+                                          NotesStorage.saveNote(updatedNote);
+                                          setSelectedNote(updatedNote);
+                                          loadData();
+                                      }}
+                                      placeholder="Comece a escrever em Markdown..."
+                                  />
+                                  <div className="markdown-preview">
+                                      <ReactMarkdown>{selectedNote.content || '*Preview aparecerá aqui...*'}</ReactMarkdown>
+                                  </div>
+                              </div>
                           </div>
                       ) : (
                           <div className="empty-state">
