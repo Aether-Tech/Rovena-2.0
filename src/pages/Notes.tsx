@@ -39,6 +39,21 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
                 HTMLAttributes: {
                     class: 'task-item',
                 },
+            }).extend({
+                addInputRules() {
+                    return [
+                        {
+                            find: /^-\[([ x])\]\s$/,
+                            handler: ({ state, range, match }) => {
+                                const checked = match[1] === 'x';
+                                const { tr } = state;
+                                tr.delete(range.from, range.to);
+                                tr.setBlockType(range.from, range.from, this.type, { checked });
+                                return true;
+                            },
+                        },
+                    ];
+                },
             }),
             Markdown.configure({
                 transformPastedText: true,
@@ -51,7 +66,7 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
         editorProps: {
             attributes: {
                 class: 'markdown-content focus:outline-none h-full',
-                'data-placeholder': 'Digite - [ ] e pressione espaço para criar checkbox',
+                'data-placeholder': 'Digite -[ ] e pressione espaço para criar checkbox',
             },
         },
     });
