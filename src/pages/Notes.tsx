@@ -12,6 +12,7 @@ import {
     Search,
     X,
 } from 'lucide-react';
+import { wrappingInputRule } from '@tiptap/core';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
@@ -39,6 +40,18 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
                 HTMLAttributes: {
                     class: 'task-item',
                 },
+            }).extend({
+                addInputRules() {
+                    return [
+                        wrappingInputRule({
+                            find: /^-\[([ x])\]\s$/,
+                            type: this.type,
+                            getAttributes: (match) => ({
+                                checked: match[1] === 'x',
+                            }),
+                        }),
+                    ];
+                },
             }),
             Markdown.configure({
                 transformPastedText: true,
@@ -51,7 +64,7 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
         editorProps: {
             attributes: {
                 class: 'markdown-content focus:outline-none h-full',
-                'data-placeholder': 'Digite - [ ] e pressione espaço para criar checkbox',
+                'data-placeholder': 'Digite -[ ] e pressione espaço para criar checkbox',
             },
         },
     });
