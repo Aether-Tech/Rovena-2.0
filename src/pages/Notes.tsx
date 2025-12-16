@@ -29,11 +29,20 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
                     levels: [1, 2, 3, 4, 5, 6],
                 },
             }),
-            TaskList,
+            TaskList.configure({
+                HTMLAttributes: {
+                    class: 'task-list',
+                },
+            }),
             TaskItem.configure({
                 nested: true,
+                HTMLAttributes: {
+                    class: 'task-item',
+                },
             }),
-            Markdown,
+            Markdown.configure({
+                transformPastedText: true,
+            }),
         ],
         content,
         onUpdate: ({ editor }) => {
@@ -42,12 +51,11 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
         editorProps: {
             attributes: {
                 class: 'markdown-content focus:outline-none h-full',
-                'data-placeholder': 'Escreva em Markdown... (## título, - [ ] tarefas, **negrito**)',
+                'data-placeholder': 'Digite - [ ] e pressione espaço para criar checkbox',
             },
         },
     });
 
-    // Update editor content when prop changes (e.g. switching notes)
     useEffect(() => {
         if (editor && content !== editor.storage.markdown.getMarkdown()) {
             editor.commands.setContent(content);
@@ -60,12 +68,6 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
 
     return <EditorContent editor={editor} className="tiptap-container" />;
 };
-
-const formatDateTime = (timestamp: number) =>
-    new Intl.DateTimeFormat('pt-BR', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-    }).format(timestamp);
 
 export function Notes() {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -427,4 +429,3 @@ export function Notes() {
 }
 
 export default Notes;
-
