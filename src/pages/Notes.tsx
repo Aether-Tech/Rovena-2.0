@@ -249,6 +249,25 @@ export function Notes() {
         });
     };
 
+    const extractParentId = (droppableId: string, type: 'folder' | 'note'): string | null => {
+        const prefix = `${type}-`;
+        if (!droppableId.startsWith(prefix)) return null;
+        const value = droppableId.slice(prefix.length);
+        return value === 'root' ? null : value;
+    };
+
+    const isInvalidFolderMove = (folderId: string, targetParentId: string | null) => {
+        if (!targetParentId) return false;
+        if (folderId === targetParentId) return true;
+
+        let current = NotesStorage.getFolderById(targetParentId);
+        while (current) {
+            if (current.id === folderId) return true;
+            current = current.parentId ? NotesStorage.getFolderById(current.parentId) : undefined;
+        }
+        return false;
+    };
+
     const handleDragEnd = (result: DropResult) => {
         const { destination, source, draggableId, type } = result;
 
@@ -259,7 +278,8 @@ export function Notes() {
             const folder = NotesStorage.getFolderById(draggableId);
             if (!folder) return;
 
-            const newParentId = destination.droppableId === 'root' ? null : destination.droppableId;
+            const newParentId = extractParentId(destination.droppableId, 'folder');
+            if (isInvalidFolderMove(draggableId, newParentId)) return;
 
             NotesStorage.saveFolder({
                 ...folder,
@@ -270,7 +290,7 @@ export function Notes() {
             const note = NotesStorage.getNoteById(draggableId);
             if (!note) return;
 
-            const newFolderId = destination.droppableId === 'root' ? null : destination.droppableId;
+            const newFolderId = extractParentId(destination.droppableId, 'note');
 
             NotesStorage.saveNote({
                 ...note,
@@ -284,6 +304,8 @@ export function Notes() {
     const renderFolderTree = (parentId: string | null, level: number = 0) => {
         const subfolders = NotesStorage.getSubfolders(parentId);
         const folderNotes = NotesStorage.getNotesByFolder(parentId);
+        const folderDroppableId = `folder-${parentId || 'root'}`;
+        const noteDroppableId = `note-${parentId || 'root'}`;
 
         const filteredNotes = folderNotes.filter((note) => {
             if (!searchTerm) return true;
@@ -292,7 +314,7 @@ export function Notes() {
         });
 
         return (
-            <Droppable droppableId={parentId || 'root'} type="folder">
+            <Droppable droppableId={folderDroppableId} type="folder">
                 {(provided) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                         {subfolders.map((folder, index) => {
@@ -350,7 +372,7 @@ export function Notes() {
                             );
                         })}
                         {provided.placeholder}
-                        <Droppable droppableId={parentId || 'root'} type="note">
+                        <Droppable droppableId={noteDroppableId} type="note">
                             {(provided) => (
                                 <div ref={provided.innerRef} {...provided.droppableProps}>
                                     {filteredNotes.map((note, index) => (
