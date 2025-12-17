@@ -1,5 +1,6 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
+import { forceCollide } from 'd3-force-3d';
 import type { Note, Folder } from '../services/notesStorage';
 import './GraphView.css';
 
@@ -30,6 +31,32 @@ interface GraphViewProps {
 export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
     const graphRef = useRef<any>();
     const containerRef = useRef<HTMLDivElement>(null);
+    const dragFlagRef = useRef(false);
+    const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const updateSize = () => {
+            const { width, height } = container.getBoundingClientRect();
+            setDimensions({
+                width: Math.max(1, Math.floor(width)),
+                height: Math.max(1, Math.floor(height)),
+            });
+        };
+
+        updateSize();
+
+        const resizeObserver = new ResizeObserver(() => updateSize());
+        resizeObserver.observe(container);
+        window.addEventListener('resize', updateSize);
+
+        return () => {
+            resizeObserver.disconnect();
+            window.removeEventListener('resize', updateSize);
+        };
+    }, []);
 
     const graphData = useMemo((): GraphData => {
         const nodes: GraphNode[] = [];
@@ -83,16 +110,21 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
     }, [notes, folders]);
 
     useEffect(() => {
-        if (graphRef.current) {
-            graphRef.current.d3Force('charge').strength(-300); // Reduced repulsion
-            graphRef.current.d3Force('link').distance(100);
-            graphRef.current.d3Force('center').strength(0.05);
-            // Ensure larger collision radius to match visual space
-            graphRef.current.d3Force('collide', graphRef.current.d3Force().radius(40));
-        }
+        if (!graphRef.current) return;
+
+        const collideForce = forceCollide<GraphNode>()
+            .radius((node) => Math.max(18, Math.sqrt(node.val || 1) * 4))
+            .strength(1);
+
+        graphRef.current.d3Force('charge').strength(-320);
+        graphRef.current.d3Force('link').distance(120);
+        graphRef.current.d3Force('center').strength(0.08);
+        graphRef.current.d3Force('collide', collideForce);
+        graphRef.current.d3ReheatSimulation();
     }, [graphData]);
 
     const handleNodeClick = (node: any) => {
+        if (dragFlagRef.current) return;
         if (node.id !== 'empty') {
             onNodeClick(node.id, node.type);
         }
@@ -103,6 +135,8 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
             <ForceGraph2D
                 ref={graphRef}
                 graphData={graphData}
+                width={dimensions.width}
+                height={dimensions.height}
                 nodeLabel="name"
                 nodeVal="val"
                 nodeColor="color"
@@ -180,6 +214,12 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                 enableZoomInteraction={true}
                 enablePanInteraction={true}
                 enableNodeDrag={true}
+                onNodeDrag={() => {
+                    dragFlagRef.current = true;
+                }}
+                onNodeDragStart={() => {
+                    dragFlagRef.current = true;
+                }}
                 nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
                     // Use larger radius for hit area to facilitate dragging and prevent culling
                     const hitRadius = Math.sqrt((node.val || 1)) * 4;
@@ -192,6 +232,7 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                     document.body.style.cursor = node ? 'pointer' : 'grab';
                 }}
                 onNodeDragEnd={(node: any) => {
+                    dragFlagRef.current = false;
                     if (node) {
                         node.fx = node.x;
                         node.fy = node.y;
