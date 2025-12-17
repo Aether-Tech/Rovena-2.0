@@ -36,6 +36,7 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
     const dragFlagRef = useRef(false);
     const draggedNodeRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+    const [hoverTarget, setHoverTarget] = useState<{node: any, x: number, y: number} | null>(null);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -201,14 +202,34 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
 
                     ctx.restore();
                 }}
-                nodeCanvasObjectMode={() => 'replace'}
-                linkColor={() => 'rgba(34, 197, 94, 0.2)'}
-                linkWidth={1.5}
-                linkDirectionalParticles={2}
-                linkDirectionalParticleWidth={2}
-                linkDirectionalParticleSpeed={0.005}
-                linkDirectionalParticleColor={() => '#4ade80'}
-                onNodeClick={handleNodeClick}
+                  nodeCanvasObjectMode={() => 'replace'}
+                  linkColor={() => 'rgba(34, 197, 94, 0.2)'}
+                  linkWidth={1.5}
+                  linkDirectionalParticles={2}
+                  linkDirectionalParticleWidth={2}
+                  linkDirectionalParticleSpeed={0.005}
+                  linkDirectionalParticleColor={() => '#4ade80'}
+                  linkCanvasObject={(link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+                      // Draw default links (existing connections)
+                      const start = link.source;
+                      const end = link.target;
+                      
+                      if (typeof start.x !== 'number' || typeof start.y !== 'number' || 
+                          typeof end.x !== 'number' || typeof end.y !== 'number') {
+                          return;
+                      }
+
+                      ctx.save();
+                      ctx.beginPath();
+                      ctx.moveTo(start.x, start.y);
+                      ctx.lineTo(end.x, end.y);
+                      ctx.strokeStyle = 'rgba(34, 197, 94, 0.2)';
+                      ctx.lineWidth = 1.5 / globalScale;
+                      ctx.stroke();
+                      ctx.restore();
+                  }}
+                  linkCanvasObjectMode={() => 'replace'}
+                  onNodeClick={handleNodeClick}
                 backgroundColor="transparent"
                 warmupTicks={100}
                 cooldownTicks={0}
@@ -217,12 +238,39 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                 enableZoomInteraction={true}
                 enablePanInteraction={true}
                 enableNodeDrag={true}
-                  onNodeDrag={() => {
+                  onNodeDrag={(node: any) => {
                       dragFlagRef.current = true;
+                      
+                      if (!draggedNodeRef.current) return;
+
+                      // Find closest folder node while dragging
+                      let closestNode: any = null;
+                      let minDistance = 80;
+
+                      graphData.nodes.forEach((n: any) => {
+                          if (n.id === draggedNodeRef.current.id) return;
+                          if (n.type !== 'folder') return; // Only show preview for folder targets
+                          
+                          const dx = n.x - node.x;
+                          const dy = n.y - node.y;
+                          const distance = Math.sqrt(dx * dx + dy * dy);
+
+                          if (distance < minDistance) {
+                              minDistance = distance;
+                              closestNode = n;
+                          }
+                      });
+
+                      if (closestNode) {
+                          setHoverTarget({ node: closestNode, x: node.x, y: node.y });
+                      } else {
+                          setHoverTarget(null);
+                      }
                   }}
                   onNodeDragStart={(node: any) => {
                       dragFlagRef.current = true;
                       draggedNodeRef.current = node;
+                      setHoverTarget(null);
                   }}
                   nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
                       // Use larger radius for hit area to facilitate dragging and prevent culling
@@ -282,8 +330,53 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                           }
                       }
                       draggedNodeRef.current = null;
+                      setHoverTarget(null);
                   }}
-            />
-        </div>
-    );
-}
+              />
+              {hoverTarget && (
+                  <canvas
+                      ref={(canvas) => {
+                          if (!canvas) return;
+                          const ctx = canvas.getContext('2d');
+                          if (!ctx) return;
+
+                          // Get graph camera position and scale
+                          const graph = graphRef.current;
+                          if (!graph) return;
+
+                          const { k: zoom, x: translateX, y: translateY } = graph.zoom() || { k: 1, x: 0, y: 0 };
+
+                          canvas.width = dimensions.width;
+                          canvas.height = dimensions.height;
+
+                          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                          // Transform coordinates to match graph view
+                          const targetScreenX = hoverTarget.node.x * zoom + translateX + dimensions.width / 2;
+                          const targetScreenY = hoverTarget.node.y * zoom + translateY + dimensions.height / 2;
+                          const dragScreenX = hoverTarget.x * zoom + translateX + dimensions.width / 2;
+                          const dragScreenY = hoverTarget.y * zoom + translateY + dimensions.height / 2;
+
+                          // Draw green line from dragged node to target
+                          ctx.save();
+                          ctx.beginPath();
+                          ctx.moveTo(dragScreenX, dragScreenY);
+                          ctx.lineTo(targetScreenX, targetScreenY);
+                          ctx.strokeStyle = '#22c55e'; // Rovena green
+                          ctx.lineWidth = 3;
+                          ctx.setLineDash([8, 4]);
+                          ctx.stroke();
+                          ctx.restore();
+                      }}
+                      style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          pointerEvents: 'none',
+                          zIndex: 10,
+                      }}
+                  />
+              )}
+          </div>
+      );
+  }
