@@ -245,11 +245,12 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
 
                       // Find closest folder node while dragging
                       let closestNode: any = null;
-                      let minDistance = 80;
+                      let minDistance = 100;
 
-                      graphData.nodes.forEach((n: any) => {
+                      const allNodes = graphRef.current?.graphData()?.nodes || [];
+                      allNodes.forEach((n: any) => {
                           if (n.id === draggedNodeRef.current.id) return;
-                          if (n.type !== 'folder') return; // Only show preview for folder targets
+                          if (n.type !== 'folder') return;
                           
                           const dx = n.x - node.x;
                           const dy = n.y - node.y;
@@ -334,48 +335,53 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                   }}
               />
               {hoverTarget && (
-                  <canvas
-                      ref={(canvas) => {
-                          if (!canvas) return;
-                          const ctx = canvas.getContext('2d');
-                          if (!ctx) return;
-
-                          // Get graph camera position and scale
+                  <svg
+                      style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          pointerEvents: 'none',
+                          zIndex: 10,
+                      }}
+                  >
+                      <defs>
+                          <filter id="preview-glow">
+                              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                              <feMerge>
+                                  <feMergeNode in="coloredBlur"/>
+                                  <feMergeNode in="SourceGraphic"/>
+                              </feMerge>
+                          </filter>
+                      </defs>
+                      {(() => {
                           const graph = graphRef.current;
-                          if (!graph) return;
+                          if (!graph) return null;
 
                           const { k: zoom, x: translateX, y: translateY } = graph.zoom() || { k: 1, x: 0, y: 0 };
 
-                          canvas.width = dimensions.width;
-                          canvas.height = dimensions.height;
-
-                          ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                          // Transform coordinates to match graph view
                           const targetScreenX = hoverTarget.node.x * zoom + translateX + dimensions.width / 2;
                           const targetScreenY = hoverTarget.node.y * zoom + translateY + dimensions.height / 2;
                           const dragScreenX = hoverTarget.x * zoom + translateX + dimensions.width / 2;
                           const dragScreenY = hoverTarget.y * zoom + translateY + dimensions.height / 2;
 
-                          // Draw green line from dragged node to target
-                          ctx.save();
-                          ctx.beginPath();
-                          ctx.moveTo(dragScreenX, dragScreenY);
-                          ctx.lineTo(targetScreenX, targetScreenY);
-                          ctx.strokeStyle = '#22c55e'; // Rovena green
-                          ctx.lineWidth = 3;
-                          ctx.setLineDash([8, 4]);
-                          ctx.stroke();
-                          ctx.restore();
-                      }}
-                      style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          pointerEvents: 'none',
-                          zIndex: 10,
-                      }}
-                  />
+                          return (
+                              <line
+                                  x1={dragScreenX}
+                                  y1={dragScreenY}
+                                  x2={targetScreenX}
+                                  y2={targetScreenY}
+                                  stroke="#22c55e"
+                                  strokeWidth="4"
+                                  strokeDasharray="10,5"
+                                  strokeLinecap="round"
+                                  filter="url(#preview-glow)"
+                                  opacity="0.9"
+                              />
+                          );
+                      })()}
+                  </svg>
               )}
           </div>
       );
