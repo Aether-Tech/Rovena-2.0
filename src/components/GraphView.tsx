@@ -37,6 +37,7 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
     const draggedNodeRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [dropTarget, setDropTarget] = useState<any>(null);
+    const [selectedNodeIndex, setSelectedNodeIndex] = useState(0);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -134,6 +135,31 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
         }
     };
 
+    // Keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const allNodes = graphData.nodes.filter(n => n.id !== 'empty');
+            if (allNodes.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedNodeIndex((prev) => (prev + 1) % allNodes.length);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedNodeIndex((prev) => (prev - 1 + allNodes.length) % allNodes.length);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const selectedNode = allNodes[selectedNodeIndex];
+                if (selectedNode) {
+                    onNodeClick(selectedNode.id, selectedNode.type);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [graphData, selectedNodeIndex, onNodeClick]);
+
     return (
         <div className="graph-view-container" ref={containerRef}>
             <ForceGraph2D
@@ -158,16 +184,29 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
 
                     ctx.save();
 
-                    // Highlight drop target
-                    if (dropTarget && dropTarget.id === node.id) {
-                        ctx.shadowColor = '#22c55e';
-                        ctx.shadowBlur = 30 / globalScale;
-                        ctx.strokeStyle = '#22c55e';
-                        ctx.lineWidth = 4 / globalScale;
-                        ctx.beginPath();
-                        ctx.arc(x, y, visualRadius + 8, 0, 2 * Math.PI);
-                        ctx.stroke();
-                    }
+                      // Highlight selected node
+                      const allNodes = graphData.nodes.filter(n => n.id !== 'empty');
+                      const selectedNode = allNodes[selectedNodeIndex];
+                      if (selectedNode && selectedNode.id === node.id) {
+                          ctx.shadowColor = '#3b82f6';
+                          ctx.shadowBlur = 30 / globalScale;
+                          ctx.strokeStyle = '#3b82f6';
+                          ctx.lineWidth = 4 / globalScale;
+                          ctx.beginPath();
+                          ctx.arc(x, y, visualRadius + 8, 0, 2 * Math.PI);
+                          ctx.stroke();
+                      }
+
+                      // Highlight drop target
+                      if (dropTarget && dropTarget.id === node.id) {
+                          ctx.shadowColor = '#22c55e';
+                          ctx.shadowBlur = 30 / globalScale;
+                          ctx.strokeStyle = '#22c55e';
+                          ctx.lineWidth = 4 / globalScale;
+                          ctx.beginPath();
+                          ctx.arc(x, y, visualRadius + 8, 0, 2 * Math.PI);
+                          ctx.stroke();
+                      }
 
                     // Glow effect
                     ctx.shadowColor = node.type === 'folder' ? 'rgba(250, 204, 21, 0.6)' : 'rgba(34, 197, 94, 0.6)';
