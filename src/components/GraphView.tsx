@@ -35,6 +35,7 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
     const containerRef = useRef<HTMLDivElement>(null);
     const dragFlagRef = useRef(false);
     const draggedNodeRef = useRef<any>(null);
+    const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [hoverTarget, setHoverTarget] = useState<{node: any, x: number, y: number} | null>(null);
 
@@ -132,6 +133,52 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
         if (node.id !== 'empty') {
             onNodeClick(node.id, node.type);
         }
+    };
+
+    const drawPreviewLine = (dragNode: any, targetNode: any) => {
+        const canvas = overlayCanvasRef.current;
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const graph = graphRef.current;
+        if (!graph) return;
+
+        const { k: zoom, x: translateX, y: translateY } = graph.zoom() || { k: 1, x: 0, y: 0 };
+
+        canvas.width = dimensions.width;
+        canvas.height = dimensions.height;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Transform coordinates
+        const dragX = dragNode.x * zoom + translateX + dimensions.width / 2;
+        const dragY = dragNode.y * zoom + translateY + dimensions.height / 2;
+        const targetX = targetNode.x * zoom + translateX + dimensions.width / 2;
+        const targetY = targetNode.y * zoom + translateY + dimensions.height / 2;
+
+        // Draw green line
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(dragX, dragY);
+        ctx.lineTo(targetX, targetY);
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([10, 5]);
+        ctx.lineCap = 'round';
+        ctx.shadowColor = '#22c55e';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.restore();
+    };
+
+    const clearPreviewLine = () => {
+        const canvas = overlayCanvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
 
     return (
@@ -264,8 +311,10 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
 
                       if (closestNode) {
                           setHoverTarget({ node: closestNode, x: node.x, y: node.y });
+                          drawPreviewLine(node, closestNode);
                       } else {
                           setHoverTarget(null);
+                          clearPreviewLine();
                       }
                   }}
                   onNodeDragStart={(node: any) => {
@@ -285,6 +334,8 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                       document.body.style.cursor = node ? 'pointer' : 'grab';
                   }}
                   onNodeDragEnd={(node: any) => {
+                      clearPreviewLine();
+                      
                       setTimeout(() => {
                           dragFlagRef.current = false;
                       }, 100);
@@ -296,7 +347,7 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                           // Find the closest node to drop on
                           const draggedNode = draggedNodeRef.current;
                           let closestNode: any = null;
-                          let minDistance = 80; // Maximum drop distance
+                          let minDistance = 100; // Maximum drop distance
 
                           graphData.nodes.forEach((n: any) => {
                               if (n.id === draggedNode.id) return;
@@ -334,55 +385,18 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                       setHoverTarget(null);
                   }}
               />
-              {hoverTarget && (
-                  <svg
-                      style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          pointerEvents: 'none',
-                          zIndex: 10,
-                      }}
-                  >
-                      <defs>
-                          <filter id="preview-glow">
-                              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                              <feMerge>
-                                  <feMergeNode in="coloredBlur"/>
-                                  <feMergeNode in="SourceGraphic"/>
-                              </feMerge>
-                          </filter>
-                      </defs>
-                      {(() => {
-                          const graph = graphRef.current;
-                          if (!graph) return null;
-
-                          const { k: zoom, x: translateX, y: translateY } = graph.zoom() || { k: 1, x: 0, y: 0 };
-
-                          const targetScreenX = hoverTarget.node.x * zoom + translateX + dimensions.width / 2;
-                          const targetScreenY = hoverTarget.node.y * zoom + translateY + dimensions.height / 2;
-                          const dragScreenX = hoverTarget.x * zoom + translateX + dimensions.width / 2;
-                          const dragScreenY = hoverTarget.y * zoom + translateY + dimensions.height / 2;
-
-                          return (
-                              <line
-                                  x1={dragScreenX}
-                                  y1={dragScreenY}
-                                  x2={targetScreenX}
-                                  y2={targetScreenY}
-                                  stroke="#22c55e"
-                                  strokeWidth="4"
-                                  strokeDasharray="10,5"
-                                  strokeLinecap="round"
-                                  filter="url(#preview-glow)"
-                                  opacity="0.9"
-                              />
-                          );
-                      })()}
-                  </svg>
-              )}
+              <canvas
+                  ref={overlayCanvasRef}
+                  style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      pointerEvents: 'none',
+                      zIndex: 10,
+                  }}
+              />
           </div>
       );
   }
