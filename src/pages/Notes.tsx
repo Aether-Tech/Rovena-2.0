@@ -314,7 +314,7 @@ export function Notes() {
         });
 
         return (
-            <Droppable droppableId={folderDroppableId} type="folder">
+            <Droppable droppableId={folderDroppableId} type="folder" isDropDisabled={false}>
                 {(provided) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                         {subfolders.map((folder, index) => {
@@ -477,31 +477,11 @@ export function Notes() {
                         )}
                     </div>
 
-                      {viewMode === 'list' ? (
-                          <DragDropContext onDragEnd={handleDragEnd}>
-                              <div className="notes-tree">{renderFolderTree(null)}</div>
-                          </DragDropContext>
-                      ) : (
-                          <div className="notes-tree">
-                              {NotesStorage.getNotes()
-                                  .filter((note) => {
-                                      if (!searchTerm) return true;
-                                      const search = searchTerm.toLowerCase();
-                                      return note.title.toLowerCase().includes(search) || note.content.toLowerCase().includes(search);
-                                  })
-                                  .map((note) => (
-                                      <div
-                                          key={note.id}
-                                          className={`note-item ${selectedNote?.id === note.id ? 'selected' : ''}`}
-                                          onClick={() => setSelectedNote(note)}
-                                      >
-                                          <FileText size={16} />
-                                          <span className="note-title">{note.title}</span>
-                                      </div>
-                                  ))}
-                          </div>
-                      )}
-                  </div>
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            <div className="notes-tree">{renderFolderTree(null)}</div>
+                        </DragDropContext>
+                    </div>
+
 
                     <div className="notes-content">
                         {viewMode === 'graph' ? (
