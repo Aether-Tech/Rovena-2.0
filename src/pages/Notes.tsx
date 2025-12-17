@@ -385,19 +385,40 @@ export function Notes() {
 
                     <div className="notes-content">
                         {viewMode === 'graph' ? (
-                            <GraphView
-                                notes={NotesStorage.getNotes()}
-                                folders={NotesStorage.getFolders()}
-                                onNodeClick={(nodeId, type) => {
-                                    if (type === 'note') {
-                                        const note = NotesStorage.getNoteById(nodeId);
-                                        if (note) setSelectedNote(note);
-                                    } else {
-                                        setSelectedFolder(nodeId);
-                                        setViewMode('list');
-                                    }
-                                }}
-                            />
+                              <GraphView
+                                  notes={NotesStorage.getNotes()}
+                                  folders={NotesStorage.getFolders()}
+                                  onNodeClick={(nodeId, type) => {
+                                      if (type === 'note') {
+                                          const note = NotesStorage.getNoteById(nodeId);
+                                          if (note) setSelectedNote(note);
+                                      } else {
+                                          setSelectedFolder(nodeId);
+                                          setViewMode('list');
+                                      }
+                                  }}
+                                  onMoveNote={(noteId, newFolderId) => {
+                                      const note = NotesStorage.getNoteById(noteId);
+                                      if (note) {
+                                          NotesStorage.saveNote({
+                                              ...note,
+                                              folderId: newFolderId,
+                                              updatedAt: Date.now(),
+                                          });
+                                          loadData();
+                                      }
+                                  }}
+                                  onMoveFolder={(folderId, newParentId) => {
+                                      const folder = NotesStorage.getFolderById(folderId);
+                                      if (folder) {
+                                          NotesStorage.saveFolder({
+                                              ...folder,
+                                              parentId: newParentId,
+                                          });
+                                          loadData();
+                                      }
+                                  }}
+                              />
                         ) : selectedNote ? (
                           <div className="note-editor-wrapper">
                               <div className="note-tags-section">

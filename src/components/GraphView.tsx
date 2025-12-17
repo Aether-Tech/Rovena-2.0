@@ -26,12 +26,15 @@ interface GraphViewProps {
     notes: Note[];
     folders: Folder[];
     onNodeClick: (nodeId: string, type: 'folder' | 'note') => void;
+    onMoveNote?: (noteId: string, newFolderId: string | null) => void;
+    onMoveFolder?: (folderId: string, newParentId: string | null) => void;
 }
 
-export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
+export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolder }: GraphViewProps) {
     const graphRef = useRef<any>();
     const containerRef = useRef<HTMLDivElement>(null);
     const dragFlagRef = useRef(false);
+    const draggedNodeRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
     useEffect(() => {
@@ -214,30 +217,72 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                 enableZoomInteraction={true}
                 enablePanInteraction={true}
                 enableNodeDrag={true}
-                onNodeDrag={() => {
-                    dragFlagRef.current = true;
-                }}
-                onNodeDragStart={() => {
-                    dragFlagRef.current = true;
-                }}
-                nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
-                    // Use larger radius for hit area to facilitate dragging and prevent culling
-                    const hitRadius = Math.sqrt((node.val || 1)) * 4;
-                    ctx.fillStyle = color;
-                    ctx.beginPath();
-                    ctx.arc(node.x, node.y, hitRadius, 0, 2 * Math.PI);
-                    ctx.fill();
-                }}
-                onNodeHover={(node: any) => {
-                    document.body.style.cursor = node ? 'pointer' : 'grab';
-                }}
-                onNodeDragEnd={(node: any) => {
-                    dragFlagRef.current = false;
-                    if (node) {
-                        node.fx = node.x;
-                        node.fy = node.y;
-                    }
-                }}
+                  onNodeDrag={() => {
+                      dragFlagRef.current = true;
+                  }}
+                  onNodeDragStart={(node: any) => {
+                      dragFlagRef.current = true;
+                      draggedNodeRef.current = node;
+                  }}
+                  nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
+                      // Use larger radius for hit area to facilitate dragging and prevent culling
+                      const hitRadius = Math.sqrt((node.val || 1)) * 4;
+                      ctx.fillStyle = color;
+                      ctx.beginPath();
+                      ctx.arc(node.x, node.y, hitRadius, 0, 2 * Math.PI);
+                      ctx.fill();
+                  }}
+                  onNodeHover={(node: any) => {
+                      document.body.style.cursor = node ? 'pointer' : 'grab';
+                  }}
+                  onNodeDragEnd={(node: any) => {
+                      setTimeout(() => {
+                          dragFlagRef.current = false;
+                      }, 100);
+
+                      if (node && draggedNodeRef.current) {
+                          node.fx = node.x;
+                          node.fy = node.y;
+
+                          // Find the closest node to drop on
+                          const draggedNode = draggedNodeRef.current;
+                          let closestNode: any = null;
+                          let minDistance = 80; // Maximum drop distance
+
+                          graphData.nodes.forEach((n: any) => {
+                              if (n.id === draggedNode.id) return;
+                              
+                              const dx = n.x - node.x;
+                              const dy = n.y - node.y;
+                              const distance = Math.sqrt(dx * dx + dy * dy);
+
+                              if (distance < minDistance) {
+                                  minDistance = distance;
+                                  closestNode = n;
+                              }
+                          });
+
+                          // Handle the drop
+                          if (closestNode && closestNode.type === 'folder') {
+                              if (draggedNode.type === 'note' && onMoveNote) {
+                                  onMoveNote(draggedNode.id, closestNode.id);
+                              } else if (draggedNode.type === 'folder' && onMoveFolder) {
+                                  // Prevent circular references
+                                  if (closestNode.id !== draggedNode.id) {
+                                      onMoveFolder(draggedNode.id, closestNode.id);
+                                  }
+                              }
+                          } else if (!closestNode) {
+                              // Dropped to empty space - move to root
+                              if (draggedNode.type === 'note' && onMoveNote) {
+                                  onMoveNote(draggedNode.id, null);
+                              } else if (draggedNode.type === 'folder' && onMoveFolder) {
+                                  onMoveFolder(draggedNode.id, null);
+                              }
+                          }
+                      }
+                      draggedNodeRef.current = null;
+                  }}
             />
         </div>
     );
