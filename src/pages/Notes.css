@@ -807,3 +807,27 @@
 .note-tags-section .tag-input::placeholder {
     color: var(--text-muted);
 }
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    cursor: grab;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.folder-item:hover .drag-handle,
+.note-item:hover .drag-handle {
+    opacity: 1;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.folder-item.dragging,
+.note-item.dragging {
+    opacity: 0.5;
+    background: var(--bg-tertiary);
+}

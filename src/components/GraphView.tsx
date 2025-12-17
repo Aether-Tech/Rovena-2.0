@@ -26,18 +26,13 @@ interface GraphViewProps {
     notes: Note[];
     folders: Folder[];
     onNodeClick: (nodeId: string, type: 'folder' | 'note') => void;
-    onMoveNote?: (noteId: string, newFolderId: string | null) => void;
-    onMoveFolder?: (folderId: string, newParentId: string | null) => void;
 }
 
-export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolder }: GraphViewProps) {
+export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
     const graphRef = useRef<any>();
     const containerRef = useRef<HTMLDivElement>(null);
     const dragFlagRef = useRef(false);
-    const draggedNodeRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-    const [dropTarget, setDropTarget] = useState<any>(null);
-    const [selectedNodeIndex, setSelectedNodeIndex] = useState(0);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -72,7 +67,7 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                 id: folder.id,
                 name: folder.name,
                 type: 'folder',
-                val: 50,
+                val: 50, // Increased val for larger logic radius (prevents culling)
                 color: '#8b5cf6',
             });
 
@@ -89,7 +84,7 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                 id: note.id,
                 name: note.title,
                 type: 'note',
-                val: 30,
+                val: 30, // Increased val for larger logic radius
                 color: '#22c55e',
             });
 
@@ -135,31 +130,6 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
         }
     };
 
-    // Keyboard navigation
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const allNodes = graphData.nodes.filter(n => n.id !== 'empty');
-            if (allNodes.length === 0) return;
-
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                setSelectedNodeIndex((prev) => (prev + 1) % allNodes.length);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                setSelectedNodeIndex((prev) => (prev - 1 + allNodes.length) % allNodes.length);
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                const selectedNode = allNodes[selectedNodeIndex];
-                if (selectedNode) {
-                    onNodeClick(selectedNode.id, selectedNode.type);
-                }
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [graphData, selectedNodeIndex, onNodeClick]);
-
     return (
         <div className="graph-view-container" ref={containerRef}>
             <ForceGraph2D
@@ -180,33 +150,11 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
 
                     const label = node.name || '';
                     const fontSize = 14 / globalScale;
+                    
+                    // Use fixed visual sizes regardless of the large physics 'val' used for culling protection
                     const visualRadius = node.type === 'folder' ? 12 : 7;
 
                     ctx.save();
-
-                      // Highlight selected node
-                      const allNodes = graphData.nodes.filter(n => n.id !== 'empty');
-                      const selectedNode = allNodes[selectedNodeIndex];
-                      if (selectedNode && selectedNode.id === node.id) {
-                          ctx.shadowColor = '#3b82f6';
-                          ctx.shadowBlur = 30 / globalScale;
-                          ctx.strokeStyle = '#3b82f6';
-                          ctx.lineWidth = 4 / globalScale;
-                          ctx.beginPath();
-                          ctx.arc(x, y, visualRadius + 8, 0, 2 * Math.PI);
-                          ctx.stroke();
-                      }
-
-                      // Highlight drop target
-                      if (dropTarget && dropTarget.id === node.id) {
-                          ctx.shadowColor = '#22c55e';
-                          ctx.shadowBlur = 30 / globalScale;
-                          ctx.strokeStyle = '#22c55e';
-                          ctx.lineWidth = 4 / globalScale;
-                          ctx.beginPath();
-                          ctx.arc(x, y, visualRadius + 8, 0, 2 * Math.PI);
-                          ctx.stroke();
-                      }
 
                     // Glow effect
                     ctx.shadowColor = node.type === 'folder' ? 'rgba(250, 204, 21, 0.6)' : 'rgba(34, 197, 94, 0.6)';
@@ -257,38 +205,6 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                 linkDirectionalParticleWidth={2}
                 linkDirectionalParticleSpeed={0.005}
                 linkDirectionalParticleColor={() => '#4ade80'}
-                linkCanvasObject={(link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-                    const start = link.source;
-                    const end = link.target;
-                    
-                    if (typeof start.x !== 'number' || typeof start.y !== 'number' || 
-                        typeof end.x !== 'number' || typeof end.y !== 'number') {
-                        return;
-                    }
-
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.moveTo(start.x, start.y);
-                    ctx.lineTo(end.x, end.y);
-                    ctx.strokeStyle = 'rgba(34, 197, 94, 0.2)';
-                    ctx.lineWidth = 1.5 / globalScale;
-                    ctx.stroke();
-
-                    // Draw preview line if dragging
-                    if (dropTarget && draggedNodeRef.current) {
-                        ctx.beginPath();
-                        ctx.moveTo(draggedNodeRef.current.x, draggedNodeRef.current.y);
-                        ctx.lineTo(dropTarget.x, dropTarget.y);
-                        ctx.strokeStyle = '#22c55e';
-                        ctx.lineWidth = 3 / globalScale;
-                        ctx.setLineDash([10 / globalScale, 5 / globalScale]);
-                        ctx.stroke();
-                        ctx.setLineDash([]);
-                    }
-
-                    ctx.restore();
-                }}
-                linkCanvasObjectMode={() => 'replace'}
                 onNodeClick={handleNodeClick}
                 backgroundColor="transparent"
                 warmupTicks={100}
@@ -298,38 +214,14 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                 enableZoomInteraction={true}
                 enablePanInteraction={true}
                 enableNodeDrag={true}
-                onNodeDrag={(node: any) => {
+                onNodeDrag={() => {
                     dragFlagRef.current = true;
-                    
-                    if (!draggedNodeRef.current) return;
-
-                    // Find closest folder node
-                    let closestNode: any = null;
-                    let minDistance = 100;
-
-                    const allNodes = graphRef.current?.graphData()?.nodes || [];
-                    allNodes.forEach((n: any) => {
-                        if (n.id === draggedNodeRef.current.id) return;
-                        if (n.type !== 'folder') return;
-                        
-                        const dx = n.x - node.x;
-                        const dy = n.y - node.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            closestNode = n;
-                        }
-                    });
-
-                    setDropTarget(closestNode);
                 }}
-                onNodeDragStart={(node: any) => {
+                onNodeDragStart={() => {
                     dragFlagRef.current = true;
-                    draggedNodeRef.current = node;
-                    setDropTarget(null);
                 }}
                 nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
+                    // Use larger radius for hit area to facilitate dragging and prevent culling
                     const hitRadius = Math.sqrt((node.val || 1)) * 4;
                     ctx.fillStyle = color;
                     ctx.beginPath();
@@ -340,36 +232,11 @@ export function GraphView({ notes, folders, onNodeClick, onMoveNote, onMoveFolde
                     document.body.style.cursor = node ? 'pointer' : 'grab';
                 }}
                 onNodeDragEnd={(node: any) => {
-                    setTimeout(() => {
-                        dragFlagRef.current = false;
-                    }, 100);
-
-                    if (node && draggedNodeRef.current) {
+                    dragFlagRef.current = false;
+                    if (node) {
                         node.fx = node.x;
                         node.fy = node.y;
-
-                        const draggedNode = draggedNodeRef.current;
-
-                        // Use dropTarget if available
-                        if (dropTarget && dropTarget.type === 'folder') {
-                            if (draggedNode.type === 'note' && onMoveNote) {
-                                onMoveNote(draggedNode.id, dropTarget.id);
-                            } else if (draggedNode.type === 'folder' && onMoveFolder) {
-                                if (dropTarget.id !== draggedNode.id) {
-                                    onMoveFolder(draggedNode.id, dropTarget.id);
-                                }
-                            }
-                        } else {
-                            // Dropped to empty space - move to root
-                            if (draggedNode.type === 'note' && onMoveNote) {
-                                onMoveNote(draggedNode.id, null);
-                            } else if (draggedNode.type === 'folder' && onMoveFolder) {
-                                onMoveFolder(draggedNode.id, null);
-                            }
-                        }
                     }
-                    draggedNodeRef.current = null;
-                    setDropTarget(null);
                 }}
             />
         </div>
