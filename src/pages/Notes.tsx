@@ -342,131 +342,140 @@ export function Notes() {
             return note.title.toLowerCase().includes(search) || note.content.toLowerCase().includes(search);
         });
 
-        return (
-            <Droppable
-                droppableId={folderDroppableId}
-                type="folder"
-                isDropDisabled={false}
-                isCombineEnabled={false}
-                ignoreContainerClipping={false}
-                disableInteractiveElementBlocking={false}
-            >
-                {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} style={{ minHeight: '50px' }}>
-                        {subfolders.map((folder, index) => {
-                            const isExpanded = expandedFolders.has(folder.id);
-                            return (
-                                <Draggable key={folder.id} draggableId={folder.id} index={index}>
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            style={{
-                                                marginLeft: level * 16,
-                                                ...provided.draggableProps.style,
-                                            }}
-                                        >
-                                            <div
-                                                className={`folder-item ${selectedFolder === folder.id ? 'selected' : ''} ${
-                                                    snapshot.isDragging ? 'dragging' : ''
-                                                }`}
-                                                onClick={() => setSelectedFolder(folder.id)}
-                                            >
-                                                <div {...provided.dragHandleProps} className="drag-handle">
-                                                    <GripVertical size={14} />
-                                                </div>
-                                                <button
-                                                    className="folder-toggle"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        toggleFolder(folder.id);
-                                                    }}
-                                                >
-                                                    {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                                                </button>
-                                                <FolderIcon size={16} />
-                                                <span className="folder-name">{folder.name}</span>
-                                                <div className="folder-actions">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setRenameTarget({ type: 'folder', id: folder.id, name: folder.name });
-                                                            setShowRenameModal(true);
-                                                        }}
-                                                    >
-                                                        <Edit2 size={12} />
-                                                    </button>
-                                                    <button onClick={(e) => handleDeleteFolder(folder.id, e)}>
-                                                        <Trash2 size={12} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            {isExpanded && renderFolderTree(folder.id, level + 1)}
-                                        </div>
-                                    )}
-                                </Draggable>
-                            );
-                        })}
-                        {provided.placeholder}
-                        <Droppable
-                            droppableId={noteDroppableId}
-                            type="note"
-                            isDropDisabled={false}
-                            isCombineEnabled={false}
-                            ignoreContainerClipping={false}
-                            disableInteractiveElementBlocking={false}
-                        >
-                            {(provided) => (
-                                <div ref={provided.innerRef} {...provided.droppableProps}>
-                                    {filteredNotes.map((note, index) => (
-                                        <Draggable key={note.id} draggableId={note.id} index={index}>
-                                            {(provided, snapshot) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    className={`note-item ${selectedNote?.id === note.id ? 'selected' : ''} ${
-                                                        snapshot.isDragging ? 'dragging' : ''
-                                                    }`}
-                                                    style={{
-                                                        marginLeft: level * 16 + 16,
-                                                        ...provided.draggableProps.style,
-                                                    }}
-                                                    onClick={() => {
-                                                        setSelectedNote(note);
-                                                    }}
-                                                >
-                                                    <div {...provided.dragHandleProps} className="drag-handle">
-                                                        <GripVertical size={14} />
-                                                    </div>
-                                                    <FileText size={16} />
-                                                    <span className="note-title">{note.title}</span>
-                                                    <div className="note-actions">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setRenameTarget({ type: 'note', id: note.id, name: note.title });
-                                                                setShowRenameModal(true);
-                                                            }}
-                                                        >
-                                                            <Edit2 size={12} />
-                                                        </button>
-                                                        <button onClick={(e) => handleDeleteNote(note.id, e)}>
-                                                            <Trash2 size={12} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-                    </div>
-                )}
-            </Droppable>
-        );
-    };
+      return (
+          <Droppable
+              droppableId={folderDroppableId}
+              type="folder"
+              isDropDisabled={false}
+              isCombineEnabled={false}
+              ignoreContainerClipping={false}
+              disableInteractiveElementBlocking={false}
+          >
+              {(folderProvided, folderSnapshot) => (
+                  <div 
+                      ref={folderProvided.innerRef} 
+                      {...folderProvided.droppableProps} 
+                      style={{ minHeight: '50px' }}
+                      className={folderSnapshot.isDraggingOver ? 'droppable-over' : ''}
+                  >
+                      {subfolders.map((folder, index) => {
+                          const isExpanded = expandedFolders.has(folder.id);
+                          return (
+                              <Draggable key={folder.id} draggableId={folder.id} index={index}>
+                                  {(provided, snapshot) => (
+                                      <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          style={{
+                                              marginLeft: level * 16,
+                                              ...provided.draggableProps.style,
+                                          }}
+                                      >
+                                          <div
+                                              className={`folder-item ${selectedFolder === folder.id ? 'selected' : ''} ${
+                                                  snapshot.isDragging ? 'dragging' : ''
+                                              }`}
+                                              onClick={() => setSelectedFolder(folder.id)}
+                                          >
+                                              <div {...provided.dragHandleProps} className="drag-handle">
+                                                  <GripVertical size={14} />
+                                              </div>
+                                              <button
+                                                  className="folder-toggle"
+                                                  onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      toggleFolder(folder.id);
+                                                  }}
+                                              >
+                                                  {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                              </button>
+                                              <FolderIcon size={16} />
+                                              <span className="folder-name">{folder.name}</span>
+                                              <div className="folder-actions">
+                                                  <button
+                                                      onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          setRenameTarget({ type: 'folder', id: folder.id, name: folder.name });
+                                                          setShowRenameModal(true);
+                                                      }}
+                                                  >
+                                                      <Edit2 size={12} />
+                                                  </button>
+                                                  <button onClick={(e) => handleDeleteFolder(folder.id, e)}>
+                                                      <Trash2 size={12} />
+                                                  </button>
+                                              </div>
+                                          </div>
+                                          {isExpanded && renderFolderTree(folder.id, level + 1)}
+                                      </div>
+                                  )}
+                              </Draggable>
+                          );
+                      })}
+                      {folderProvided.placeholder}
+                          <Droppable
+                              droppableId={noteDroppableId}
+                              type="note"
+                              isDropDisabled={false}
+                              isCombineEnabled={false}
+                              ignoreContainerClipping={false}
+                              disableInteractiveElementBlocking={false}
+                          >
+                              {(noteProvided, noteSnapshot) => (
+                                  <div 
+                                      ref={noteProvided.innerRef} 
+                                      {...noteProvided.droppableProps}
+                                      className={noteSnapshot.isDraggingOver ? 'droppable-over' : ''}
+                                  >
+                                      {filteredNotes.map((note, index) => (
+                                          <Draggable key={note.id} draggableId={note.id} index={index}>
+                                              {(provided, snapshot) => (
+                                                  <div
+                                                      ref={provided.innerRef}
+                                                      {...provided.draggableProps}
+                                                      className={`note-item ${selectedNote?.id === note.id ? 'selected' : ''} ${
+                                                          snapshot.isDragging ? 'dragging' : ''
+                                                      }`}
+                                                      style={{
+                                                          marginLeft: level * 16 + 16,
+                                                          ...provided.draggableProps.style,
+                                                      }}
+                                                      onClick={() => {
+                                                          setSelectedNote(note);
+                                                      }}
+                                                  >
+                                                      <div {...provided.dragHandleProps} className="drag-handle">
+                                                          <GripVertical size={14} />
+                                                      </div>
+                                                      <FileText size={16} />
+                                                      <span className="note-title">{note.title}</span>
+                                                      <div className="note-actions">
+                                                          <button
+                                                              onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  setRenameTarget({ type: 'note', id: note.id, name: note.title });
+                                                                  setShowRenameModal(true);
+                                                              }}
+                                                          >
+                                                              <Edit2 size={12} />
+                                                          </button>
+                                                          <button onClick={(e) => handleDeleteNote(note.id, e)}>
+                                                              <Trash2 size={12} />
+                                                          </button>
+                                                      </div>
+                                                  </div>
+                                              )}
+                                          </Draggable>
+                                      ))}
+                                      {noteProvided.placeholder}
+                                  </div>
+                              )}
+                          </Droppable>
+                      </div>
+                  )}
+              </Droppable>
+          );
+      };
 
     return (
         <div className="notes-page page-content">

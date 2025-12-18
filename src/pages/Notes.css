@@ -831,3 +831,10 @@
     opacity: 0.5;
     background: var(--bg-tertiary);
 }
+
+.droppable-over {
+    background: rgba(34, 197, 94, 0.05);
+    border: 2px dashed rgba(34, 197, 94, 0.3);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
