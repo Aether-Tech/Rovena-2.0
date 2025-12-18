@@ -249,12 +249,13 @@ export function Notes() {
         });
     };
 
-    const extractParentId = (droppableId: string, type: 'folder' | 'note'): string | null => {
-        const prefix = `${type}-`;
-        if (!droppableId.startsWith(prefix)) return null;
-        const value = droppableId.slice(prefix.length);
-        return value === 'root' ? null : value;
-    };
+      const extractParentId = (droppableId: string, type: 'folder' | 'note'): string | null => {
+          const prefix = `${type}-`;
+          if (!droppableId.startsWith(prefix)) return null;
+          const value = droppableId.slice(prefix.length);
+          if (value === 'root' || value === '') return null;
+          return value;
+      };
 
     const isInvalidFolderMove = (folderId: string, targetParentId: string | null) => {
         if (!targetParentId) return false;
