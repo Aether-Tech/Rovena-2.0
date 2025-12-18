@@ -838,3 +838,15 @@
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
 }
+
+.drop-zone-top {
+    min-height: 40px;
+    margin: 8px 12px;
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.drop-zone-top.droppable-over {
+    background: rgba(34, 197, 94, 0.1);
+    border: 2px dashed var(--accent-green);
+}
