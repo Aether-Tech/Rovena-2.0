@@ -315,7 +315,14 @@ export function Notes() {
         });
 
         return (
-            <Droppable droppableId={folderDroppableId} type="folder" isDropDisabled={false}>
+            <Droppable
+                droppableId={folderDroppableId}
+                type="folder"
+                isDropDisabled={false}
+                isCombineEnabled={false}
+                ignoreContainerClipping={false}
+                disableInteractiveElementBlocking={false}
+            >
                 {(provided) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}>
                         {subfolders.map((folder, index) => {
@@ -373,7 +380,14 @@ export function Notes() {
                             );
                         })}
                         {provided.placeholder}
-                        <Droppable droppableId={noteDroppableId} type="note">
+                        <Droppable
+                            droppableId={noteDroppableId}
+                            type="note"
+                            isDropDisabled={false}
+                            isCombineEnabled={false}
+                            ignoreContainerClipping={false}
+                            disableInteractiveElementBlocking={false}
+                        >
                             {(provided) => (
                                 <div ref={provided.innerRef} {...provided.droppableProps}>
                                     {filteredNotes.map((note, index) => (
