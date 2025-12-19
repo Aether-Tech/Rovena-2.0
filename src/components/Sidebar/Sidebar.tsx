@@ -20,6 +20,7 @@ interface NavItem {
     label: string;
     path: string;
     badge?: string;
+    disabled?: boolean;
 }
 
 const mainNavItems: NavItem[] = [
@@ -31,8 +32,8 @@ const mainNavItems: NavItem[] = [
     { icon: Archive, label: 'Archives', path: '/archives' },
     { icon: BarChart3, label: 'Charts', path: '/charts' },
     { icon: Presentation, label: 'Presentations', path: '/presentations' },
-    { icon: FlaskConical, label: 'Presentations Gamma', path: '/presentations-beta', badge: 'Em desenvolvimento' },
-    { icon: Globe, label: 'Browser', path: '/browser', badge: 'Em desenvolvimento' },
+    { icon: FlaskConical, label: 'Presentations Gamma', path: '/presentations-beta', badge: 'Em desenvolvimento', disabled: true },
+    { icon: Globe, label: 'Browser', path: '/browser', badge: 'Em desenvolvimento', disabled: true },
 ];
 
 const bottomNavItems: NavItem[] = [
@@ -73,15 +74,26 @@ export function Sidebar({
             <nav className="sidebar-nav">
                 <span className="nav-section">Menu</span>
                 {mainNavItems.map((item) => (
-                    <Link
-                        key={item.path}
-                        to={item.path}
-                        className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-                    >
-                        <item.icon className="nav-icon" />
-                        <span>{item.label}</span>
-                        {item.badge && <span className="nav-badge">{item.badge}</span>}
-                    </Link>
+                    item.disabled ? (
+                        <div
+                            key={item.path}
+                            className="nav-item disabled"
+                        >
+                            <item.icon className="nav-icon" />
+                            <span>{item.label}</span>
+                            {item.badge && <span className="nav-badge">{item.badge}</span>}
+                        </div>
+                    ) : (
+                        <Link
+                            key={item.path}
+                            to={item.path}
+                            className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                        >
+                            <item.icon className="nav-icon" />
+                            <span>{item.label}</span>
+                            {item.badge && <span className="nav-badge">{item.badge}</span>}
+                        </Link>
+                    )
                 ))}
 
                 <span className="nav-section">System</span>
