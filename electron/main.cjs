@@ -204,7 +204,7 @@ ipcMain.handle('get-app-version', () => {
     return app.getVersion();
 });
 
-ipcMain.handle('get-platform', () => {
+ipcMain.handle('get-os-platform', () => {
     return process.platform;
 });
 
