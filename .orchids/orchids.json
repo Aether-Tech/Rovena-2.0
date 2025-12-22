@@ -1,7 +1,7 @@
 {
-  "projectId": "127f285a-6e83-422f-b1e4-3608d0e68694",
-  "createdAt": 1765905242089,
+  "projectId": "a6149675-4ea4-44ae-92e5-28e6520acfaa",
+  "createdAt": 1766441038183,
   "startupCommands": [
-    "bun install --network-concurrency=5 && bun run dev"
+    "bun install; bun run dev"
   ]
 }
