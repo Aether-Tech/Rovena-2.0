@@ -7,10 +7,8 @@ import {
     onAuthStateChanged,
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import {
-    checkSubscription,
-    getUserTokens
-} from './services/firebase';
+import { checkSubscription, getUserTokens } from './services/firebase';
+import { loadAccentColor } from './services/theme';
 import { Modal } from './components/Modal/Modal';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { Onboarding } from './components/Onboarding/Onboarding';
@@ -79,6 +77,7 @@ function App() {
     };
 
     useEffect(() => {
+        loadAccentColor();
         const unsub = onAuthStateChanged(auth, (u) => {
             setUser(u);
             if (u) {

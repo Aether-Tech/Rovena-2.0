@@ -8,8 +8,10 @@ import {
     RefreshCw,
     Download,
     BookOpen,
+    Palette,
 } from 'lucide-react';
 import { cancelSubscription } from '../services/firebase';
+import { applyAccentColor, DEFAULT_ACCENT_COLOR, ACCENT_COLOR_KEY } from '../services/theme';
 import { Modal } from '../components/Modal/Modal';
 import './Settings.css';
 
@@ -38,7 +40,20 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
     const [updateError, setUpdateError] = useState<string | null>(null);
     const [fallbackReleaseInfo, setFallbackReleaseInfo] = useState<any>(null);
 
+    // Theme state
+    const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT_COLOR);
+    const presetColors = [
+        { name: 'Rovena Green', value: '#22c55e' },
+        { name: 'Sky Blue', value: '#3b82f6' },
+        { name: 'Royal Purple', value: '#8b5cf6' },
+        { name: 'Sunset Orange', value: '#f97316' },
+        { name: 'Rose Pink', value: '#ec4899' },
+        { name: 'Amber Glow', value: '#f59e0b' },
+    ];
+
     useEffect(() => {
+        const savedColor = localStorage.getItem(ACCENT_COLOR_KEY) || DEFAULT_ACCENT_COLOR;
+        setAccentColor(savedColor);
         // Get App Version and Platform
         if ((window as any).electronAPI) {
             (window as any).electronAPI.getAppVersion().then((ver: string) => {
@@ -200,6 +215,11 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
         }
     };
 
+    const handleColorChange = (color: string) => {
+        setAccentColor(color);
+        applyAccentColor(color);
+    };
+
     return (
         <div className="settings-page page-content">
             <header className="page-header">
@@ -356,6 +376,47 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             </button>
                         </div>
                     )}
+                </section>
+
+                {/* Theme Customization Section */}
+                <section className="settings-section">
+                    <div className="settings-section-header">
+                        <div className="settings-section-icon" style={{ background: 'rgba(var(--accent-primary-rgb, 34, 197, 94), 0.1)', color: 'var(--accent-primary)' }}>
+                            <Palette size={20} />
+                        </div>
+                        <div>
+                            <h2 className="settings-section-title">Personalização</h2>
+                            <p className="settings-section-subtitle">
+                                Escolha a cor de destaque do aplicativo
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="theme-options">
+                        <div className="preset-colors">
+                            {presetColors.map((color) => (
+                                <button
+                                    key={color.value}
+                                    className={`color-preset ${accentColor === color.value ? 'active' : ''}`}
+                                    style={{ backgroundColor: color.value }}
+                                    onClick={() => handleColorChange(color.value)}
+                                    title={color.name}
+                                />
+                            ))}
+                        </div>
+                        <div className="custom-color-picker">
+                            <label className="custom-color-label">Cor Personalizada:</label>
+                            <div className="picker-wrapper">
+                                <input
+                                    type="color"
+                                    value={accentColor}
+                                    onChange={(e) => handleColorChange(e.target.value)}
+                                    className="color-input"
+                                />
+                                <span className="color-hex-value">{accentColor.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 {/* === ATUALIZAÇÕES === */}
