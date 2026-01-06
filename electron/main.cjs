@@ -131,7 +131,7 @@ function getLatestReleaseUrl() {
                     const release = JSON.parse(data);
                     const dmgAsset = release.assets?.find(a => a.name.endsWith('.dmg'));
                     const zipAsset = release.assets?.find(a => a.name.endsWith('.zip') && a.name.includes('mac'));
-                    
+
                     resolve({
                         version: release.tag_name,
                         dmgUrl: dmgAsset?.browser_download_url || null,
@@ -191,12 +191,34 @@ autoUpdater.on('error', (err) => {
     sendErrorToWindow(err);
 });
 
+let downloadedFilePath = null;
+
 autoUpdater.on('download-progress', (progressObj) => {
     sendStatusToWindow('download-progress', progressObj);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
+    // Store the path to the downloaded file (e.g., DMG on macOS)
+    if (info.downloadedFile) {
+        downloadedFilePath = info.downloadedFile;
+    }
     sendStatusToWindow('update-downloaded', info);
+});
+
+ipcMain.handle('open-manual-update', async () => {
+    if (downloadedFilePath) {
+        console.log('Opening downloaded update file:', downloadedFilePath);
+        try {
+            await shell.openPath(downloadedFilePath);
+            return true;
+        } catch (err) {
+            console.error('Failed to open update file:', err);
+            return false;
+        }
+    } else {
+        console.log('No downloaded file path available to open.');
+        return false;
+    }
 });
 
 // IPC handlers
@@ -237,7 +259,7 @@ ipcMain.handle('quit-and-install', () => {
                 win.removeAllListeners('close');
             });
         }
-        
+
         // Use setImmediate to ensure IPC response is sent before quitting
         setImmediate(() => {
             autoUpdater.quitAndInstall(false, true);

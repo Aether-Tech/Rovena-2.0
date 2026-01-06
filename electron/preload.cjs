@@ -11,8 +11,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     removeUpdateErrorListener: (callback) => ipcRenderer.removeListener('update-error', callback),
     quitAndInstall: () => ipcRenderer.invoke('quit-and-install'),
     getLatestReleaseUrl: () => ipcRenderer.invoke('get-latest-release-url'),
+    openManualUpdate: () => ipcRenderer.invoke('open-manual-update'),
     openExternalUrl: (url) => ipcRenderer.invoke('open-external-url', url),
-    
+
     browser: {
         attach: (bounds) => ipcRenderer.invoke('browser-attach', bounds),
         updateBounds: (bounds) => ipcRenderer.invoke('browser-update-bounds', bounds),

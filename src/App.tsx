@@ -97,6 +97,12 @@ function App() {
             (window as any).electronAPI.onUpdateStatus((status: any) => {
                 if (status && status.text === 'Update downloaded') {
                     setShowUpdateModal(true);
+                    // On macOS, automatically open the DMG for manual install
+                    (window as any).electronAPI.getPlatform().then((plat: string) => {
+                        if (plat === 'darwin') {
+                            (window as any).electronAPI.openManualUpdate();
+                        }
+                    });
                 }
             });
         }
@@ -228,7 +234,13 @@ function App() {
                             className="btn btn-primary"
                             onClick={() => {
                                 if ((window as any).electronAPI) {
-                                    (window as any).electronAPI.quitAndInstall();
+                                    (window as any).electronAPI.getPlatform().then((plat: string) => {
+                                        if (plat === 'darwin') {
+                                            (window as any).electronAPI.openManualUpdate();
+                                        } else {
+                                            (window as any).electronAPI.quitAndInstall();
+                                        }
+                                    });
                                 }
                             }}
                         >
