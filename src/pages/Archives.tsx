@@ -81,27 +81,51 @@ export function Archives() {
         e.stopPropagation();
         if (!chart.svgData) return;
         
+        // Parse the SVG data to a DOM element so we can inject styles if they are missing
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(chart.svgData, 'image/svg+xml');
+        const svgElement = svgDoc.documentElement as unknown as SVGElement;
+
+        // Check if it already has a style tag, if not add it
+        if (!svgElement.querySelector('style')) {
+            const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+            style.textContent = `
+                .chart-title { fill: #ffffff; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; }
+                .chart-value { fill: #ffffff; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; }
+                .chart-label { fill: #a1a1aa; font-family: 'Inter', sans-serif; font-size: 11px; }
+                .chart-axis { stroke: #27272a; stroke-width: 1; }
+                .chart-line { stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+            `;
+            svgElement.prepend(style);
+        }
+
+        const updatedSvgData = new XMLSerializer().serializeToString(svgElement);
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
 
-        canvas.width = 800;
-        canvas.height = 500;
+        // High resolution
+        const scale = 2;
+        canvas.width = 800 * scale;
+        canvas.height = 500 * scale;
 
         img.onload = () => {
             if (ctx) {
-                ctx.fillStyle = '#1a1a2e';
+                // Background
+                ctx.fillStyle = '#0a0a0a';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
+                
+                // Draw the SVG
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const link = document.createElement('a');
+                link.download = `grafico-${chart.id}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
             }
-            
-            const link = document.createElement('a');
-            link.download = `grafico-${chart.id}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
         };
 
-        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(chart.svgData)));
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(updatedSvgData)));
     };
 
     const handleUpdateSettings = (type: keyof ArchiveSettings['retentionDays'], days: number) => {

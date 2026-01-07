@@ -86,11 +86,25 @@ export function Charts() {
         }
     };
 
+    const getSvgWithStyles = (svg: SVGElement): string => {
+        const clonedSvg = svg.cloneNode(true) as SVGElement;
+        const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        style.textContent = `
+            .chart-title { fill: #ffffff; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; }
+            .chart-value { fill: #ffffff; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; }
+            .chart-label { fill: #a1a1aa; font-family: 'Inter', sans-serif; font-size: 11px; }
+            .chart-axis { stroke: #27272a; stroke-width: 1; }
+            .chart-line { stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+        `;
+        clonedSvg.prepend(style);
+        return new XMLSerializer().serializeToString(clonedSvg);
+    };
+
     const getSvgData = (): string | undefined => {
         if (!chartRef.current) return undefined;
         const svg = chartRef.current.querySelector('svg');
         if (!svg) return undefined;
-        return new XMLSerializer().serializeToString(svg);
+        return getSvgWithStyles(svg);
     };
 
     const saveChart = () => {
@@ -120,22 +134,45 @@ export function Charts() {
         const svg = chartRef.current.querySelector('svg');
         if (!svg) return;
 
-        const svgData = new XMLSerializer().serializeToString(svg);
+        // Clone the SVG to modify it without affecting the UI
+        const clonedSvg = svg.cloneNode(true) as SVGElement;
+        
+        // Add a style block to the SVG to include necessary styles that would otherwise be lost
+        // because the standalone SVG won't have access to the external CSS variables.
+        const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        style.textContent = `
+            .chart-title { fill: #ffffff; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600; }
+            .chart-value { fill: #ffffff; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; }
+            .chart-label { fill: #a1a1aa; font-family: 'Inter', sans-serif; font-size: 11px; }
+            .chart-axis { stroke: #27272a; stroke-width: 1; }
+            .chart-line { stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+        `;
+        clonedSvg.prepend(style);
+
+        const svgData = new XMLSerializer().serializeToString(clonedSvg);
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
 
-        canvas.width = 800;
-        canvas.height = 500;
+        // Use higher resolution for better quality
+        const scale = 2;
+        canvas.width = 800 * scale;
+        canvas.height = 500 * scale;
 
         img.onload = () => {
-            ctx?.fillRect(0, 0, canvas.width, canvas.height);
-            ctx?.drawImage(img, 0, 0);
-            
-            const link = document.createElement('a');
-            link.download = `grafico-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            if (ctx) {
+                // Background
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw the SVG
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const link = document.createElement('a');
+                link.download = `grafico-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
         };
 
         img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
