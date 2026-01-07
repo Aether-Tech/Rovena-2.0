@@ -6,7 +6,7 @@ import type { ArchivedChart } from '../services/localStorage';
 import './Charts.css';
 
 type ChartType = 'bar' | 'line' | 'pie' | 'area';
-type ColorTheme = 'green' | 'blue' | 'purple' | 'orange' | 'rainbow';
+type ColorTheme = 'purple' | 'blue' | 'green' | 'orange' | 'rainbow';
 
 interface ChartData {
     labels: string[];
@@ -23,9 +23,9 @@ interface ParsedChartResponse {
 }
 
 const COLOR_THEMES: Record<ColorTheme, string[]> = {
-    green: ['#a855f7', '#9333ea', '#7e22ce', '#6b21a8', '#581c87'],
-    blue: ['#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'],
     purple: ['#a855f7', '#9333ea', '#7e22ce', '#6b21a8', '#581c87'],
+    blue: ['#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'],
+    green: ['#10b981', '#059669', '#047857', '#065f46', '#064e3b'],
     orange: ['#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12'],
     rainbow: ['#ef4444', '#f97316', '#3b82f6', '#a855f7', '#3b82f6', '#a855f7'],
 };
@@ -33,7 +33,7 @@ const COLOR_THEMES: Record<ColorTheme, string[]> = {
 export function Charts() {
     const [inputValue, setInputValue] = useState('');
     const [chartType, setChartType] = useState<ChartType>('bar');
-    const [colorTheme, setColorTheme] = useState<ColorTheme>('green');
+    const [colorTheme, setColorTheme] = useState<ColorTheme>('purple');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [chartData, setChartData] = useState<ChartData | null>(null);

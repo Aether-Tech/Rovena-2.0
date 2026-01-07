@@ -96,7 +96,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: #fff;
     padding: 12px 24px;
     border-radius: 10px;
@@ -174,7 +174,7 @@
 }
 
 .presentations-beta-input .header-icon.beta-gradient {
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
 
 .presentations-beta-input .header-icon .flask-overlay {
@@ -200,7 +200,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     color: white;
     padding: 4px 10px;
     border-radius: 20px;
@@ -382,7 +382,7 @@
     justify-content: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-md) var(--spacing-lg);
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
     border: none;
     border-radius: var(--radius-md);
     color: #fff;
