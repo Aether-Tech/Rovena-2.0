@@ -112,14 +112,14 @@ const drawingTools: ToolButton[] = [
 
 const colors = [
     '#000000', '#343a40', '#495057', '#ffffff',
-    '#ef4444', '#f97316', '#eab308', '#22c55e',
+    '#ef4444', '#f97316', '#eab308', SELECTION_COLOR,
     '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899'
 ];
 
 const strokeWidths = [1, 2, 4, 8];
 
-// Selection color - green
-const SELECTION_COLOR = '#22c55e';
+// Selection color - dynamic from CSS variable
+const SELECTION_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim() || '#7c3aed';
 
 interface CustomFontSelectProps {
     value: string;
@@ -3512,7 +3512,7 @@ export function Canva() {
                                         ? (textElement.height - shapePaddingTop * 2) * scale
                                         : textElement.height * scale,
                                     border: 'none',
-                                    outline: isShape ? 'none' : '1px dashed #22c55e',
+                                    outline: isShape ? 'none' : `1px dashed ${SELECTION_COLOR}`,
                                     background: 'transparent',
                                     padding: '0',
                                     margin: '0',
