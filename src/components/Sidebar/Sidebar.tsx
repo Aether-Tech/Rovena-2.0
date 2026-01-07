@@ -63,7 +63,7 @@ export function Sidebar({
     return (
         <aside className="sidebar">
             <div className="sidebar-header drag-region">
-                <img src="./logo.png" alt="Rovena" className="sidebar-logo-img no-drag" />
+                <img src="./logo.png?v=2" alt="Rovena" className="sidebar-logo-img no-drag" />
                 <span className="sidebar-title no-drag">Rovena</span>
             </div>
 

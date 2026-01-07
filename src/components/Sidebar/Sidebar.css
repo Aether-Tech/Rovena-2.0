@@ -13,7 +13,7 @@
 
 .sidebar-header {
     padding: var(--spacing-lg);
-    padding-top: 64px;
+    padding-top: 80px;
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
