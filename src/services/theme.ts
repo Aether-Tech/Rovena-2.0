@@ -1,6 +1,6 @@
 
 export const ACCENT_COLOR_KEY = 'rovena-accent-color';
-export const DEFAULT_ACCENT_COLOR = '#22c55e';
+export const DEFAULT_ACCENT_COLOR = '#7c3aed';
 
 export function hexToRgb(hex: string): string | null {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
