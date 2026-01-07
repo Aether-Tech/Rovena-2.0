@@ -68,7 +68,7 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                 name: folder.name,
                 type: 'folder',
                 val: 50, // Increased val for larger logic radius (prevents culling)
-                color: '#8b5cf6',
+                color: '#3b82f6',
             });
 
             if (folder.parentId) {
@@ -85,7 +85,7 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                 name: note.title,
                 type: 'note',
                 val: 30, // Increased val for larger logic radius
-                color: '#22c55e',
+                color: '#a855f7',
             });
 
             if (note.folderId) {
@@ -157,16 +157,16 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                     ctx.save();
 
                     // Glow effect
-                    ctx.shadowColor = node.type === 'folder' ? 'rgba(250, 204, 21, 0.6)' : 'rgba(34, 197, 94, 0.6)';
+                    ctx.shadowColor = node.type === 'folder' ? 'rgba(59, 130, 246, 0.6)' : 'rgba(168, 85, 247, 0.6)';
                     ctx.shadowBlur = 20 / globalScale;
 
                     const gradient = ctx.createRadialGradient(x, y, 0, x, y, visualRadius);
                     if (node.type === 'folder') {
-                        gradient.addColorStop(0, '#fbbf24');
-                        gradient.addColorStop(1, '#d97706');
+                        gradient.addColorStop(0, '#3b82f6');
+                        gradient.addColorStop(1, '#2563eb');
                     } else {
-                        gradient.addColorStop(0, '#4ade80');
-                        gradient.addColorStop(1, '#16a34a');
+                        gradient.addColorStop(0, '#a855f7');
+                        gradient.addColorStop(1, '#9333ea');
                     }
 
                     ctx.beginPath();
@@ -175,7 +175,7 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                     ctx.fill();
 
                     // Border
-                    ctx.strokeStyle = node.type === 'folder' ? '#fef3c7' : '#bbf7d0';
+                    ctx.strokeStyle = node.type === 'folder' ? '#dbeafe' : '#f3e8ff';
                     ctx.lineWidth = 2 / globalScale;
                     ctx.stroke();
 
@@ -193,18 +193,18 @@ export function GraphView({ notes, folders, onNodeClick }: GraphViewProps) {
                     ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
                     ctx.fillText(label, x + 1 / globalScale, textY + 1 / globalScale);
 
-                    ctx.fillStyle = node.type === 'folder' ? '#fde047' : '#dcfce7';
+                    ctx.fillStyle = node.type === 'folder' ? '#bfdbfe' : '#f3e8ff';
                     ctx.fillText(label, x, textY);
 
                     ctx.restore();
                 }}
                 nodeCanvasObjectMode={() => 'replace'}
-                linkColor={() => 'rgba(34, 197, 94, 0.2)'}
+                linkColor={() => 'rgba(168, 85, 247, 0.2)'}
                 linkWidth={1.5}
                 linkDirectionalParticles={2}
                 linkDirectionalParticleWidth={2}
                 linkDirectionalParticleSpeed={0.005}
-                linkDirectionalParticleColor={() => '#4ade80'}
+                linkDirectionalParticleColor={() => '#a855f7'}
                 onNodeClick={handleNodeClick}
                 backgroundColor="transparent"
                 warmupTicks={100}

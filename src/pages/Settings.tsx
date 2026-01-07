@@ -8,10 +8,8 @@ import {
     RefreshCw,
     Download,
     BookOpen,
-    Palette,
 } from 'lucide-react';
 import { cancelSubscription } from '../services/firebase';
-import { applyAccentColor, DEFAULT_ACCENT_COLOR, ACCENT_COLOR_KEY, hexToRgb } from '../services/theme';
 import { Modal } from '../components/Modal/Modal';
 import './Settings.css';
 
@@ -40,20 +38,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
     const [updateError, setUpdateError] = useState<string | null>(null);
     const [fallbackReleaseInfo, setFallbackReleaseInfo] = useState<any>(null);
 
-    // Theme state
-    const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT_COLOR);
-    const presetColors = [
-        { name: 'Royal Purple', value: '#7c3aed' },
-        { name: 'Rovena Green', value: '#22c55e' },
-        { name: 'Sky Blue', value: '#3b82f6' },
-        { name: 'Sunset Orange', value: '#f97316' },
-        { name: 'Rose Pink', value: '#ec4899' },
-        { name: 'Amber Glow', value: '#f59e0b' },
-    ];
-
     useEffect(() => {
-        const savedColor = localStorage.getItem(ACCENT_COLOR_KEY) || DEFAULT_ACCENT_COLOR;
-        setAccentColor(savedColor);
         // Get App Version and Platform
         if ((window as any).electronAPI) {
             (window as any).electronAPI.getAppVersion().then((ver: string) => {
@@ -215,11 +200,6 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
         }
     };
 
-    const handleColorChange = (color: string) => {
-        setAccentColor(color);
-        applyAccentColor(color);
-    };
-
     return (
         <div className="settings-page page-content">
             <header className="page-header">
@@ -376,63 +356,6 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             </button>
                         </div>
                     )}
-                </section>
-
-                {/* Theme Customization Section */}
-                <section className="settings-section">
-                    <div className="settings-section-header">
-                        <div className="settings-section-icon" style={{ background: `rgba(${hexToRgb(accentColor) || '124, 58, 237'}, 0.1)`, color: accentColor }}>
-                            <Palette size={20} />
-                        </div>
-                        <div>
-                            <h2 className="settings-section-title">Personalização</h2>
-                            <p className="settings-section-subtitle">
-                                Escolha a cor de destaque do aplicativo
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="account-actions">
-                        <div className="account-action">
-                            <div className="account-action-info">
-                                <span className="account-action-label">Cores Predefinidas</span>
-                                <span className="account-action-description">
-                                    Selecione uma das cores recomendadas
-                                </span>
-                            </div>
-                            <div className="preset-colors">
-                                {presetColors.map((color) => (
-                                    <button
-                                        key={color.value}
-                                        className={`color-preset ${accentColor === color.value ? 'active' : ''}`}
-                                        style={{ backgroundColor: color.value }}
-                                        onClick={() => handleColorChange(color.value)}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="account-action">
-                            <div className="account-action-info">
-                                <span className="account-action-label">Cor Personalizada</span>
-                                <span className="account-action-description">
-                                    Defina uma cor específica em HEX
-                                </span>
-                            </div>
-                            <div className="custom-color-picker">
-                                <div className="picker-wrapper">
-                                    <input
-                                        type="color"
-                                        value={accentColor}
-                                        onChange={(e) => handleColorChange(e.target.value)}
-                                        className="color-input"
-                                    />
-                                    <span className="color-hex-value">{accentColor.toUpperCase()}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </section>
 
                 {/* === ATUALIZAÇÕES === */}

@@ -23,11 +23,11 @@ interface ParsedChartResponse {
 }
 
 const COLOR_THEMES: Record<ColorTheme, string[]> = {
-    green: ['#22c55e', '#16a34a', '#15803d', '#166534', '#14532d'],
+    green: ['#a855f7', '#9333ea', '#7e22ce', '#6b21a8', '#581c87'],
     blue: ['#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'],
     purple: ['#a855f7', '#9333ea', '#7e22ce', '#6b21a8', '#581c87'],
     orange: ['#f97316', '#ea580c', '#c2410c', '#9a3412', '#7c2d12'],
-    rainbow: ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#a855f7'],
+    rainbow: ['#ef4444', '#f97316', '#3b82f6', '#a855f7', '#3b82f6', '#a855f7'],
 };
 
 export function Charts() {

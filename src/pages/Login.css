@@ -100,7 +100,7 @@
 .form-input:focus {
     border-color: var(--accent-green);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
 }
 
 /* Autofill/Autocomplete Styling - Fixes the white background issue */

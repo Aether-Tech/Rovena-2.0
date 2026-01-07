@@ -112,14 +112,14 @@ const drawingTools: ToolButton[] = [
 
 const colors = [
     '#000000', '#343a40', '#495057', '#ffffff',
-    '#ef4444', '#f97316', '#eab308', SELECTION_COLOR,
+    '#ef4444', '#f97316', '#3b82f6', '#a855f7',
     '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899'
 ];
 
 const strokeWidths = [1, 2, 4, 8];
 
-// Selection color - dynamic from CSS variable
-const SELECTION_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim() || '#7c3aed';
+// Selection color - purple
+const SELECTION_COLOR = '#a855f7';
 
 interface CustomFontSelectProps {
     value: string;
@@ -1424,7 +1424,7 @@ export function Canva() {
                 // Draw line from curve to control point
                 ctx.beginPath();
                 ctx.setLineDash([3, 3]);
-                ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)';
+                ctx.strokeStyle = 'rgba(168, 85, 247, 0.5)';
                 ctx.moveTo(x, y);
                 ctx.lineTo(ctrlX, ctrlY);
                 ctx.lineTo(x + w, y + h);
@@ -1489,15 +1489,15 @@ export function Canva() {
 
             // Hover effect
             if (element.id === hoveredLock) {
-                ctx.fillStyle = 'rgba(74, 222, 128, 0.2)'; // Green background bg
+                ctx.fillStyle = 'rgba(168, 85, 247, 0.2)'; // Green background bg
                 ctx.beginPath();
                 ctx.arc(8, 8, 14, 0, Math.PI * 2);
                 ctx.fill();
             }
 
             // Lock Body
-            ctx.fillStyle = element.id === hoveredLock ? '#4ade80' : '#ef4444'; // Green on hover, Red default
-            ctx.strokeStyle = element.id === hoveredLock ? '#4ade80' : '#ef4444';
+            ctx.fillStyle = element.id === hoveredLock ? '#a855f7' : '#ef4444'; // Green on hover, Red default
+            ctx.strokeStyle = element.id === hoveredLock ? '#a855f7' : '#ef4444';
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -1616,7 +1616,7 @@ export function Canva() {
         // Draw selection box
         if (selectionBox) {
             ctx.strokeStyle = SELECTION_COLOR;
-            ctx.fillStyle = 'rgba(34, 197, 94, 0.1)';
+            ctx.fillStyle = 'rgba(168, 85, 247, 0.1)';
             ctx.lineWidth = 1;
             ctx.setLineDash([4, 4]);
             const boxX = Math.min(selectionBox.start.x, selectionBox.end.x);
@@ -3512,7 +3512,7 @@ export function Canva() {
                                         ? (textElement.height - shapePaddingTop * 2) * scale
                                         : textElement.height * scale,
                                     border: 'none',
-                                    outline: isShape ? 'none' : `1px dashed ${SELECTION_COLOR}`,
+                                    outline: isShape ? 'none' : '1px dashed #a855f7',
                                     background: 'transparent',
                                     padding: '0',
                                     margin: '0',

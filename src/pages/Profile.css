@@ -200,7 +200,7 @@
     align-items: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-sm) var(--spacing-md);
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(168, 85, 247, 0.1);
     border: 1px solid var(--accent-green);
     border-radius: var(--radius-md);
     color: var(--accent-green);

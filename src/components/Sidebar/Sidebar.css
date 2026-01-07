@@ -79,8 +79,8 @@
 }
 
 .nav-item.active {
-    background: rgba(var(--accent-primary-rgb, 34, 197, 94), 0.1);
-    color: var(--accent-primary);
+    background: rgba(168, 85, 247, 0.1);
+    color: var(--accent-green);
 }
 
 .nav-item.active::before {
@@ -89,7 +89,7 @@
     left: 0;
     width: 3px;
     height: 24px;
-    background: var(--gradient-primary);
+    background: var(--gradient-green);
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 

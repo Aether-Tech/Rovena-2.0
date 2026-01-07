@@ -335,7 +335,7 @@
 
 .card-pres-preview {
     height: 120px;
-    background: linear-gradient(135deg, var(--bg-tertiary), rgba(34, 197, 94, 0.1));
+    background: linear-gradient(135deg, var(--bg-tertiary), rgba(168, 85, 247, 0.1));
     display: flex;
     flex-direction: column;
     align-items: center;
