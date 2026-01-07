@@ -11,7 +11,7 @@ import {
     Palette,
 } from 'lucide-react';
 import { cancelSubscription } from '../services/firebase';
-import { applyAccentColor, DEFAULT_ACCENT_COLOR, ACCENT_COLOR_KEY } from '../services/theme';
+import { applyAccentColor, DEFAULT_ACCENT_COLOR, ACCENT_COLOR_KEY, hexToRgb } from '../services/theme';
 import { Modal } from '../components/Modal/Modal';
 import './Settings.css';
 
