@@ -73,7 +73,7 @@ export function Charts() {
 
         } catch (err) {
             console.error(err);
-            setError(err instanceof Error ? err.message : 'Erro ao processar os dados. Tente novamente.');
+            setError(err instanceof Error ? err.message : 'Error processing data. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -114,7 +114,7 @@ export function Charts() {
             id: `chart-${Date.now()}`,
             type: 'chart',
             createdAt: Date.now(),
-            title: chartData.title || `Gráfico de ${chartType}`,
+            title: chartData.title || `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`,
             chartType,
             colorTheme,
             labels: chartData.labels,
@@ -169,7 +169,7 @@ export function Charts() {
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 
                 const link = document.createElement('a');
-                link.download = `grafico-${Date.now()}.png`;
+                link.download = `chart-${Date.now()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }
@@ -408,10 +408,10 @@ export function Charts() {
             <header className="charts-header">
                 <div className="charts-header-title">
                     <BarChart3 size={24} />
-                    Criar Gráficos
+                    Create Charts
                 </div>
                 <p className="charts-header-subtitle">
-                    Insira seus dados e deixe a IA interpretar e gerar visualizações
+                    Enter your data and let the AI interpret and generate visualizations
                 </p>
             </header>
 
@@ -419,7 +419,7 @@ export function Charts() {
                 <div className="charts-controls">
                     <div className="control-group">
                         <label className="control-label">
-                            <span>Tipo de Gráfico</span>
+                            <span>Chart Type</span>
                         </label>
                         <div className="chart-type-options">
                             <button 
@@ -427,28 +427,28 @@ export function Charts() {
                                 onClick={() => setChartType('bar')}
                             >
                                 <BarChart3 size={18} />
-                                Barras
+                                Bar
                             </button>
                             <button 
                                 className={`type-option ${chartType === 'line' ? 'active' : ''}`}
                                 onClick={() => setChartType('line')}
                             >
                                 <LineChart size={18} />
-                                Linhas
+                                Line
                             </button>
                             <button 
                                 className={`type-option ${chartType === 'area' ? 'active' : ''}`}
                                 onClick={() => setChartType('area')}
                             >
                                 <TrendingUp size={18} />
-                                Área
+                                Area
                             </button>
                             <button 
                                 className={`type-option ${chartType === 'pie' ? 'active' : ''}`}
                                 onClick={() => setChartType('pie')}
                             >
                                 <PieChart size={18} />
-                                Pizza
+                                Pie
                             </button>
                         </div>
                     </div>
@@ -456,7 +456,7 @@ export function Charts() {
                     <div className="control-group">
                         <label className="control-label">
                             <Palette size={16} />
-                            <span>Tema de Cores</span>
+                            <span>Color Theme</span>
                         </label>
                         <div className="color-theme-options">
                             {(Object.keys(COLOR_THEMES) as ColorTheme[]).map((theme) => (
@@ -479,18 +479,18 @@ export function Charts() {
                     <div className="control-group input-group">
                         <label className="control-label">
                             <Sparkles size={16} />
-                            <span>Dados (a IA vai interpretar)</span>
+                            <span>Data (AI will interpret)</span>
                         </label>
                         <textarea
                             className="data-input"
-                            placeholder="Ex: Vendas de janeiro foram 1500, fevereiro 2300, março 1800, abril 2100..."
+                            placeholder="Ex: January sales were 1500, February 2300, March 1800, April 2100..."
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={handleKeyDown}
                             rows={4}
                             disabled={isLoading}
                         />
-                        <span className="input-hint">Pressione Ctrl+Enter para gerar</span>
+                        <span className="input-hint">Press Ctrl+Enter to generate</span>
                     </div>
 
                     <button
@@ -503,7 +503,7 @@ export function Charts() {
                         ) : (
                             <>
                                 <Send size={18} />
-                                Gerar Gráfico
+                                Generate Chart
                             </>
                         )}
                     </button>
@@ -532,19 +532,19 @@ export function Charts() {
 
                             <div className="chart-actions">
                                 <button className="btn btn-secondary" onClick={saveChart} disabled={saved}>
-                                    {saved ? <><Check size={18} /> Salvo</> : <><Save size={18} /> Salvar</>}
+                                    {saved ? <><Check size={18} /> Saved</> : <><Save size={18} /> Save</>}
                                 </button>
                                 <button className="btn btn-secondary" onClick={downloadChart}>
                                     <Download size={18} />
-                                    Baixar
+                                    Download
                                 </button>
                             </div>
                         </>
                     ) : (
                         <div className="empty-preview">
                             <BarChart3 size={48} />
-                            <h3>Pré-visualização do Gráfico</h3>
-                            <p>Insira seus dados e clique em "Gerar Gráfico" para visualizar</p>
+                            <h3>Chart Preview</h3>
+                            <p>Enter your data and click "Generate Chart" to visualize</p>
                         </div>
                     )}
                 </div>

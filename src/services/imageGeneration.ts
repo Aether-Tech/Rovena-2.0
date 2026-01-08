@@ -48,12 +48,12 @@ export async function generateImage(params: ImageGenerationParams): Promise<stri
     try {
         const response = await fetch(imageUrl);
         if (!response.ok) {
-            throw new Error(`Erro: ${response.status} - ${response.statusText}`);
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
         }
         // If successful, return the URL (browser will load it from cache mostly)
         return imageUrl;
     } catch (error) {
         console.error("Image generation error:", error);
-        throw new Error('Falha ao gerar imagem. Verifique sua conexão.');
+        throw new Error('Failed to generate image. Check your connection.');
     }
 }

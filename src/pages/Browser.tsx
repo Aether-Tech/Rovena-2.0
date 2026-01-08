@@ -148,7 +148,7 @@ export function Browser() {
                 <div className="browser-header">
                     <Globe size={24} />
                     <h1>Mini Browser</h1>
-                    <span className="browser-subtitle">Disponível apenas no app Electron</span>
+                    <span className="browser-subtitle">Available only in the Electron app</span>
                 </div>
             </div>
         );
@@ -159,18 +159,18 @@ export function Browser() {
             <div className="browser-header">
                 <Globe size={24} />
                 <h1>Mini Browser</h1>
-                <span className="browser-subtitle">Embutido na janela principal via WebContentsView</span>
+                <span className="browser-subtitle">Embedded in the main window via WebContentsView</span>
             </div>
 
             <div className="browser-main">
                 <div className="browser-toolbar">
-                    <button className="browser-nav-btn" onClick={handleBack} title="Voltar">
+                    <button className="browser-nav-btn" onClick={handleBack} title="Back">
                         <ChevronLeft size={18} />
                     </button>
-                    <button className="browser-nav-btn" onClick={handleForward} title="Avançar">
+                    <button className="browser-nav-btn" onClick={handleForward} title="Forward">
                         <ChevronRight size={18} />
                     </button>
-                    <button className="browser-nav-btn" onClick={handleRefresh} title="Recarregar">
+                    <button className="browser-nav-btn" onClick={handleRefresh} title="Reload">
                         <RefreshCw size={18} />
                     </button>
                     <button className="browser-nav-btn" onClick={handleHome} title="Home">
@@ -182,7 +182,7 @@ export function Browser() {
                             value={inputUrl}
                             onChange={(e) => setInputUrl(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleNavigate()}
-                            placeholder="Digite uma URL..."
+                            placeholder="Type a URL..."
                         />
                     </div>
                 </div>
@@ -191,7 +191,7 @@ export function Browser() {
 
                 {currentUrl && (
                     <div className="browser-current-url">
-                        <span>URL atual: {currentUrl}</span>
+                        <span>Current URL: {currentUrl}</span>
                     </div>
                 )}
             </div>

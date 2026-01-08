@@ -94,20 +94,20 @@ interface ToolButton {
 }
 
 const mainTools: ToolButton[] = [
-    { id: 'select', icon: MousePointer2, label: 'Selecionar', shortcut: 'V' },
-    { id: 'hand', icon: Hand, label: 'Mover canvas', shortcut: 'H' },
-    { id: 'rectangle', icon: Square, label: 'Retângulo', shortcut: 'R' },
-    { id: 'ellipse', icon: Circle, label: 'Elipse', shortcut: 'O' },
-    { id: 'diamond', icon: Diamond, label: 'Diamante', shortcut: 'D' },
-    { id: 'arrow', icon: ArrowRight, label: 'Seta', shortcut: 'A' },
-    { id: 'line', icon: Minus, label: 'Linha', shortcut: 'L' },
-    { id: 'text', icon: Type, label: 'Texto', shortcut: 'T' },
+    { id: 'select', icon: MousePointer2, label: 'Select', shortcut: 'V' },
+    { id: 'hand', icon: Hand, label: 'Move canvas', shortcut: 'H' },
+    { id: 'rectangle', icon: Square, label: 'Rectangle', shortcut: 'R' },
+    { id: 'ellipse', icon: Circle, label: 'Ellipse', shortcut: 'O' },
+    { id: 'diamond', icon: Diamond, label: 'Diamond', shortcut: 'D' },
+    { id: 'arrow', icon: ArrowRight, label: 'Arrow', shortcut: 'A' },
+    { id: 'line', icon: Minus, label: 'Line', shortcut: 'L' },
+    { id: 'text', icon: Type, label: 'Text', shortcut: 'T' },
 ];
 
 const drawingTools: ToolButton[] = [
-    { id: 'pencil', icon: Pencil, label: 'Lápis', shortcut: 'P' },
+    { id: 'pencil', icon: Pencil, label: 'Pencil', shortcut: 'P' },
     { id: 'laser', icon: Zap, label: 'Laser', shortcut: 'K' },
-    { id: 'eraser', icon: Eraser, label: 'Borracha', shortcut: 'E' },
+    { id: 'eraser', icon: Eraser, label: 'Eraser', shortcut: 'E' },
 ];
 
 const colors = [
@@ -385,7 +385,7 @@ export function Canva() {
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [saveCurrentCanvas]);
 
-    // Salvar quando elements mudam (debounced)
+    // Save when elements change (debounced)
     useEffect(() => {
         if (!currentCanvasId) return;
         const timeout = setTimeout(() => {
@@ -2775,7 +2775,7 @@ export function Canva() {
                 <button
                     className="canvas-panel-open-btn"
                     onClick={() => setCanvasPanelOpen(true)}
-                    title="Abrir painel de canvas"
+                    title="Open canvas panel"
                 >
                     <ChevronRight size={18} />
                 </button>
@@ -2785,11 +2785,11 @@ export function Canva() {
             {(canvasPanelOpen || isPanelClosing) && (
                 <div className={`canvas-list-panel ${isPanelClosing ? 'closing' : ''}`}>
                     <div className="canvas-panel-header">
-                        <span className="canvas-panel-title">Meus Canvas</span>
+                        <span className="canvas-panel-title">My Canvas</span>
                         <button
                             className="canvas-panel-toggle"
                             onClick={handleClosePanel}
-                            title="Fechar painel"
+                            title="Close panel"
                         >
                             <ChevronLeft size={16} />
                         </button>
@@ -2797,7 +2797,7 @@ export function Canva() {
 
                     <button className="new-canvas-btn" onClick={createNewCanvas}>
                         <Plus size={16} />
-                        <span>Novo Canvas</span>
+                        <span>New Canvas</span>
                     </button>
 
                     <div className="canvas-list">
@@ -2831,14 +2831,14 @@ export function Canva() {
                                         <button
                                             className="canvas-rename-btn confirm"
                                             onClick={() => renameCanvas(canvas.id, tempCanvasName)}
-                                            title="Confirmar"
+                                            title="Confirm"
                                         >
                                             <Check size={12} />
                                         </button>
                                         <button
                                             className="canvas-rename-btn cancel"
                                             onClick={cancelRenamingCanvas}
-                                            title="Cancelar"
+                                            title="Cancel"
                                         >
                                             <X size={12} />
                                         </button>
@@ -2851,7 +2851,7 @@ export function Canva() {
                                                 e.stopPropagation();
                                                 startRenamingCanvas(canvas.id, canvas.name);
                                             }}
-                                            title="Clique duplo para renomear"
+                                            title="Double click to rename"
                                         >
                                             {canvas.name}
                                         </span>
@@ -2862,7 +2862,7 @@ export function Canva() {
                                                 e.stopPropagation();
                                                 startRenamingCanvas(canvas.id, canvas.name);
                                             }}
-                                            title="Renomear canvas"
+                                            title="Rename canvas"
                                         >
                                             <Edit2 size={12} />
                                         </button>
@@ -2873,7 +2873,7 @@ export function Canva() {
                                                     e.stopPropagation();
                                                     deleteCanvas(canvas.id);
                                                 }}
-                                                title="Excluir canvas"
+                                                title="Delete canvas"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
@@ -2892,7 +2892,7 @@ export function Canva() {
                     <button
                         className="toolbar-btn clear-canvas-btn"
                         onClick={() => setShowClearConfirm(true)}
-                        title="Limpar canvas"
+                        title="Clear canvas"
                         disabled={elements.length === 0}
                     >
                         <Trash2 size={18} />
@@ -2914,7 +2914,7 @@ export function Canva() {
                         <button
                             className="toolbar-btn"
                             onClick={openImageFilePicker}
-                            title="Inserir imagem (I)"
+                            title="Insert image (I)"
                         >
                             <FileImage size={18} />
                         </button>
@@ -2941,7 +2941,7 @@ export function Canva() {
                         <button
                             className="toolbar-btn"
                             onClick={undo}
-                            title="Desfazer (Ctrl+Z)"
+                            title="Undo (Ctrl+Z)"
                             disabled={historyIndex <= 0}
                         >
                             <Undo2 size={18} />
@@ -2949,7 +2949,7 @@ export function Canva() {
                         <button
                             className="toolbar-btn"
                             onClick={redo}
-                            title="Refazer (Ctrl+Y)"
+                            title="Redo (Ctrl+Y)"
                             disabled={historyIndex >= history.length - 1}
                         >
                             <Redo2 size={18} />
@@ -2959,20 +2959,20 @@ export function Canva() {
 
                 <div className="toolbar-right">
                     <div className="toolbar-group zoom-controls">
-                        <button className="toolbar-btn" onClick={zoomOut} title="Diminuir zoom">
+                        <button className="toolbar-btn" onClick={zoomOut} title="Zoom out">
                             <ZoomOut size={18} />
                         </button>
-                        <button className="zoom-label" onClick={resetZoom} title="Resetar zoom">
+                        <button className="zoom-label" onClick={resetZoom} title="Reset zoom">
                             {Math.round(scale * 100)}%
                         </button>
-                        <button className="toolbar-btn" onClick={zoomIn} title="Aumentar zoom">
+                        <button className="toolbar-btn" onClick={zoomIn} title="Zoom in">
                             <ZoomIn size={18} />
                         </button>
                     </div>
 
-                    <button className="toolbar-btn export-btn" onClick={exportCanvas} title="Exportar PNG">
+                    <button className="toolbar-btn export-btn" onClick={exportCanvas} title="Export PNG">
                         <Download size={18} />
-                        <span>Exportar</span>
+                        <span>Export</span>
                     </button>
                 </div>
             </div>
@@ -3048,13 +3048,13 @@ export function Canva() {
                                                 className={`shape-text-tab ${shapeEditMode === 'shape' ? 'active' : ''}`}
                                                 onClick={() => setShapeEditMode('shape')}
                                             >
-                                                Forma
+                                                Shape
                                             </button>
                                             <button
                                                 className={`shape-text-tab ${shapeEditMode === 'text' ? 'active' : ''}`}
                                                 onClick={() => setShapeEditMode('text')}
                                             >
-                                                Texto
+                                                Text
                                             </button>
                                         </div>
                                     )}
@@ -3063,7 +3063,7 @@ export function Canva() {
                                     {(currentStyle.type === 'rectangle' || currentStyle.type === 'ellipse' || currentStyle.type === 'diamond') && currentStyle.text && shapeEditMode === 'text' ? (
                                         <>
                                             <div className="panel-section">
-                                                <span className="panel-label">Cor do Texto</span>
+                                                <span className="panel-label">Text Color</span>
                                                 <div className="color-grid">
                                                     {colors.map(color => (
                                                         <button
@@ -3077,7 +3077,7 @@ export function Canva() {
                                             </div>
 
                                             <div className="panel-section">
-                                                <span className="panel-label">Fonte</span>
+                                                <span className="panel-label">Font</span>
                                                 <div className="text-controls" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
                                                     <CustomFontSelect
                                                         value={currentStyle.fontFamily || 'Inter, sans-serif'}
@@ -3088,7 +3088,7 @@ export function Canva() {
 
                                             <div className="panel-section">
                                                 <span className="panel-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    Tamanho <span>{Math.round(currentStyle.fontSize || 16)}px</span>
+                                                    Size <span>{Math.round(currentStyle.fontSize || 16)}px</span>
                                                 </span>
                                                 <div className="slider-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <input
@@ -3104,26 +3104,26 @@ export function Canva() {
                                             </div>
 
                                             <div className="panel-section">
-                                                <span className="panel-label">Alinhamento</span>
+                                                <span className="panel-label">Alignment</span>
                                                 <div className="style-grid">
                                                     <button
                                                         className={`style-btn ${(!currentStyle.textAlign || currentStyle.textAlign === 'left') ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ textAlign: 'left' })}
-                                                        title="Esquerda"
+                                                        title="Left"
                                                     >
                                                         <AlignLeft size={16} />
                                                     </button>
                                                     <button
                                                         className={`style-btn ${currentStyle.textAlign === 'center' ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ textAlign: 'center' })}
-                                                        title="Centralizar"
+                                                        title="Center"
                                                     >
                                                         <AlignCenter size={16} />
                                                     </button>
                                                     <button
                                                         className={`style-btn ${currentStyle.textAlign === 'right' ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ textAlign: 'right' })}
-                                                        title="Direita"
+                                                        title="Right"
                                                     >
                                                         <AlignRight size={16} />
                                                     </button>
@@ -3133,7 +3133,7 @@ export function Canva() {
                                     ) : currentStyle.type === 'text' ? (
                                         <>
                                             <div className="panel-section">
-                                                <span className="panel-label">Cor</span>
+                                                <span className="panel-label">Color</span>
                                                 <div className="color-grid">
                                                     {colors.map(color => (
                                                         <button
@@ -3147,7 +3147,7 @@ export function Canva() {
                                             </div>
 
                                             <div className="panel-section">
-                                                <span className="panel-label">Fonte</span>
+                                                <span className="panel-label">Font</span>
                                                 <div className="text-controls" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
                                                     <CustomFontSelect
                                                         value={currentStyle.fontFamily || 'Inter, sans-serif'}
@@ -3159,7 +3159,7 @@ export function Canva() {
 
                                             <div className="panel-section">
                                                 <span className="panel-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    Tamanho <span>{Math.round(currentStyle.fontSize || 20)}px</span>
+                                                    Size <span>{Math.round(currentStyle.fontSize || 20)}px</span>
                                                 </span>
                                                 <div className="slider-container" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     <input
@@ -3175,26 +3175,26 @@ export function Canva() {
                                             </div>
 
                                             <div className="panel-section">
-                                                <span className="panel-label">Alinhamento</span>
+                                                <span className="panel-label">Alignment</span>
                                                 <div className="style-grid">
                                                     <button
                                                         className={`style-btn ${(!currentStyle.textAlign || currentStyle.textAlign === 'left') ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ textAlign: 'left' })}
-                                                        title="Esquerda"
+                                                        title="Left"
                                                     >
                                                         <AlignLeft size={16} />
                                                     </button>
                                                     <button
                                                         className={`style-btn ${currentStyle.textAlign === 'center' ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ textAlign: 'center' })}
-                                                        title="Centralizar"
+                                                        title="Center"
                                                     >
                                                         <AlignCenter size={16} />
                                                     </button>
                                                     <button
                                                         className={`style-btn ${currentStyle.textAlign === 'right' ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ textAlign: 'right' })}
-                                                        title="Direita"
+                                                        title="Right"
                                                     >
                                                         <AlignRight size={16} />
                                                     </button>
@@ -3204,12 +3204,12 @@ export function Canva() {
                                     ) : (
                                         <>
                                             <div className="panel-section">
-                                                <span className="panel-label">Contorno</span>
+                                                <span className="panel-label">Stroke</span>
                                                 <div className="color-grid">
                                                     <button
                                                         className={`color-btn transparent ${currentStyle.stroke === 'transparent' ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ stroke: 'transparent' })}
-                                                        title="Sem contorno"
+                                                        title="No stroke"
                                                     />
                                                     {colors.map(color => (
                                                         <button
@@ -3223,12 +3223,12 @@ export function Canva() {
                                             </div>
 
                                             <div className="panel-section">
-                                                <span className="panel-label">Fundo</span>
+                                                <span className="panel-label">Background</span>
                                                 <div className="color-grid">
                                                     <button
                                                         className={`color-btn transparent ${currentStyle.fill === 'transparent' ? 'active' : ''}`}
                                                         onClick={() => handleStyleUpdate({ fill: 'transparent' })}
-                                                        title="Transparente"
+                                                        title="Transparent"
                                                     />
                                                     {colors.map(color => (
                                                         <button
@@ -3242,7 +3242,7 @@ export function Canva() {
                                             </div>
 
                                             <div className="panel-section">
-                                                <span className="panel-label">Espessura</span>
+                                                <span className="panel-label">Width</span>
                                                 <div className="stroke-grid">
                                                     {strokeWidths.map(width => (
                                                         <button
@@ -3258,26 +3258,26 @@ export function Canva() {
 
                                             {currentStyle.type !== 'pencil' && (
                                                 <div className="panel-section">
-                                                    <span className="panel-label">Estilo do traço</span>
+                                                    <span className="panel-label">Stroke style</span>
                                                     <div className="style-grid">
                                                         <button
                                                             className={`style-btn ${currentStyle.strokeStyle === 'solid' ? 'active' : ''}`}
                                                             onClick={() => handleStyleUpdate({ strokeStyle: 'solid' })}
-                                                            title="Sólido"
+                                                            title="Solid"
                                                         >
                                                             <div className="style-line solid" />
                                                         </button>
                                                         <button
                                                             className={`style-btn ${currentStyle.strokeStyle === 'dashed' ? 'active' : ''}`}
                                                             onClick={() => handleStyleUpdate({ strokeStyle: 'dashed' })}
-                                                            title="Tracejado"
+                                                            title="Dashed"
                                                         >
                                                             <div className="style-line dashed" />
                                                         </button>
                                                         <button
                                                             className={`style-btn ${currentStyle.strokeStyle === 'dotted' ? 'active' : ''}`}
                                                             onClick={() => handleStyleUpdate({ strokeStyle: 'dotted' })}
-                                                            title="Pontilhado"
+                                                            title="Dotted"
                                                         >
                                                             <div className="style-line dotted" />
                                                         </button>
@@ -3287,12 +3287,12 @@ export function Canva() {
 
                                             {currentStyle.type !== 'arrow' && currentStyle.type !== 'line' && currentStyle.type !== 'pencil' && currentStyle.type !== 'ellipse' && currentStyle.type !== 'diamond' && (
                                                 <div className="panel-section">
-                                                    <span className="panel-label">Arestas</span>
+                                                    <span className="panel-label">Edges</span>
                                                     <div className="style-grid edges-grid">
                                                         <button
                                                             className={`style-btn ${currentStyle.borderRadius === 0 ? 'active' : ''}`}
                                                             onClick={() => handleStyleUpdate({ borderRadius: 0 })}
-                                                            title="Retas"
+                                                            title="Sharp"
                                                         >
                                                             <svg width="20" height="16" viewBox="0 0 20 16">
                                                                 <rect x="2" y="2" width="16" height="12" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -3301,7 +3301,7 @@ export function Canva() {
                                                         <button
                                                             className={`style-btn ${currentStyle.borderRadius > 0 ? 'active' : ''}`}
                                                             onClick={() => handleStyleUpdate({ borderRadius: 12 })}
-                                                            title="Arredondadas"
+                                                            title="Rounded"
                                                         >
                                                             <svg width="20" height="16" viewBox="0 0 20 16">
                                                                 <rect x="2" y="2" width="16" height="12" rx="4" ry="4" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -3314,12 +3314,12 @@ export function Canva() {
                                             {(currentStyle.type === 'arrow' || currentStyle.type === 'line') && (
                                                 <>
                                                     <div className="panel-section">
-                                                        <span className="panel-label">{currentStyle.type === 'arrow' ? 'Tipo de seta' : 'Tipo de linha'}</span>
+                                                        <span className="panel-label">{currentStyle.type === 'arrow' ? 'Arrow type' : 'Line type'}</span>
                                                         <div className="style-grid">
                                                             <button
                                                                 className={`style-btn ${currentStyle.lineStyle === 'straight' ? 'active' : ''}`}
                                                                 onClick={() => handleStyleUpdate({ lineStyle: 'straight', controlPoint: undefined })}
-                                                                title="Reta"
+                                                                title="Straight"
                                                             >
                                                                 <svg width="20" height="14" viewBox="0 0 20 14">
                                                                     <line x1="2" y1="12" x2="18" y2="2" stroke="currentColor" strokeWidth="2" />
@@ -3328,7 +3328,7 @@ export function Canva() {
                                                             <button
                                                                 className={`style-btn ${currentStyle.lineStyle === 'elbow' ? 'active' : ''}`}
                                                                 onClick={() => handleStyleUpdate({ lineStyle: 'elbow' })}
-                                                                title="Ângulo"
+                                                                title="Elbow"
                                                             >
                                                                 <svg width="20" height="14" viewBox="0 0 20 14">
                                                                     <polyline points="2,12 10,12 18,2" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -3337,7 +3337,7 @@ export function Canva() {
                                                             <button
                                                                 className={`style-btn ${currentStyle.lineStyle === 'curve' ? 'active' : ''}`}
                                                                 onClick={() => handleStyleUpdate({ lineStyle: 'curve' })}
-                                                                title="Curva"
+                                                                title="Curve"
                                                             >
                                                                 <svg width="20" height="14" viewBox="0 0 20 14">
                                                                     <path d="M2 12 Q10 2, 18 12" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -3348,12 +3348,12 @@ export function Canva() {
 
                                                     {currentStyle.type === 'arrow' && (
                                                         <div className="panel-section">
-                                                            <span className="panel-label">Pontas</span>
+                                                            <span className="panel-label">Ends</span>
                                                             <div className="style-grid">
                                                                 <button
                                                                     className={`style-btn ${currentStyle.arrowStart === 'none' && currentStyle.arrowEnd === 'arrow' ? 'active' : ''}`}
                                                                     onClick={() => handleStyleUpdate({ arrowStart: 'none', arrowEnd: 'arrow' })}
-                                                                    title="Seta no fim"
+                                                                    title="End arrow"
                                                                 >
                                                                     <svg width="20" height="14" viewBox="0 0 20 14">
                                                                         <line x1="2" y1="7" x2="14" y2="7" stroke="currentColor" strokeWidth="2" />
@@ -3363,7 +3363,7 @@ export function Canva() {
                                                                 <button
                                                                     className={`style-btn ${currentStyle.arrowStart === 'arrow' && currentStyle.arrowEnd === 'arrow' ? 'active' : ''}`}
                                                                     onClick={() => handleStyleUpdate({ arrowStart: 'arrow', arrowEnd: 'arrow' })}
-                                                                    title="Seta dupla"
+                                                                    title="Double arrow"
                                                                 >
                                                                     <svg width="20" height="14" viewBox="0 0 20 14">
                                                                         <line x1="6" y1="7" x2="14" y2="7" stroke="currentColor" strokeWidth="2" />
@@ -3381,7 +3381,7 @@ export function Canva() {
                                     }
 
                                     <div className="panel-section">
-                                        <span className="panel-label">Opacidade</span>
+                                        <span className="panel-label">Opacity</span>
                                         <div className="opacity-control">
                                             <input
                                                 type="range"
@@ -3400,36 +3400,36 @@ export function Canva() {
                                         !isEditingDefault && (
                                             <>
                                                 <div className="panel-section">
-                                                    <span className="panel-label">Camadas</span>
+                                                    <span className="panel-label">Layers</span>
                                                     <div className="layer-buttons">
-                                                        <button className="layer-btn" onClick={() => moveElementLayer('down')} title="Mover para trás">
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('down')} title="Move backward">
                                                             <ChevronDown size={16} />
                                                         </button>
-                                                        <button className="layer-btn" onClick={() => moveElementLayer('up')} title="Mover para frente">
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('up')} title="Move forward">
                                                             <ChevronUp size={16} />
                                                         </button>
-                                                        <button className="layer-btn" onClick={() => moveElementLayer('bottom')} title="Enviar para trás">
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('bottom')} title="Send to back">
                                                             <Layers size={16} />↓
                                                         </button>
-                                                        <button className="layer-btn" onClick={() => moveElementLayer('top')} title="Trazer para frente">
+                                                        <button className="layer-btn" onClick={() => moveElementLayer('top')} title="Bring to front">
                                                             <Layers size={16} />↑
                                                         </button>
                                                     </div>
                                                 </div>
 
                                                 <div className="panel-section">
-                                                    <span className="panel-label">Ações</span>
+                                                    <span className="panel-label">Actions</span>
                                                     <div className="action-buttons">
-                                                        <button className="action-btn" onClick={copySelected} title="Copiar">
+                                                        <button className="action-btn" onClick={copySelected} title="Copy">
                                                             <Copy size={16} />
                                                         </button>
-                                                        <button className="action-btn" onClick={deleteSelected} title="Excluir">
+                                                        <button className="action-btn" onClick={deleteSelected} title="Delete">
                                                             <Trash2 size={16} />
                                                         </button>
                                                         <button
                                                             className={`action-btn ${currentStyle.locked ? 'active' : ''}`}
                                                             onClick={toggleLock}
-                                                            title="Bloquear/Desbloquear"
+                                                            title="Lock/Unlock"
                                                         >
                                                             {currentStyle.locked ? <Unlock size={16} /> : <Lock size={16} />}
                                                         </button>
@@ -3489,7 +3489,7 @@ export function Canva() {
                                         // Robust auto-focus
                                         el.focus();
                                         // Only select all if it's the initial "Texto"
-                                        if (textElement.text === 'Texto') {
+                                        if (textElement.text === 'Text') {
                                             el.select();
                                         }
                                     }
@@ -3608,10 +3608,10 @@ export function Canva() {
 
                 {/* Help text */}
                 <div className="canva-help">
-                    <kbd>Scroll</kbd>(mover) •
+                    <kbd>Scroll</kbd>(move) •
                     <kbd>Ctrl+Scroll</kbd>(zoom) •
                     <kbd>Shift+Scroll</kbd>(horizontal) •
-                    <kbd>Alt+Arrastar</kbd>(duplicar)
+                    <kbd>Alt+Drag</kbd>(duplicate)
                 </div>
 
                 {/* Hidden file input for image upload */}
@@ -3627,20 +3627,20 @@ export function Canva() {
             {showClearConfirm && (
                 <div className="clear-confirm-overlay" onClick={() => setShowClearConfirm(false)}>
                     <div className="clear-confirm-modal" onClick={(e) => e.stopPropagation()}>
-                        <h3>Limpar Canvas</h3>
-                        <p>Tem certeza que deseja apagar todos os elementos do canvas?</p>
+                        <h3>Clear Canvas</h3>
+                        <p>Are you sure you want to clear all elements from the canvas?</p>
                         <div className="clear-confirm-buttons">
                             <button
                                 className="clear-confirm-cancel"
                                 onClick={() => setShowClearConfirm(false)}
                             >
-                                Cancelar
+                                Cancel
                             </button>
                             <button
                                 className="clear-confirm-delete"
                                 onClick={clearCanvas}
                             >
-                                Apagar tudo
+                                Clear all
                             </button>
                         </div>
                     </div>

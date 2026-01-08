@@ -57,7 +57,7 @@ export function Archives() {
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Tem certeza que deseja excluir este item?')) {
+        if (confirm('Are you sure you want to delete this item?')) {
             LocalStorageService.deleteItem(id);
             loadItems();
         }
@@ -160,14 +160,14 @@ export function Archives() {
 
     const renderSettings = () => (
         <div className="archives-settings">
-            <h2 className="settings-title">Configurações de Retenção</h2>
-            <p className="settings-desc">Defina por quanto tempo seus itens arquivados serão mantidos localmente.</p>
+            <h2 className="settings-title">Retention Settings</h2>
+            <p className="settings-desc">Define how long your archived items will be kept locally.</p>
 
             <div className="retention-controls">
                 <div className="retention-control">
                     <div className="control-header">
                         <span className="control-label"><MessageSquare size={16} /> Chats</span>
-                        <span className="control-value">{settings.retentionDays.chat} dias</span>
+                        <span className="control-value">{settings.retentionDays.chat} days</span>
                     </div>
                     <input
                         type="range"
@@ -181,8 +181,8 @@ export function Archives() {
 
                 <div className="retention-control">
                     <div className="control-header">
-                        <span className="control-label"><ImageIcon size={16} /> Imagens</span>
-                        <span className="control-value">{settings.retentionDays.image} dias</span>
+                        <span className="control-label"><ImageIcon size={16} /> Images</span>
+                        <span className="control-value">{settings.retentionDays.image} days</span>
                     </div>
                     <input
                         type="range"
@@ -196,8 +196,8 @@ export function Archives() {
 
                 <div className="retention-control">
                     <div className="control-header">
-                        <span className="control-label"><MonitorPlay size={16} /> Apresentações</span>
-                        <span className="control-value">{settings.retentionDays.presentation} dias</span>
+                        <span className="control-label"><MonitorPlay size={16} /> Presentations</span>
+                        <span className="control-value">{settings.retentionDays.presentation} days</span>
                     </div>
                     <input
                         type="range"
@@ -211,8 +211,8 @@ export function Archives() {
 
                 <div className="retention-control">
                     <div className="control-header">
-                        <span className="control-label"><BarChart3 size={16} /> Gráficos</span>
-                        <span className="control-value">{settings.retentionDays.chart} dias</span>
+                        <span className="control-label"><BarChart3 size={16} /> Charts</span>
+                        <span className="control-value">{settings.retentionDays.chart} days</span>
                     </div>
                     <input
                         type="range"
@@ -224,26 +224,26 @@ export function Archives() {
                     />
                 </div>
             </div>
-            <p className="cleanup-note"><Clock size={14} /> A limpeza automática ocorre sempre que você visita esta página.</p>
+            <p className="cleanup-note"><Clock size={14} /> Automatic cleanup occurs whenever you visit this page.</p>
         </div>
     );
 
     return (
         <div className="archives-page page-content">
             <header className="page-header">
-                <h1 className="page-title">Arquivos</h1>
-                <p className="page-subtitle">Gerencie seu histórico e criações salvas localmente</p>
+                <h1 className="page-title">Archives</h1>
+                <p className="page-subtitle">Manage your history and creations saved locally</p>
             </header>
 
             <div className="archives-controls">
                 <div className="archives-tabs">
-                    <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>Todos</button>
+                    <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>All</button>
                     <button className={`tab-btn ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>Chats</button>
-                    <button className={`tab-btn ${activeTab === 'image' ? 'active' : ''}`} onClick={() => setActiveTab('image')}>Imagens</button>
-                    <button className={`tab-btn ${activeTab === 'chart' ? 'active' : ''}`} onClick={() => setActiveTab('chart')}>Gráficos</button>
-                    <button className={`tab-btn ${activeTab === 'presentation' ? 'active' : ''}`} onClick={() => setActiveTab('presentation')}>Apresentações</button>
+                    <button className={`tab-btn ${activeTab === 'image' ? 'active' : ''}`} onClick={() => setActiveTab('image')}>Images</button>
+                    <button className={`tab-btn ${activeTab === 'chart' ? 'active' : ''}`} onClick={() => setActiveTab('chart')}>Charts</button>
+                    <button className={`tab-btn ${activeTab === 'presentation' ? 'active' : ''}`} onClick={() => setActiveTab('presentation')}>Presentations</button>
                     <button className={`tab-btn settings ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-                        <SettingsIcon size={16} /> Configurar
+                        <SettingsIcon size={16} /> Configure
                     </button>
                 </div>
 
@@ -252,7 +252,7 @@ export function Archives() {
                         <Search size={16} className="search-icon" />
                         <input
                             type="text"
-                            placeholder="Buscar nos arquivos..."
+                            placeholder="Search in archives..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -266,8 +266,8 @@ export function Archives() {
                 ) : filteredItems.length === 0 ? (
                     <div className="empty-archives">
                         <Archive size={48} />
-                        <h3>Nenhum arquivo encontrado</h3>
-                        <p>Seus chats, imagens, gráficos e apresentações salvos aparecerão aqui.</p>
+                        <h3>No archives found</h3>
+                        <p>Your saved chats, images, charts, and presentations will appear here.</p>
                     </div>
                 ) : (
                     <div className="archives-grid">
@@ -309,11 +309,11 @@ export function Archives() {
 
                                 <div className="card-body">
                                     <h3 className="card-title">
-                                        {item.title || (item.type === 'image' ? (item as ArchivedImage).prompt : item.type === 'chart' ? (item as ArchivedChart).chartType : 'Sem título')}
+                                        {item.title || (item.type === 'image' ? (item as ArchivedImage).prompt : item.type === 'chart' ? (item as ArchivedChart).chartType : 'Untitled')}
                                     </h3>
                                     {item.type === 'chat' && (
                                         <p className="card-preview">
-                                            {(item as ArchivedChat).messages.length} mensagens
+                                            {(item as ArchivedChat).messages.length} messages
                                         </p>
                                     )}
                                     {item.type === 'chart' && (item as ArchivedChart).interpretation && (
@@ -330,20 +330,20 @@ export function Archives() {
 
                                 <div className="card-footer">
                                     {item.type === 'chat' && (
-                                        <span className="action-link">Abrir Conversa <ExternalLink size={14} /></span>
+                                        <span className="action-link">Open Conversation <ExternalLink size={14} /></span>
                                     )}
                                     {item.type === 'image' && (
                                         <button className="download-btn" onClick={(e) => handleDownloadImage(item as ArchivedImage, e)}>
-                                            <Download size={14} /> Baixar
+                                            <Download size={14} /> Download
                                         </button>
                                     )}
                                     {item.type === 'chart' && (
                                         <button className="download-btn" onClick={(e) => handleDownloadChart(item as ArchivedChart, e)}>
-                                            <Download size={14} /> Baixar
+                                            <Download size={14} /> Download
                                         </button>
                                     )}
                                     {item.type === 'presentation' && (
-                                        <span className="action-link">Abrir Editor <ExternalLink size={14} /></span>
+                                        <span className="action-link">Open Editor <ExternalLink size={14} /></span>
                                     )}
                                 </div>
                             </div>
@@ -356,10 +356,10 @@ export function Archives() {
             <Modal
                 isOpen={!!selectedImage}
                 onClose={() => setSelectedImage(null)}
-                title="Visualizar Imagem"
+                title="View Image"
                 footer={
                     <button className="btn btn-primary" onClick={(e) => selectedImage && handleDownloadImage(selectedImage, e)}>
-                        <Download size={16} /> Baixar Imagem
+                        <Download size={16} /> Download Image
                     </button>
                 }
             >
@@ -375,10 +375,10 @@ export function Archives() {
             <Modal
                 isOpen={!!selectedChart}
                 onClose={() => setSelectedChart(null)}
-                title="Visualizar Gráfico"
+                title="View Chart"
                 footer={
                     <button className="btn btn-primary" onClick={(e) => selectedChart && handleDownloadChart(selectedChart, e)}>
-                        <Download size={16} /> Baixar Gráfico
+                        <Download size={16} /> Download Chart
                     </button>
                 }
             >

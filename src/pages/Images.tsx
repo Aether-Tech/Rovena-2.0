@@ -21,10 +21,10 @@ interface RatioOption {
 
 // Style options
 const styleOptions: StyleOption[] = [
-    { id: 'realistic', label: 'Realista', icon: <Mountain size={16} className="icon" /> },
-    { id: 'digital-art', label: 'Arte Digital', icon: <Brush size={16} className="icon" /> },
-    { id: 'sketch', label: 'Esboço', icon: <Pencil size={16} className="icon" /> },
-    { id: 'photography', label: 'Fotografia', icon: <Camera size={16} className="icon" /> },
+    { id: 'realistic', label: 'Realistic', icon: <Mountain size={16} className="icon" /> },
+    { id: 'digital-art', label: 'Digital Art', icon: <Brush size={16} className="icon" /> },
+    { id: 'sketch', label: 'Sketch', icon: <Pencil size={16} className="icon" /> },
+    { id: 'photography', label: 'Photography', icon: <Camera size={16} className="icon" /> },
 ];
 
 // Ratio options
@@ -80,7 +80,7 @@ export function Images() {
 
             setGeneratedImage(imageUrl);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erro ao gerar imagem');
+            setError(err instanceof Error ? err.message : 'Error generating image');
             console.error('Image generation error:', err);
         } finally {
             setIsGenerating(false);
@@ -119,9 +119,9 @@ export function Images() {
             <div className="images-container">
                 {/* Header */}
                 <header className="images-header">
-                    <h1 className="images-title">Gerador de Imagens</h1>
+                    <h1 className="images-title">Image Generator</h1>
                     <p className="images-subtitle">
-                        Transforme suas ideias em arte com inteligência artificial
+                        Transform your ideas into art with artificial intelligence
                     </p>
                 </header>
 
@@ -129,7 +129,7 @@ export function Images() {
                 <div className="prompt-box">
                     <textarea
                         className="prompt-textarea"
-                        placeholder="Torne sua ideia realidade..."
+                        placeholder="Make your idea reality..."
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         rows={4}
@@ -217,7 +217,7 @@ export function Images() {
                                 }}
                                 disabled={isGenerating || (!prompt.trim() && !generatedImage)}
                                 type="button"
-                                title="Limpar prompt e imagem"
+                                title="Clear prompt and image"
                             >
                                 <RotateCcw size={16} />
                             </button>
@@ -231,7 +231,7 @@ export function Images() {
                             type="button"
                         >
                             <Sparkles size={18} className="sparkle-icon" />
-                            {isGenerating ? 'Gerando...' : 'Gerar'}
+                            {isGenerating ? 'Generating...' : 'Generate'}
                         </button>
                     </div>
                 </div>
@@ -241,8 +241,8 @@ export function Images() {
                     {isGenerating ? (
                         <div className="generating-state">
                             <div className="generating-spinner"></div>
-                            <span>Gerando sua imagem...</span>
-                            <span className="generating-hint">Isso pode levar alguns segundos</span>
+                            <span>Generating your image...</span>
+                            <span className="generating-hint">This may take a few seconds</span>
                         </div>
                     ) : error ? (
                         <div className="error-state">
@@ -250,31 +250,31 @@ export function Images() {
                             <span>{error}</span>
                             <button className="retry-btn" onClick={handleRegenerate}>
                                 <RefreshCw size={16} />
-                                Tentar novamente
+                                Try again
                             </button>
                         </div>
                     ) : generatedImage ? (
                         <div className="image-result">
                             <img
                                 src={generatedImage}
-                                alt="Imagem gerada por IA"
+                                alt="AI generated image"
                                 className="generated-image"
                             />
                             <div className="image-actions">
-                                <button className="action-btn" onClick={handleDownload} title="Baixar imagem">
+                                <button className="action-btn" onClick={handleDownload} title="Download image">
                                     <Download size={18} />
-                                    Baixar
+                                    Download
                                 </button>
-                                <button className="action-btn" onClick={handleRegenerate} title="Gerar nova variação">
+                                <button className="action-btn" onClick={handleRegenerate} title="Generate new variation">
                                     <RefreshCw size={18} />
-                                    Regenerar
+                                    Regenerate
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <div className="result-preview-hint">
                             <ImageIcon size={48} strokeWidth={1} />
-                            <span>Sua imagem aparecerá aqui</span>
+                            <span>Your image will appear here</span>
                         </div>
                     )}
                 </div>

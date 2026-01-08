@@ -22,50 +22,50 @@ interface OnboardingProps {
 const slides = [
     {
         icon: Sparkles,
-        title: 'Bem-vindo ao Rovena!',
-        description: 'Sua central de IA para produtividade. Vamos fazer um tour rápido pelas funcionalidades disponíveis.',
+        title: 'Welcome to Rovena!',
+        description: 'Your AI hub for productivity. Let\'s take a quick tour of the available features.',
         color: 'var(--accent-green)',
     },
     {
         icon: MessageSquare,
-        title: 'Chat com IA',
-        description: 'Converse com a IA para obter respostas, ideias, resumos e muito mais. Use o chat rápido na home ou acesse a seção dedicada.',
+        title: 'AI Chat',
+        description: 'Chat with AI to get answers, ideas, summaries, and more. Use the quick chat on the home page or access the dedicated section.',
         color: 'var(--accent-blue)',
     },
     {
         icon: Image,
-        title: 'Geração de Imagens',
-        description: 'Crie imagens incríveis a partir de descrições de texto. Perfeito para ilustrações, conceitos e criações visuais.',
+        title: 'Image Generation',
+        description: 'Create amazing images from text descriptions. Perfect for illustrations, concepts, and visual creations.',
         color: 'var(--accent-yellow)',
     },
     {
         icon: Palette,
-        title: 'Canva IA',
-        description: 'Uma lousa digital para diagramação, fluxogramas, esboços e muito mais. Organize suas ideias visualmente.',
+        title: 'AI Canva',
+        description: 'A digital whiteboard for diagramming, flowcharts, sketching, and more. Organize your ideas visually.',
         color: '#ec4899',
     },
     {
         icon: FolderArchive,
-        title: 'Arquivos',
-        description: 'Acesse todo conteúdo gerado no app: chats, imagens, apresentações, gráficos e canvas. Tudo organizado em um só lugar.',
+        title: 'Files',
+        description: 'Access all content generated in the app: chats, images, presentations, charts, and canvas. Everything organized in one place.',
         color: '#8b5cf6',
     },
     {
         icon: BarChart3,
-        title: 'Gráficos',
-        description: 'Crie visualizações de dados a partir de seus dados. Gere gráficos profissionais com facilidade.',
+        title: 'Charts',
+        description: 'Create data visualizations from your data. Generate professional charts with ease.',
         color: '#06b6d4',
     },
     {
         icon: Presentation,
-        title: 'Apresentações',
-        description: 'Gere slides automaticamente com IA. Crie apresentações profissionais em minutos.',
+        title: 'Presentations',
+        description: 'Generate slides automatically with AI. Create professional presentations in minutes.',
         color: '#f97316',
     },
     {
         icon: Zap,
-        title: 'Sistema de Tokens',
-        description: 'Seu uso é medido em tokens. Acompanhe seu consumo na home e nas configurações. Plano Plus tem 3M tokens/mês!',
+        title: 'Token System',
+        description: 'Your usage is measured in tokens. Track your consumption on the home page and in settings. Plus Plan has 3M tokens/month!',
         color: 'var(--accent-green)',
     },
 ];
@@ -181,11 +181,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         {currentSlide > 0 && (
                             <button className="btn btn-ghost onboarding-btn" onClick={handlePrev}>
                                 <ChevronLeft size={18} />
-                                Anterior
+                                Previous
                             </button>
                         )}
                         <button className="btn btn-primary onboarding-btn" onClick={handleNext}>
-                            {isLastSlide ? 'Começar' : 'Próximo'}
+                            {isLastSlide ? 'Get Started' : 'Next'}
                             {!isLastSlide && <ChevronRight size={18} />}
                         </button>
                     </div>

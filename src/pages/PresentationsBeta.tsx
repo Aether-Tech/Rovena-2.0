@@ -30,27 +30,27 @@ interface GammaResult {
 }
 
 const LANGUAGES = [
-    { value: 'pt-BR', label: 'Português (Brasil)' },
+    { value: 'pt-BR', label: 'Portuguese (Brazil)' },
     { value: 'en-US', label: 'English (US)' },
-    { value: 'es-ES', label: 'Español' },
-    { value: 'fr-FR', label: 'Français' },
-    { value: 'de-DE', label: 'Deutsch' },
+    { value: 'es-ES', label: 'Spanish' },
+    { value: 'fr-FR', label: 'French' },
+    { value: 'de-DE', label: 'German' },
 ];
 
 const IMAGE_STYLES = [
-    { value: 'minimal', label: 'Minimalista' },
-    { value: 'professional', label: 'Profissional' },
-    { value: 'creative', label: 'Criativo' },
-    { value: 'modern', label: 'Moderno' },
-    { value: 'classic', label: 'Clássico' },
+    { value: 'minimal', label: 'Minimalist' },
+    { value: 'professional', label: 'Professional' },
+    { value: 'creative', label: 'Creative' },
+    { value: 'modern', label: 'Modern' },
+    { value: 'classic', label: 'Classic' },
 ];
 
 const WRITING_STYLES = [
     { value: 'formal', label: 'Formal' },
-    { value: 'dynamic', label: 'Dinâmico' },
-    { value: 'casual', label: 'Descontraído' },
-    { value: 'academic', label: 'Acadêmico' },
-    { value: 'persuasive', label: 'Persuasivo' },
+    { value: 'dynamic', label: 'Dynamic' },
+    { value: 'casual', label: 'Casual' },
+    { value: 'academic', label: 'Academic' },
+    { value: 'persuasive', label: 'Persuasive' },
 ];
 
 export function PresentationsBeta() {
@@ -114,13 +114,13 @@ export function PresentationsBeta() {
 
         setIsGenerating(true);
         setError(null);
-        setGenerationProgress('Conectando com Gamma.app...');
+        setGenerationProgress('Connecting to Gamma.app...');
 
         try {
             const functions = getFunctions();
             const generateGamma = httpsCallable(functions, 'generateGammaPresentation');
 
-            setGenerationProgress('Gerando apresentação via API...');
+            setGenerationProgress('Generating presentation via API...');
 
             const result = await generateGamma({
                 topic,
@@ -142,7 +142,7 @@ export function PresentationsBeta() {
 
         } catch (err: any) {
             console.error('Error generating presentation:', err);
-            setError(err.message || 'Erro ao gerar apresentação');
+            setError(err.message || 'Error generating presentation');
         } finally {
             setIsGenerating(false);
             setGenerationProgress('');
@@ -222,7 +222,7 @@ export function PresentationsBeta() {
                             <FlaskConical size={16} className="flask-overlay" />
                         </div>
                         <h1>Presentations <span className="beta-tag">Beta</span></h1>
-                        <p>Gere apresentações profissionais com Gamma.app API</p>
+                        <p>Generate professional presentations with Gamma.app API</p>
                     </div>
 
                     {error && (
@@ -234,33 +234,33 @@ export function PresentationsBeta() {
 
                     <div className="presentations-form">
                         <div className="form-group">
-                            <label>Tema da Apresentação</label>
+                            <label>Presentation Topic</label>
                             <div className="textarea-with-enhance">
                                 <textarea
                                     value={topic}
                                     onChange={(e) => setTopic(e.target.value)}
-                                    placeholder="Descreva o tema da sua apresentação..."
+                                    placeholder="Describe your presentation topic..."
                                     rows={3}
                                 />
                                 <button
                                     className="enhance-btn"
                                     onClick={enhanceUserPrompt}
                                     disabled={!topic.trim() || isEnhancing}
-                                    title="Aprimorar prompt com IA"
+                                    title="Enhance prompt with AI"
                                 >
                                     {isEnhancing ? (
                                         <Loader2 size={18} className="spinning" />
                                     ) : (
                                         <Wand2 size={18} />
                                     )}
-                                    Aprimorar
+                                    Enhance
                                 </button>
                             </div>
                         </div>
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Idioma</label>
+                                <label>Language</label>
                                 <select value={language} onChange={(e) => setLanguage(e.target.value)}>
                                     {LANGUAGES.map(lang => (
                                         <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -269,7 +269,7 @@ export function PresentationsBeta() {
                             </div>
 
                             <div className="form-group">
-                                <label>Estilo Visual</label>
+                                <label>Visual Style</label>
                                 <select value={imageStyle} onChange={(e) => setImageStyle(e.target.value)}>
                                     {IMAGE_STYLES.map(style => (
                                         <option key={style.value} value={style.value}>{style.label}</option>
@@ -280,7 +280,7 @@ export function PresentationsBeta() {
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Estilo de Escrita</label>
+                                <label>Writing Style</label>
                                 <select value={writingStyle} onChange={(e) => setWritingStyle(e.target.value)}>
                                     {WRITING_STYLES.map(style => (
                                         <option key={style.value} value={style.value}>{style.label}</option>
@@ -289,7 +289,7 @@ export function PresentationsBeta() {
                             </div>
 
                             <div className="form-group">
-                                <label>Número de Slides</label>
+                                <label>Number of Slides</label>
                                 <input
                                     type="number"
                                     min="1"
@@ -303,7 +303,7 @@ export function PresentationsBeta() {
 
                         <div className="form-group stylization-group">
                             <label>
-                                <span>Estilização</span>
+                                <span>Stylization</span>
                                 <div className="stylization-input-wrapper">
                                     <input
                                         type="number"
@@ -325,8 +325,8 @@ export function PresentationsBeta() {
                                 className="stylization-slider"
                             />
                             <div className="stylization-labels">
-                                <span>Simples</span>
-                                <span>Elaborado</span>
+                                <span>Simple</span>
+                                <span>Detailed</span>
                             </div>
                         </div>
 
@@ -338,12 +338,12 @@ export function PresentationsBeta() {
                             {isGenerating ? (
                                 <>
                                     <Loader2 size={20} className="spinning" />
-                                    {generationProgress || 'Gerando...'}
+                                    {generationProgress || 'Generating...'}
                                 </>
                             ) : (
                                 <>
                                     <Sparkles size={20} />
-                                    Gerar Apresentação
+                                    Generate Presentation
                                 </>
                             )}
                         </button>
@@ -360,7 +360,7 @@ export function PresentationsBeta() {
                     <div className="result-header">
                         <button className="back-btn" onClick={backToInput}>
                             <ChevronLeft size={18} />
-                            Nova Apresentação
+                            New Presentation
                         </button>
                     </div>
 
@@ -368,25 +368,25 @@ export function PresentationsBeta() {
                         <div className="success-icon">
                             <Check size={48} />
                         </div>
-                        <h2>Apresentação Gerada!</h2>
-                        <p>Sua apresentação foi criada com sucesso via Gamma.app</p>
+                        <h2>Presentation Generated!</h2>
+                        <p>Your presentation was successfully created via Gamma.app</p>
 
                         {gammaResult.credits && (
                             <div className="credits-info">
-                                <span>Créditos usados: {gammaResult.credits.deducted}</span>
-                                <span>Restantes: {gammaResult.credits.remaining}</span>
+                                <span>Credits used: {gammaResult.credits.deducted}</span>
+                                <span>Remaining: {gammaResult.credits.remaining}</span>
                             </div>
                         )}
 
                         <div className="result-actions">
                             <button className="primary-btn" onClick={openInGamma}>
                                 <ExternalLink size={18} />
-                                Abrir no Gamma.app
+                                Open in Gamma.app
                             </button>
                             {gammaResult.downloadUrl && (
                                 <button className="secondary-btn" onClick={downloadPptx}>
                                     <Download size={18} />
-                                    Baixar PPTX
+                                    Download PPTX
                                 </button>
                             )}
                         </div>
@@ -411,20 +411,20 @@ export function PresentationsBeta() {
                 <div className="browser-toolbar">
                     <button className="back-to-input-btn" onClick={backToInput}>
                         <ChevronLeft size={18} />
-                        Nova Apresentação
+                        New Presentation
                     </button>
 
                     <div className="nav-buttons">
-                        <button onClick={goBack} title="Voltar">
+                        <button onClick={goBack} title="Back">
                             <ChevronLeft size={18} />
                         </button>
-                        <button onClick={goForward} title="Avançar">
+                        <button onClick={goForward} title="Forward">
                             <ChevronRight size={18} />
                         </button>
-                        <button onClick={reload} title="Recarregar">
+                        <button onClick={reload} title="Reload">
                             <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
                         </button>
-                        <button onClick={goHome} title="Ir para Gamma.app">
+                        <button onClick={goHome} title="Go to Gamma.app">
                             <HomeIcon size={16} />
                         </button>
                     </div>
@@ -436,11 +436,11 @@ export function PresentationsBeta() {
                             value={inputUrl}
                             onChange={(e) => setInputUrl(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Digite a URL..."
+                            placeholder="Type the URL..."
                         />
                     </div>
 
-                    <button className="external-btn" onClick={openExternal} title="Abrir no navegador">
+                    <button className="external-btn" onClick={openExternal} title="Open in browser">
                         <ExternalLink size={16} />
                     </button>
                 </div>
@@ -449,7 +449,7 @@ export function PresentationsBeta() {
                     {isLoading && (
                         <div className="loading-overlay">
                             <div className="loading-spinner"></div>
-                            <span>Carregando Gamma.app...</span>
+                            <span>Loading Gamma.app...</span>
                         </div>
                     )}
                     <webview

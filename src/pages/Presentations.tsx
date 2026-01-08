@@ -79,19 +79,19 @@ const LANGUAGES = [
 ];
 
 const IMAGE_STYLES = [
-    { value: 'minimal', label: 'Minimalista' },
-    { value: 'professional', label: 'Profissional' },
-    { value: 'creative', label: 'Criativo' },
-    { value: 'modern', label: 'Moderno' },
-    { value: 'classic', label: 'Clássico' },
+    { value: 'minimal', label: 'Minimalist' },
+    { value: 'professional', label: 'Professional' },
+    { value: 'creative', label: 'Creative' },
+    { value: 'modern', label: 'Modern' },
+    { value: 'classic', label: 'Classic' },
 ];
 
 const WRITING_STYLES = [
     { value: 'formal', label: 'Formal' },
-    { value: 'dynamic', label: 'Dinâmico' },
-    { value: 'casual', label: 'Descontraído' },
-    { value: 'academic', label: 'Acadêmico' },
-    { value: 'persuasive', label: 'Persuasivo' },
+    { value: 'dynamic', label: 'Dynamic' },
+    { value: 'casual', label: 'Casual' },
+    { value: 'academic', label: 'Academic' },
+    { value: 'persuasive', label: 'Persuasive' },
 ];
 
 const SLIDE_WIDTH = 960;
@@ -261,21 +261,21 @@ export function Presentations() {
                     src: slideData.imageUrl,
                 });
             } else {
-                elements.push({
-                    id: generateId(),
-                    type: 'text' as const,
-                    x: 60,
-                    y: SLIDE_HEIGHT / 2 - 80,
-                    width: SLIDE_WIDTH - 120,
-                    height: 100,
-                    rotation: 0,
-                    content: isLoading ? 'Gerando...' : (slideData.title || presentationTitle),
-                    fontSize: 52,
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    color: isLoading ? '#666666' : '#ffffff',
-                });
+                    elements.push({
+                        id: generateId(),
+                        type: 'text' as const,
+                        x: 60,
+                        y: SLIDE_HEIGHT / 2 - 80,
+                        width: SLIDE_WIDTH - 120,
+                        height: 100,
+                        rotation: 0,
+                        content: isLoading ? 'Generating...' : (slideData.title || presentationTitle),
+                        fontSize: 52,
+                        fontFamily: 'Inter, sans-serif',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        color: isLoading ? '#666666' : '#ffffff',
+                    });
                 
                 if (slideData.subtitle) {
                     elements.push({
@@ -306,7 +306,7 @@ export function Presentations() {
                 width: pos.textW,
                 height: 60,
                 rotation: 0,
-                content: isLoading ? 'Gerando slide...' : (slideData.title || `Slide ${index + 1}`),
+                content: isLoading ? 'Generating slide...' : (slideData.title || `Slide ${index + 1}`),
                 fontSize: 36,
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 'bold',
@@ -323,7 +323,7 @@ export function Presentations() {
                     width: pos.textW,
                     height: pos.textH,
                     rotation: 0,
-                    content: isLoading ? '• Carregando conteúdo...\n• Aguarde a geração' : slideData.content!,
+                    content: isLoading ? '• Loading content...\n• Please wait for generation' : slideData.content!,
                     fontSize: 20,
                     fontFamily: 'Inter, sans-serif',
                     fontWeight: 'normal',
@@ -353,7 +353,7 @@ export function Presentations() {
         if (!topic.trim()) return;
 
         setIsGenerating(true);
-        setGenerationProgress('Iniciando geração...');
+        setGenerationProgress('Starting generation...');
 
         try {
             const functions = getFunctions();
@@ -380,7 +380,7 @@ export function Presentations() {
             const generatedSlides: { title?: string; subtitle?: string; content?: string; imageUrl?: string; background?: string }[] = [];
 
             for (let i = 0; i < slideCount; i++) {
-                setGenerationProgress(`Gerando slide ${i + 1} de ${slideCount}...`);
+                setGenerationProgress(`Generating slide ${i + 1} of ${slideCount}...`);
                 
                 try {
                     const result = await generateSingleSlide({
@@ -562,7 +562,7 @@ export function Presentations() {
             width: type === 'line' ? 200 : 200,
             height: type === 'line' ? 4 : 100,
             rotation: 0,
-            content: type === 'text' ? 'Novo texto' : undefined,
+            content: type === 'text' ? 'New text' : undefined,
             fill: type === 'text' ? 'transparent' : '#3b82f6',
             stroke: '#ffffff',
             strokeWidth: 2,
@@ -635,7 +635,7 @@ export function Presentations() {
                     width: SLIDE_WIDTH - 120,
                     height: 60,
                     rotation: 0,
-                    content: 'Novo Slide',
+                    content: 'New Slide',
                     fontSize: 36,
                     fontFamily: 'Inter, sans-serif',
                     fontWeight: 'bold',
@@ -905,39 +905,39 @@ export function Presentations() {
                     <div className="header-icon">
                         <Presentation size={32} />
                     </div>
-                    <h1>Criar Apresentação</h1>
-                    <p>Gere apresentações profissionais com inteligência artificial</p>
+                    <h1>Create Presentation</h1>
+                    <p>Generate professional presentations with artificial intelligence</p>
                 </div>
 
                 <div className="presentations-form">
                     <div className="form-group">
-                        <label>Tema da Apresentação</label>
+                        <label>Presentation Topic</label>
                         <div className="textarea-with-enhance">
                             <textarea
                                 value={topic}
                                 onChange={(e) => setTopic(e.target.value)}
-                                placeholder="Descreva o tema da sua apresentação..."
+                                placeholder="Describe your presentation topic..."
                                 rows={3}
                             />
                             <button 
                                 className="enhance-btn"
                                 onClick={enhanceUserPrompt}
                                 disabled={!topic.trim() || isEnhancing}
-                                title="Aprimorar prompt com IA"
+                                title="Enhance prompt with AI"
                             >
                                 {isEnhancing ? (
                                     <Loader2 size={18} className="spinning" />
                                 ) : (
                                     <Wand2 size={18} />
                                 )}
-                                Aprimorar
+                                Enhance
                             </button>
                         </div>
                     </div>
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Idioma</label>
+                            <label>Language</label>
                             <select value={language} onChange={(e) => setLanguage(e.target.value)}>
                                 {LANGUAGES.map(lang => (
                                     <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -946,7 +946,7 @@ export function Presentations() {
                         </div>
 
                         <div className="form-group">
-                            <label>Estilo Visual</label>
+                            <label>Visual Style</label>
                             <select value={imageStyle} onChange={(e) => setImageStyle(e.target.value)}>
                                 {IMAGE_STYLES.map(style => (
                                     <option key={style.value} value={style.value}>{style.label}</option>
@@ -957,7 +957,7 @@ export function Presentations() {
 
                     <div className="form-row">
                         <div className="form-group">
-                            <label>Estilo de Escrita</label>
+                            <label>Writing Style</label>
                             <select value={writingStyle} onChange={(e) => setWritingStyle(e.target.value)}>
                                 {WRITING_STYLES.map(style => (
                                     <option key={style.value} value={style.value}>{style.label}</option>
@@ -966,7 +966,7 @@ export function Presentations() {
                         </div>
 
                         <div className="form-group">
-                            <label>Número de Slides</label>
+                            <label>Number of Slides</label>
                             <input
                                 type="number"
                                 min="1"
@@ -980,7 +980,7 @@ export function Presentations() {
 
                     <div className="form-group stylization-group">
                         <label>
-                            <span>Estilização</span>
+                            <span>Stylization</span>
                             <div className="stylization-input-wrapper">
                                 <input
                                     type="number"
@@ -1002,8 +1002,8 @@ export function Presentations() {
                             className="stylization-slider"
                         />
                         <div className="stylization-labels">
-                            <span>Simples</span>
-                            <span>Elaborado</span>
+                            <span>Simple</span>
+                            <span>Detailed</span>
                         </div>
                     </div>
 
@@ -1015,12 +1015,12 @@ export function Presentations() {
                         {isGenerating ? (
                             <>
                                 <Loader2 size={20} className="spinning" />
-                                {generationProgress || 'Gerando...'}
+                                {generationProgress || 'Generating...'}
                             </>
                         ) : (
                             <>
                                 <Sparkles size={20} />
-                                Gerar Apresentação
+                                Generate Presentation
                             </>
                         )}
                     </button>
@@ -1035,7 +1035,7 @@ export function Presentations() {
                 <div className="toolbar-left">
                     <button className="back-btn" onClick={() => setViewMode('input')}>
                         <ChevronLeft size={20} />
-                        Voltar
+                        Back
                     </button>
                     <span className="presentation-title">{presentation?.title}</span>
                 </div>
@@ -1045,42 +1045,42 @@ export function Presentations() {
                         <button
                             className={`tool-btn ${selectedTool === 'select' ? 'active' : ''}`}
                             onClick={() => setSelectedTool('select')}
-                            title="Selecionar (V)"
+                            title="Select (V)"
                         >
                             <MousePointer2 size={18} />
                         </button>
                         <button
                             className={`tool-btn ${selectedTool === 'text' ? 'active' : ''}`}
                             onClick={() => { setSelectedTool('text'); addElement('text'); }}
-                            title="Texto (T)"
+                            title="Text (T)"
                         >
                             <Type size={18} />
                         </button>
                         <button
                             className="tool-btn"
                             onClick={() => fileInputRef.current?.click()}
-                            title="Imagem"
+                            title="Image"
                         >
                             <ImageIcon size={18} />
                         </button>
                         <button
                             className={`tool-btn ${selectedTool === 'rectangle' ? 'active' : ''}`}
                             onClick={() => { setSelectedTool('rectangle'); addElement('rectangle'); }}
-                            title="Retângulo (R)"
+                            title="Rectangle (R)"
                         >
                             <Square size={18} />
                         </button>
                         <button
                             className={`tool-btn ${selectedTool === 'ellipse' ? 'active' : ''}`}
                             onClick={() => { setSelectedTool('ellipse'); addElement('ellipse'); }}
-                            title="Elipse (O)"
+                            title="Ellipse (O)"
                         >
                             <Circle size={18} />
                         </button>
                         <button
                             className={`tool-btn ${selectedTool === 'line' ? 'active' : ''}`}
                             onClick={() => { setSelectedTool('line'); addElement('line'); }}
-                            title="Linha (L)"
+                            title="Line (L)"
                         >
                             <Minus size={18} />
                         </button>
@@ -1089,10 +1089,10 @@ export function Presentations() {
                     <div className="tool-separator" />
 
                     <div className="tool-group">
-                        <button className="tool-btn" onClick={undo} disabled={historyIndex <= 0} title="Desfazer (Ctrl+Z)">
+                        <button className="tool-btn" onClick={undo} disabled={historyIndex <= 0} title="Undo (Ctrl+Z)">
                             <Undo2 size={18} />
                         </button>
-                        <button className="tool-btn" onClick={redo} disabled={historyIndex >= history.length - 1} title="Refazer (Ctrl+Y)">
+                        <button className="tool-btn" onClick={redo} disabled={historyIndex >= history.length - 1} title="Redo (Ctrl+Y)">
                             <Redo2 size={18} />
                         </button>
                     </div>
@@ -1111,22 +1111,22 @@ export function Presentations() {
                 </div>
 
                 <div className="toolbar-right">
-                    <button className="tool-btn" onClick={savePresentation} title="Salvar">
+                    <button className="tool-btn" onClick={savePresentation} title="Save">
                         <Save size={18} />
                     </button>
                     <div className="export-dropdown">
                         <button className="export-btn">
                             <Download size={18} />
-                            Exportar
+                            Export
                         </button>
                         <div className="export-menu">
                             <button onClick={() => exportAsPNG(currentSlideIndex)}>
                                 <FileImage size={16} />
-                                Slide atual (PNG)
+                                Current slide (PNG)
                             </button>
                             <button onClick={() => exportAsPNG()}>
                                 <FileText size={16} />
-                                Todos os slides (PNG)
+                                All slides (PNG)
                             </button>
                         </div>
                     </div>
@@ -1150,7 +1150,7 @@ export function Presentations() {
                                     {loadingSlides.has(idx) ? (
                                         <div className="thumbnail-loading">
                                             <Loader2 size={20} className="spinning" />
-                                            <span>Gerando...</span>
+                                            <span>Generating...</span>
                                         </div>
                                     ) : (
                                         slide.elements.slice(0, 2).map(el => (
@@ -1176,7 +1176,7 @@ export function Presentations() {
                                         className="generate-img-btn"
                                         onClick={(e) => { e.stopPropagation(); generateImageForSlide(idx); }}
                                         disabled={isGeneratingImages || loadingSlides.has(idx)}
-                                        title="Gerar imagem com IA"
+                                        title="Generate image with AI"
                                     >
                                         {isGeneratingImages ? <Loader2 size={12} className="spinning" /> : <ImageIcon size={12} />}
                                     </button>
@@ -1195,7 +1195,7 @@ export function Presentations() {
                     </div>
                     <button className="add-slide-btn" onClick={addSlide}>
                         <Plus size={20} />
-                        Novo Slide
+                        New Slide
                     </button>
                 </div>
 
@@ -1317,12 +1317,12 @@ export function Presentations() {
 
                 {selectedElement && (
                     <div className="properties-panel">
-                        <h3>Propriedades</h3>
+                        <h3>Properties</h3>
 
                         {selectedElement.type === 'text' && (
                             <>
                                 <div className="prop-section">
-                                    <label>Cor do texto</label>
+                                    <label>Text Color</label>
                                     <input
                                         type="color"
                                         value={selectedElement.color || '#ffffff'}
@@ -1331,7 +1331,7 @@ export function Presentations() {
                                 </div>
 
                                 <div className="prop-section">
-                                    <label>Tamanho</label>
+                                    <label>Size</label>
                                     <input
                                         type="number"
                                         min="12"
@@ -1342,7 +1342,7 @@ export function Presentations() {
                                 </div>
 
                                 <div className="prop-section">
-                                    <label>Alinhamento</label>
+                                    <label>Alignment</label>
                                     <div className="align-buttons">
                                         <button
                                             className={selectedElement.textAlign === 'left' ? 'active' : ''}
@@ -1366,7 +1366,7 @@ export function Presentations() {
                                 </div>
 
                                 <div className="prop-section">
-                                    <label>Estilo</label>
+                                    <label>Style</label>
                                     <div className="style-buttons">
                                         <button
                                             className={selectedElement.fontWeight === 'bold' ? 'active' : ''}
@@ -1392,7 +1392,7 @@ export function Presentations() {
                         {(selectedElement.type === 'rectangle' || selectedElement.type === 'ellipse') && (
                             <>
                                 <div className="prop-section">
-                                    <label>Cor de preenchimento</label>
+                                    <label>Fill Color</label>
                                     <input
                                         type="color"
                                         value={selectedElement.fill || '#3b82f6'}
@@ -1400,7 +1400,7 @@ export function Presentations() {
                                     />
                                 </div>
                                 <div className="prop-section">
-                                    <label>Cor da borda</label>
+                                    <label>Border Color</label>
                                     <input
                                         type="color"
                                         value={selectedElement.stroke || '#ffffff'}
@@ -1412,7 +1412,7 @@ export function Presentations() {
 
                         {selectedElement.type === 'line' && (
                             <div className="prop-section">
-                                <label>Cor da linha</label>
+                                <label>Line Color</label>
                                 <input
                                     type="color"
                                     value={selectedElement.stroke || '#ffffff'}
@@ -1422,12 +1422,12 @@ export function Presentations() {
                         )}
 
                         <div className="prop-section">
-                            <label>Ações</label>
+                            <label>Actions</label>
                             <div className="action-buttons">
-                                <button onClick={duplicateSelectedElements} title="Duplicar">
+                                <button onClick={duplicateSelectedElements} title="Duplicate">
                                     <Copy size={16} />
                                 </button>
-                                <button onClick={deleteSelectedElements} title="Excluir" className="delete-btn">
+                                <button onClick={deleteSelectedElements} title="Delete" className="delete-btn">
                                     <Trash2 size={16} />
                                 </button>
                             </div>

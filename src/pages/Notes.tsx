@@ -29,7 +29,7 @@ import { Modal } from '../components/Modal/Modal';
 import { GraphView } from '../components/GraphView';
 import './Notes.css';
 
-const DEFAULT_NOTE_TITLE = 'Nova Nota';
+const DEFAULT_NOTE_TITLE = 'New Note';
 
 const extractTitleFromContent = (content: string, fallback: string): string => {
     const lines = content.split('\n');
@@ -106,7 +106,7 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (conte
         editorProps: {
             attributes: {
                 class: 'markdown-content focus:outline-none h-full',
-                'data-placeholder': 'Digite -[ ] e pressione espaço para criar checkbox',
+                'data-placeholder': 'Type -[ ] and press space to create checkbox',
             },
         },
     });
@@ -188,7 +188,7 @@ export function Notes() {
 
     const handleDeleteNote = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Tem certeza que deseja excluir esta nota?')) {
+        if (confirm('Are you sure you want to delete this note?')) {
             NotesStorage.deleteNote(id);
             if (selectedNote?.id === id) {
                 setSelectedNote(null);
@@ -199,7 +199,7 @@ export function Notes() {
 
     const handleDeleteFolder = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Tem certeza que deseja excluir esta pasta? As notas serão movidas para a raiz.')) {
+        if (confirm('Are you sure you want to delete this folder? The notes will be moved to the root.')) {
             NotesStorage.deleteFolder(id);
             if (selectedFolder === id) {
                 setSelectedFolder(null);
@@ -402,7 +402,7 @@ export function Notes() {
                                                     {folder.parentId && (
                                                         <button
                                                             onClick={(e) => handleMoveFolderToRoot(folder.id, e)}
-                                                            title="Mover para raiz"
+                                                            title="Move to root"
                                                         >
                                                             <ArrowUpToLine size={12} />
                                                         </button>
@@ -492,19 +492,19 @@ export function Notes() {
             <div className="notes-container">
                 <div className="notes-sidebar">
                     <div className="sidebar-header">
-                        <h2>Notas</h2>
+                        <h2>Notes</h2>
                         <div className="sidebar-actions">
                             <button
                                 className={`icon-btn ${viewMode === 'list' ? 'active' : ''}`}
                                 onClick={() => setViewMode('list')}
-                                title="Visualização em lista"
+                                title="List view"
                             >
                                 <List size={18} />
                             </button>
                             <button
                                 className={`icon-btn ${viewMode === 'graph' ? 'active' : ''}`}
                                 onClick={() => setViewMode('graph')}
-                                title="Visualização em grafo"
+                                title="Graph view"
                             >
                                 <Network size={18} />
                             </button>
@@ -514,11 +514,11 @@ export function Notes() {
                                     setNewNoteTitle(DEFAULT_NOTE_TITLE);
                                     setShowNewNoteModal(true);
                                 }}
-                                title="Nova nota"
+                                title="New note"
                             >
                                 <FilePlus size={18} />
                             </button>
-                            <button className="icon-btn" onClick={() => setShowNewFolderModal(true)} title="Nova pasta">
+                            <button className="icon-btn" onClick={() => setShowNewFolderModal(true)} title="New folder">
                                 <FolderPlus size={18} />
                             </button>
                         </div>
@@ -528,7 +528,7 @@ export function Notes() {
                         <Search size={16} />
                         <input
                             type="text"
-                            placeholder="Buscar notas..."
+                            placeholder="Search notes..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -594,7 +594,7 @@ export function Notes() {
                                     type="text"
                                     value={tagInput}
                                     onChange={(e) => setTagInput(e.target.value)}
-                                    placeholder="Digite uma tag e pressione Enter..."
+                                    placeholder="Type a tag and press Enter..."
                                     className="tag-input"
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter' && tagInput.trim()) {
@@ -635,8 +635,8 @@ export function Notes() {
                     ) : (
                         <div className="empty-state">
                             <FileText size={64} />
-                            <h2>Nenhuma nota selecionada</h2>
-                            <p>Selecione uma nota ou crie uma nova para começar</p>
+                            <h2>No note selected</h2>
+                            <p>Select a note or create a new one to start</p>
                             <button
                                 className="btn btn-primary"
                                 onClick={() => {
@@ -644,7 +644,7 @@ export function Notes() {
                                     setShowNewNoteModal(true);
                                 }}
                             >
-                                <FilePlus size={16} /> Criar Nova Nota
+                                <FilePlus size={16} /> Create New Note
                             </button>
                         </div>
                     )}
@@ -658,7 +658,7 @@ export function Notes() {
                     setShowNewNoteModal(false);
                     setNewNoteTitle(DEFAULT_NOTE_TITLE);
                 }}
-                title="Nova Nota"
+                title="New Note"
                 footer={
                     <>
                         <button
@@ -668,21 +668,21 @@ export function Notes() {
                                 setNewNoteTitle(DEFAULT_NOTE_TITLE);
                             }}
                         >
-                            Cancelar
+                            Cancel
                         </button>
                         <button className="btn btn-primary" onClick={handleCreateNote}>
-                            Criar
+                            Create
                         </button>
                     </>
                 }
             >
                 <div className="form-group">
-                    <label>Nome da nota:</label>
+                    <label>Note name:</label>
                     <input
                         type="text"
                         value={newNoteTitle}
                         onChange={(e) => setNewNoteTitle(e.target.value)}
-                        placeholder="Digite o nome da nota..."
+                        placeholder="Type the note name..."
                         autoFocus
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
@@ -691,7 +691,7 @@ export function Notes() {
                         }}
                     />
                 </div>
-                <p>Uma nova nota será criada {selectedFolder ? 'na pasta atual' : 'na raiz'}.</p>
+                <p>A new note will be created {selectedFolder ? 'in the current folder' : 'in the root'}.</p>
             </Modal>
 
             <Modal
@@ -700,7 +700,7 @@ export function Notes() {
                     setShowNewFolderModal(false);
                     setNewFolderName('');
                 }}
-                title="Nova Pasta"
+                title="New Folder"
                 footer={
                     <>
                         <button
@@ -710,21 +710,21 @@ export function Notes() {
                                 setNewFolderName('');
                             }}
                         >
-                            Cancelar
+                            Cancel
                         </button>
                         <button className="btn btn-primary" onClick={handleCreateFolder} disabled={!newFolderName.trim()}>
-                            Criar
+                            Create
                         </button>
                     </>
                 }
             >
                 <div className="form-group">
-                    <label>Nome da pasta:</label>
+                    <label>Folder name:</label>
                     <input
                         type="text"
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
-                        placeholder="Digite o nome da pasta..."
+                        placeholder="Type the folder name..."
                         autoFocus
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && newFolderName.trim()) {
@@ -741,7 +741,7 @@ export function Notes() {
                     setShowRenameModal(false);
                     setRenameTarget(null);
                 }}
-                title={`Renomear ${renameTarget?.type === 'note' ? 'Nota' : 'Pasta'}`}
+                title={`Rename ${renameTarget?.type === 'note' ? 'Note' : 'Folder'}`}
                 footer={
                     <>
                         <button
@@ -751,27 +751,27 @@ export function Notes() {
                                 setRenameTarget(null);
                             }}
                         >
-                            Cancelar
+                            Cancel
                         </button>
                         <button
                             className="btn btn-primary"
                             onClick={handleRename}
                             disabled={!renameTarget?.name.trim()}
                         >
-                            Renomear
+                            Rename
                         </button>
                     </>
                 }
             >
                 <div className="form-group">
-                    <label>Novo nome:</label>
+                    <label>New name:</label>
                     <input
                         type="text"
                         value={renameTarget?.name || ''}
                         onChange={(e) =>
                             setRenameTarget(renameTarget ? { ...renameTarget, name: e.target.value } : null)
                         }
-                        placeholder="Digite o novo nome..."
+                        placeholder="Type the new name..."
                         autoFocus
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && renameTarget?.name.trim()) {
