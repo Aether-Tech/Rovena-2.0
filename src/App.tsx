@@ -180,13 +180,8 @@ function App() {
                                         <Route path="/canva" element={<Canva />} />
                                         <Route path="/archives" element={<Archives />} />
                                         <Route path="/charts" element={<Charts />} />
-                                        <Route path="/presentations" element={<Presentations />} />
-                                        <Route path="/presentations-beta" element={
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px' }}>
-                                                <h2 style={{ color: '#888' }}>🚧 Em Desenvolvimento</h2>
-                                                <p style={{ color: '#666' }}>Esta funcionalidade está sendo desenvolvida.</p>
-                                            </div>
-                                        } />
+                                          <Route path="/presentations" element={<Navigate to="/" />} />
+                                          <Route path="/presentations-beta" element={<Navigate to="/" />} />
                                         <Route path="/browser" element={
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px' }}>
                                                 <h2 style={{ color: '#888' }}>🚧 Em Desenvolvimento</h2>
