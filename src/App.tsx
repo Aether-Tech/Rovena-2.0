@@ -26,7 +26,7 @@ const Presentations = lazy(() => import('./pages/Presentations').then(module => 
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 const Profile = lazy(() => import('./pages/Profile').then(module => ({ default: module.Profile })));
 const Notes = lazy(() => import('./pages/Notes').then(module => ({ default: module.Notes })));
-import { Login } from './pages/Login';
+const Login = lazy(() => import('./pages/Login').then(module => ({ default: module.Login })));
 import './pages/Login.css';
 import './index.css';
 
