@@ -6,7 +6,6 @@ import {
     PenTool,
     Archive,
     BarChart3,
-    Presentation,
     Settings,
     LogOut,
     FileText,
@@ -29,7 +28,6 @@ const mainNavItems: NavItem[] = [
     { icon: FileText, label: 'Notes', path: '/notes', badge: 'Beta' },
     { icon: Archive, label: 'Archives', path: '/archives' },
     { icon: BarChart3, label: 'Charts', path: '/charts' },
-    { icon: Presentation, label: 'Presentations', path: '/presentations' },
 ];
 
 const bottomNavItems: NavItem[] = [
