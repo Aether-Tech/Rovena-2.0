@@ -43,7 +43,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
 
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
-            setNameError('A imagem deve ter no máximo 5MB');
+            setNameError('Image must be at most 5MB');
             return;
         }
 
@@ -64,7 +64,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
             onProfileUpdate?.();
         } catch (error: any) {
             console.error('Error uploading photo:', error);
-            setNameError('Erro ao enviar foto. Tente novamente.');
+            setNameError('Error sending photo. Please try again.');
         } finally {
             setIsUploading(false);
         }
@@ -84,7 +84,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
             onProfileUpdate?.();
         } catch (error: any) {
             console.error('Error updating name:', error);
-            setNameError('Erro ao atualizar nome. Tente novamente.');
+            setNameError('Error updating name. Please try again.');
         } finally {
             setIsUpdatingName(false);
         }
@@ -97,19 +97,19 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
         setPasswordSuccess(false);
 
         if (!currentPassword) {
-            setPasswordError('Digite sua senha atual');
+            setPasswordError('Enter your current password');
             return;
         }
         if (!newPassword) {
-            setPasswordError('Digite a nova senha');
+            setPasswordError('Enter the new password');
             return;
         }
         if (newPassword.length < 6) {
-            setPasswordError('A nova senha deve ter pelo menos 6 caracteres');
+            setPasswordError('The new password must be at least 6 characters');
             return;
         }
         if (newPassword !== confirmPassword) {
-            setPasswordError('As senhas não coincidem');
+            setPasswordError('Passwords do not match');
             return;
         }
 
@@ -128,11 +128,11 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
         } catch (error: any) {
             console.error('Error updating password:', error);
             if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                setPasswordError('Senha atual incorreta');
+                setPasswordError('Incorrect current password');
             } else if (error.code === 'auth/requires-recent-login') {
-                setPasswordError('Faça login novamente para alterar a senha');
+                setPasswordError('Please log in again to change the password');
             } else {
-                setPasswordError('Erro ao alterar senha. Tente novamente.');
+                setPasswordError('Error changing password. Please try again.');
             }
         } finally {
             setIsUpdatingPassword(false);
@@ -147,7 +147,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                 <button className="btn btn-ghost" onClick={() => navigate(-1)}>
                     <ArrowLeft size={20} />
                 </button>
-                <h1>Meu Perfil</h1>
+                <h1>My Profile</h1>
             </header>
 
             <div className="profile-content">
@@ -156,12 +156,12 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                         {nameSuccess && (
                             <div className="success-message profile-success-top">
                                 <Check size={16} />
-                                Perfil atualizado
+                                Profile updated
                             </div>
                         )}
                         <div className="profile-photo" onClick={handlePhotoClick}>
                             {photoURL ? (
-                                <img src={photoURL} alt="Foto de perfil" />
+                                <img src={photoURL} alt="Profile photo" />
                             ) : (
                                 <div className="profile-photo-placeholder">
                                     {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
@@ -182,11 +182,11 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                             onChange={handlePhotoChange}
                             style={{ display: 'none' }}
                         />
-                        <p className="profile-photo-hint">Clique para alterar a foto</p>
+                        <p className="profile-photo-hint">Click to change photo</p>
                     </div>
 
                     <div className="profile-form-section">
-                        <h3>Informações</h3>
+                        <h3>Information</h3>
 
                         <div className="form-group">
                             <label>
@@ -204,14 +204,14 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                         <div className="form-group">
                             <label>
                                 <User size={16} />
-                                Nome de exibição
+                                Display Name
                             </label>
                             <div className="input-with-button">
                                 <input
                                     type="text"
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
-                                    placeholder="Seu nome"
+                                    placeholder="Your name"
                                     className="form-input"
                                 />
                                 <button
@@ -219,7 +219,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                                     onClick={handleUpdateName}
                                     disabled={isUpdatingName || !displayName.trim()}
                                 >
-                                    {isUpdatingName ? <div className="spinner-small"></div> : 'Salvar'}
+                                    {isUpdatingName ? <div className="spinner-small"></div> : 'Save'}
                                 </button>
                             </div>
                         </div>
@@ -238,17 +238,17 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                         <div className="profile-form-section">
                             <h3>
                                 <Lock size={18} />
-                                Alterar Senha
+                                Change Password
                             </h3>
 
                             <div className="form-group">
-                                <label>Senha atual</label>
+                                <label>Current password</label>
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showCurrentPassword ? 'text' : 'password'}
                                         value={currentPassword}
                                         onChange={(e) => setCurrentPassword(e.target.value)}
-                                        placeholder="Digite sua senha atual"
+                                        placeholder="Enter your current password"
                                         className="form-input"
                                     />
                                     <button
@@ -262,13 +262,13 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                             </div>
 
                             <div className="form-group">
-                                <label>Nova senha</label>
+                                <label>New password</label>
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showNewPassword ? 'text' : 'password'}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="Digite a nova senha"
+                                        placeholder="Enter the new password"
                                         className="form-input"
                                     />
                                     <button
@@ -282,13 +282,13 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                             </div>
 
                             <div className="form-group">
-                                <label>Confirmar nova senha</label>
+                                <label>Confirm new password</label>
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="Digite novamente a nova senha"
+                                        placeholder="Enter the new password again"
                                         className="form-input"
                                     />
                                     <button
@@ -306,13 +306,13 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                                 onClick={handleUpdatePassword}
                                 disabled={isUpdatingPassword}
                             >
-                                {isUpdatingPassword ? <div className="spinner-small"></div> : 'Alterar Senha'}
+                                {isUpdatingPassword ? <div className="spinner-small"></div> : 'Change Password'}
                             </button>
 
                             {passwordSuccess && (
                                 <div className="success-message">
                                     <Check size={16} />
-                                    Senha alterada com sucesso!
+                                    Password changed successfully!
                                 </div>
                             )}
                             {passwordError && (
@@ -330,7 +330,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                         <div className="profile-form-section">
                             <div className="google-notice">
                                 <AlertCircle size={18} />
-                                <span>Você está logado com o Google. A senha é gerenciada pela sua conta Google.</span>
+                                <span>You are logged in with Google. The password is managed by your Google account.</span>
                             </div>
                         </div>
                     </div>

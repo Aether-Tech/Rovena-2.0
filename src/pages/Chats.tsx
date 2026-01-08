@@ -73,7 +73,7 @@ export function Chats() {
         if (!currentChatId) setCurrentChatId(chatId);
 
         // Simple title generation based on first message
-        const title = messages[0]?.content.slice(0, 30) + (messages[0]?.content.length > 30 ? '...' : '') || 'Nova Conversa';
+        const title = messages[0]?.content.slice(0, 30) + (messages[0]?.content.length > 30 ? '...' : '') || 'New Conversation';
 
         LocalStorageService.saveItem({
             id: chatId,
@@ -137,13 +137,13 @@ export function Chats() {
 
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Erro ao enviar mensagem. Verifique sua conexão ou limite de tokens.');
+            setError(err.message || 'Error sending message. Check your connection or token limit.');
 
             // Add error system message
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: `Erro: ${err.message || 'Falha na comunicação com a IA.'}`,
+                content: `Error: ${err.message || 'AI communication failed.'}`,
                 timestamp: Date.now(),
             };
             setMessages(prev => [...prev, errorMessage]);
@@ -163,10 +163,10 @@ export function Chats() {
         <div className="chats-page">
             <header className="chat-header">
                 <div className="chat-header-title">
-                    Chat Inteligente
+                    Smart Chat
                 </div>
                 <div className="chat-token-info">
-                    <span>Tokens Usados: {tokensUsed.toLocaleString('pt-BR')}</span>
+                    <span>Tokens Used: {tokensUsed.toLocaleString('en-US')}</span>
                     {error && <span style={{ color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: 4 }}><AlertCircle size={14} /> {error}</span>}
                 </div>
             </header>
@@ -177,8 +177,8 @@ export function Chats() {
                         <div className="empty-state-icon">
                             <MessageSquare size={32} />
                         </div>
-                        <h3>Comece uma nova conversa</h3>
-                        <p>Explore o poder da IA com o Rovena</p>
+                        <h3>Start a new conversation</h3>
+                        <p>Explore the power of AI with Rovena</p>
                     </div>
                 ) : (
                     messages.map((msg) => (
@@ -188,7 +188,7 @@ export function Chats() {
                                     user?.photoURL ? (
                                         <img
                                             src={user.photoURL}
-                                            alt="Foto do usuário"
+                                            alt="User photo"
                                             className="avatar-image"
                                         />
                                     ) : (
@@ -220,7 +220,7 @@ export function Chats() {
                 <div className="chat-input-wrapper">
                     <textarea
                         className="chat-textarea"
-                        placeholder="Digite sua mensagem..."
+                        placeholder="Type your message..."
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
@@ -236,7 +236,7 @@ export function Chats() {
                     </button>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: 8, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Rovena pode cometer erros. Considere verificar informações importantes.
+                    Rovena can make mistakes. Consider verifying important information.
                 </div>
             </div>
         </div>

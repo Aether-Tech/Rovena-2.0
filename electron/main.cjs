@@ -5,9 +5,41 @@ const https = require('https');
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
+const http = require('http');
+
+let activeServerUrl = null;
 let mainWindow = null;
 let browserView = null;
 let browserBounds = null;
+
+async function startLocalServer() {
+    if (activeServerUrl) return activeServerUrl;
+
+    const handler = (await import('serve-handler')).default;
+
+    return new Promise((resolve, reject) => {
+        const server = http.createServer((request, response) => {
+            return handler(request, response, {
+                public: path.join(__dirname, '../dist'),
+                rewrites: [
+                    { source: '**', destination: '/index.html' }
+                ]
+            });
+        });
+
+        server.listen(5173, () => {
+            const port = 5173;
+            activeServerUrl = `http://localhost:${port}`;
+            console.log('Server running at:', activeServerUrl);
+            resolve(activeServerUrl);
+        });
+
+        server.on('error', (err) => {
+            console.error('Server failed to start:', err);
+            reject(err);
+        });
+    });
+}
 
 function ensureBrowserView() {
     if (!mainWindow || browserView) return;
@@ -54,7 +86,12 @@ async function createWindow() {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
     } else {
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        try {
+            const url = await startLocalServer();
+            mainWindow.loadURL(url);
+        } catch (err) {
+            console.error('Failed to load local server:', err);
+        }
     }
 
     mainWindow.on('resize', () => {

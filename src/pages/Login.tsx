@@ -30,15 +30,15 @@ export function Login({ onAuthSuccess }: LoginProps) {
 
         try {
             if (!email || !password) {
-                throw new Error('Preencha todos os campos');
+                throw new Error('Please fill in all fields');
             }
 
             if (!isLogin) {
                 if (password !== confirmPassword) {
-                    throw new Error('As senhas não coincidem');
+                    throw new Error('Passwords do not match');
                 }
                 if (password.length < 6) {
-                    throw new Error('A senha deve ter pelo menos 6 caracteres');
+                    throw new Error('Password must be at least 6 characters');
                 }
                 await createUserWithEmailAndPassword(auth, email, password);
             } else {
@@ -48,15 +48,15 @@ export function Login({ onAuthSuccess }: LoginProps) {
             onAuthSuccess();
         } catch (err: any) {
             console.error('Auth error:', err);
-            // Translate Firebase errors to Portuguese
+            // Translate Firebase errors to English
             const errorMessages: Record<string, string> = {
-                'auth/user-not-found': 'Usuário não encontrado',
-                'auth/wrong-password': 'Senha incorreta',
-                'auth/email-already-in-use': 'Este email já está em uso',
-                'auth/weak-password': 'A senha deve ter pelo menos 6 caracteres',
-                'auth/invalid-email': 'Email inválido',
-                'auth/invalid-credential': 'Credenciais inválidas',
-                'auth/too-many-requests': 'Muitas tentativas. Tente novamente mais tarde.',
+                'auth/user-not-found': 'User not found',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/email-already-in-use': 'This email is already in use',
+                'auth/weak-password': 'Password must be at least 6 characters',
+                'auth/invalid-email': 'Invalid email',
+                'auth/invalid-credential': 'Invalid credentials',
+                'auth/too-many-requests': 'Too many attempts. Try again later.',
             };
             setError(errorMessages[err.code] || err.message);
         } finally {
@@ -67,14 +67,14 @@ export function Login({ onAuthSuccess }: LoginProps) {
     const handleGoogleAuth = async () => {
         setError('');
         setLoading(true);
-
+  
         try {
             await signInWithPopup(auth, googleProvider);
             onAuthSuccess();
         } catch (err: any) {
             console.error('Google auth error:', err);
             if (err.code !== 'auth/popup-closed-by-user') {
-                setError('Erro ao fazer login com Google');
+                setError('Error logging in with Google');
             }
         } finally {
             setLoading(false);
@@ -88,7 +88,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                     <img src="./logo.png?v=2" alt="Rovena" className="login-logo-img" />
                     <h1 className="login-title">Rovena</h1>
                     <p className="login-subtitle">
-                        Central de interação IA x Humano
+                        AI x Human interaction center
                     </p>
                 </header>
 
@@ -101,7 +101,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                                 setError('');
                             }}
                         >
-                            Entrar
+                            Sign In
                         </button>
                         <button
                             className={`login-tab ${!isLogin ? 'active' : ''}`}
@@ -110,7 +110,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                                 setError('');
                             }}
                         >
-                            Criar Conta
+                            Create Account
                         </button>
                     </div>
 
@@ -124,7 +124,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                             <input
                                 type="email"
                                 className="form-input"
-                                placeholder="seu@email.com"
+                                placeholder="your@email.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={loading}
@@ -132,7 +132,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Senha</label>
+                            <label className="form-label">Password</label>
                             <div className="password-input-wrapper">
                                 <input
                                     type={showPassword ? "text" : "password"}
@@ -155,7 +155,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
 
                         {!isLogin && (
                             <div className="form-group">
-                                <label className="form-label">Confirmar Senha</label>
+                                <label className="form-label">Confirm Password</label>
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showConfirmPassword ? "text" : "password"}
@@ -185,14 +185,14 @@ export function Login({ onAuthSuccess }: LoginProps) {
                             {loading ? (
                                 <span className="spinner" />
                             ) : isLogin ? (
-                                'Entrar'
+                                'Sign In'
                             ) : (
-                                'Criar Conta'
+                                'Create Account'
                             )}
                         </button>
                     </form>
 
-                    <div className="login-divider">ou continue com</div>
+                    <div className="login-divider">or continue with</div>
 
                     <button
                         className="google-button"
@@ -221,9 +221,9 @@ export function Login({ onAuthSuccess }: LoginProps) {
                     </button>
 
                     <p className="login-footer">
-                        Ao continuar, você concorda com nossos{' '}
-                        <a href="#">Termos de Uso</a> e{' '}
-                        <a href="#">Política de Privacidade</a>
+                        By continuing, you agree to our{' '}
+                        <a href="#">Terms of Use</a> and{' '}
+                        <a href="#">Privacy Policy</a>
                     </p>
                 </div>
             </div>

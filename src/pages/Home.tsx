@@ -105,7 +105,7 @@ export function Home({
     };
 
     const formatNumber = (num: number) => {
-        return num.toLocaleString('pt-BR');
+        return num.toLocaleString('en-US');
     };
 
     const completedCount = todos.filter((t) => t.completed).length;
@@ -114,7 +114,7 @@ export function Home({
         <div className="home-page page-content">
             <header className="page-header">
                 <h1 className="page-title">Dashboard</h1>
-                <p className="page-subtitle">Bem-vindo de volta! Aqui está seu resumo.</p>
+                <p className="page-subtitle">Welcome back! Here's your summary.</p>
             </header>
 
             {/* Stats Grid */}
@@ -123,7 +123,7 @@ export function Home({
                 <div className="token-card">
                     <div className="token-header">
                         <div>
-                            <p className="token-label">Tokens Restantes</p>
+                            <p className="token-label">Remaining Tokens</p>
                             <p className="token-percentage">{tokenPercentage}%</p>
                         </div>
                         <div className="token-icon">
@@ -138,7 +138,7 @@ export function Home({
                             />
                         </div>
                         <div className="token-details">
-                            <span>{formatNumber(tokensRemaining)} restantes</span>
+                            <span>{formatNumber(tokensRemaining)} remaining</span>
                             <span>{formatNumber(tokensLimit)} total</span>
                         </div>
                     </div>
@@ -152,10 +152,10 @@ export function Home({
                         </div>
                     </div>
                     <p className="stat-value">{messagesLast30Days}</p>
-                    <p className="stat-label">Mensagens enviadas</p>
+                    <p className="stat-label">Messages sent</p>
                     <div className="stat-trend up">
                         <TrendingUp size={14} />
-                        <span>Últimos 30 dias</span>
+                        <span>Last 30 days</span>
                     </div>
                 </div>
 
@@ -167,10 +167,10 @@ export function Home({
                         </div>
                     </div>
                     <p className="stat-value">{interactionsLast30Days}</p>
-                    <p className="stat-label">Interações totais</p>
+                    <p className="stat-label">Total interactions</p>
                     <div className="stat-trend up">
                         <TrendingUp size={14} />
-                        <span>Últimos 30 dias</span>
+                        <span>Last 30 days</span>
                     </div>
                 </div>
             </div>
@@ -182,21 +182,21 @@ export function Home({
                         <MessageSquare size={20} />
                     </div>
                     <div>
-                        <h3 className="quick-chat-title">Chat Rápido</h3>
-                        <p className="quick-chat-subtitle">Comece uma conversa agora mesmo</p>
+                        <h3 className="quick-chat-title">Quick Chat</h3>
+                        <p className="quick-chat-subtitle">Start a conversation right now</p>
                     </div>
                 </div>
                 <form className="quick-chat-form" onSubmit={handleQuickChat}>
                     <input
                         type="text"
                         className="quick-chat-input"
-                        placeholder="Digite sua mensagem para iniciar um chat..."
+                        placeholder="Type your message to start a chat..."
                         value={quickMessage}
                         onChange={(e) => setQuickMessage(e.target.value)}
                     />
                     <button type="submit" className="quick-chat-submit">
                         <Send size={18} />
-                        Enviar
+                        Send
                     </button>
                 </form>
             </section>
@@ -209,21 +209,21 @@ export function Home({
                             <ListTodo size={20} />
                         </div>
                         <div>
-                            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Tarefas</h3>
+                            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Tasks</h3>
                             <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                                Organize suas atividades
+                                Organize your activities
                             </p>
                         </div>
                     </div>
                     <span className="todos-count">
-                        {completedCount}/{todos.length} concluídas
+                        {completedCount}/{todos.length} completed
                     </span>
                 </div>
 
                 {todos.length === 0 ? (
                     <div className="empty-todos">
                         <ListTodo size={48} className="empty-todos-icon" />
-                        <p>Nenhuma tarefa ainda. Adicione uma abaixo!</p>
+                        <p>No tasks yet. Add one below!</p>
                     </div>
                 ) : (
                     <div className="todos-list">
@@ -258,14 +258,14 @@ export function Home({
                                     <button
                                         className="todo-action-btn"
                                         onClick={() => startEdit(todo)}
-                                        title="Editar"
+                                        title="Edit"
                                     >
                                         <Pencil size={16} />
                                     </button>
                                     <button
                                         className="todo-action-btn delete"
                                         onClick={() => deleteTodo(todo.id)}
-                                        title="Excluir"
+                                        title="Delete"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -279,13 +279,13 @@ export function Home({
                     <input
                         type="text"
                         className="add-todo-input"
-                        placeholder="Adicionar nova tarefa..."
+                        placeholder="Add new task..."
                         value={newTodo}
                         onChange={(e) => setNewTodo(e.target.value)}
                     />
                     <button type="submit" className="add-todo-btn">
                         <Plus size={18} />
-                        Adicionar
+                        Add
                     </button>
                 </form>
             </section>

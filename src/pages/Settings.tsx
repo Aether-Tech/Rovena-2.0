@@ -57,10 +57,10 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                 setUpdateError(null);
                 if (status.text === 'download-progress') {
                     setDownloadProgress(status.data);
-                    setUpdateStatus(`Baixando atualização: ${Math.round(status.data.percent)}%`);
+                    setUpdateStatus(`Downloading update: ${Math.round(status.data.percent)}%`);
                 } else if (status.text === 'update-available') {
                     const info = status.data;
-                    setUpdateStatus('Nova versão disponível!');
+                    setUpdateStatus('New version available!');
                     setUpdateAvailableInfo(info);
 
                     if (status.data && status.data.releaseNotes) {
@@ -70,10 +70,10 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                         setReleaseNotes(notes);
                     }
                 } else if (status.text === 'update-downloaded') {
-                    setUpdateStatus('Atualização pronta! Reinicie o app para instalar.');
+                    setUpdateStatus('Update ready! Restart the app to install.');
                     setDownloadProgress(null);
                 } else if (status.text === 'update-not-available') {
-                    setUpdateStatus('Você já está na versão mais recente.');
+                    setUpdateStatus('You are already on the latest version.');
                     setDownloadProgress(null);
                     setUpdateAvailableInfo(null);
                     setReleaseNotes(null);
@@ -89,7 +89,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     setDownloadProgress(null);
                     
                     if (error.includes('command') || error.includes('bundle') || error.includes('ENOENT') || error.includes('spawn') || error.includes('code signature')) {
-                        setUpdateStatus('Atualização automática indisponível. Use o download manual.');
+                        setUpdateStatus('Automatic update unavailable. Use manual download.');
                         try {
                             const releaseInfo = await (window as any).electronAPI.getLatestReleaseUrl();
                             if (releaseInfo) {
@@ -99,7 +99,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             console.error('Error fetching fallback release:', e);
                         }
                     } else {
-                        setUpdateStatus('Erro na atualização: ' + error);
+                        setUpdateStatus('Update error: ' + error);
                     }
                 });
             }
@@ -108,7 +108,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
 
     const handleCheckUpdates = async () => {
         if ((window as any).electronAPI) {
-            setUpdateStatus('Verificando atualizações...');
+            setUpdateStatus('Checking for updates...');
             setReleaseNotes(null);
             setUpdateAvailableInfo(null);
             setUpdateError(null);
@@ -120,7 +120,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     const latest = await (window as any).electronAPI.getLatestReleaseUrl();
                     if (latest && latest.version !== `v${appVersion}` && latest.version !== appVersion) {
                         setFallbackReleaseInfo(latest);
-                        setUpdateStatus('Nova versão detectada (Manual)');
+                        setUpdateStatus('New version detected (Manual)');
                     }
                 } catch (e) {
                     console.error('Manual update check failed:', e);
@@ -129,7 +129,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
 
             (window as any).electronAPI.checkForUpdates();
         } else {
-            alert('Atualizações automáticas disponíveis apenas na versão Desktop.');
+            alert('Automatic updates are only available in the Desktop version.');
         }
     };
 
@@ -142,7 +142,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
     const tokenPercentage = tokensLimit > 0 ? Math.round((tokensRemaining / tokensLimit) * 100) : 0;
 
     const formatNumber = (num: number) => {
-        return num.toLocaleString('pt-BR');
+        return num.toLocaleString('en-US');
     };
 
     const handleCancelPlan = async () => {
@@ -155,7 +155,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
         try {
             await cancelSubscription({ subscriptionId });
             setShowCancelModal(false);
-            setSuccessMessage('Plano cancelado com sucesso. Você manterá acesso até o fim do período atual.');
+            setSuccessMessage('Plan successfully canceled. You will keep access until the end of the current period.');
             setShowSuccessModal(true);
 
             if (onCancelPlan) {
@@ -163,7 +163,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
             }
         } catch (error) {
             console.error('Error canceling plan:', error);
-            alert('Erro ao cancelar plano. Tente novamente.'); // Keeping alert for explicit error for now
+            alert('Error canceling plan. Please try again.'); // Keeping alert for explicit error for now
         } finally {
             setIsCanceling(false);
         }
@@ -171,24 +171,24 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
 
     const handleRefresh = async () => {
         if (onCancelPlan) await onCancelPlan();
-        setSuccessMessage('Dados atualizados com sucesso!');
+        setSuccessMessage('Data successfully updated!');
         setShowSuccessModal(true);
     };
 
     const handleSaveCustomAPI = async () => {
         if (!customOpenAIKey.startsWith('sk-')) {
-            alert('A chave da API deve começar com "sk-"');
+            alert('API key must start with "sk-"');
             return;
         }
 
         setIsSaving(true);
         try {
             localStorage.setItem('rovena-custom-openai-key', customOpenAIKey);
-            setSuccessMessage('Configurações salvas com sucesso!');
+            setSuccessMessage('Settings successfully saved!');
             setShowSuccessModal(true);
         } catch (error) {
             console.error('Error saving API key:', error);
-            alert('Erro ao salvar configurações.');
+            alert('Error saving settings.');
         } finally {
             setIsSaving(false);
         }
@@ -203,8 +203,8 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
     return (
         <div className="settings-page page-content">
             <header className="page-header">
-                <h1 className="page-title">Configurações</h1>
-                <p className="page-subtitle">Gerencie sua conta e preferências</p>
+                <h1 className="page-title">Settings</h1>
+                <p className="page-subtitle">Manage your account and preferences</p>
             </header>
 
             <div className="settings-sections">
@@ -215,23 +215,23 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             <CreditCard size={20} />
                         </div>
                         <div>
-                            <h2 className="settings-section-title">Plano e Assinatura</h2>
+                            <h2 className="settings-section-title">Plan and Subscription</h2>
                             <p className="settings-section-subtitle">
-                                Gerencie seu plano de assinatura
+                                Manage your subscription plan
                             </p>
                         </div>
                     </div>
 
                     <div className="plan-info">
                         <div className="plan-item">
-                            <p className="plan-item-label">Plano Atual</p>
+                            <p className="plan-item-label">Current Plan</p>
                             <p className={`plan-item-value ${userPlan}`}>
                                 {userPlan === 'plus' ? 'Plus' : 'Free'}
                             </p>
                         </div>
                         <div className="plan-item">
                             <p className="plan-item-label">Email</p>
-                            <p className="plan-item-value">{userEmail || 'Não disponível'}</p>
+                            <p className="plan-item-value">{userEmail || 'Not available'}</p>
                         </div>
                     </div>
 
@@ -242,7 +242,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                 onClick={() => setShowCancelModal(true)}
                                 disabled={isCanceling}
                             >
-                                {isCanceling ? 'Cancelando...' : 'Cancelar Plano'}
+                                {isCanceling ? 'Canceling...' : 'Cancel Plan'}
                             </button>
                         ) : userPlan !== 'plus' ? (
                             <a
@@ -252,17 +252,17 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                 className="btn btn-primary"
                             >
                                 <Zap size={18} />
-                                Fazer Upgrade para Plus
+                                Upgrade to Plus
                                 <ExternalLink size={14} />
                             </a>
                         ) : null}
                         <button
                             className="btn btn-secondary"
                             onClick={handleRefresh}
-                            title="Atualizar dados da assinatura"
+                            title="Update subscription data"
                         >
                             <RefreshCw size={18} />
-                            Atualizar
+                            Update
                         </button>
                     </div>
                 </section>
@@ -274,16 +274,16 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             <Zap size={20} />
                         </div>
                         <div>
-                            <h2 className="settings-section-title">Uso de Tokens</h2>
+                            <h2 className="settings-section-title">Token Usage</h2>
                             <p className="settings-section-subtitle">
-                                Monitore seu consumo de tokens
+                                Monitor your token consumption
                             </p>
                         </div>
                     </div>
 
                     <div className="token-info">
                         <div className="token-info-header">
-                            <span className="token-info-label">Tokens Restantes</span>
+                            <span className="token-info-label">Remaining Tokens</span>
                             <span className="token-info-value">{tokenPercentage}%</span>
                         </div>
                         <div className="token-info-progress">
@@ -295,13 +295,13 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             </div>
                         </div>
                         <div className="token-info-details">
-                            <span>{formatNumber(tokensRemaining)} disponíveis</span>
+                            <span>{formatNumber(tokensRemaining)} available</span>
                             <span>{formatNumber(tokensLimit)} total</span>
                         </div>
                     </div>
 
                     <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                        Os tokens são renovados mensalmente. Plano Plus: 3M tokens/mês. Plano Free: 10K tokens/mês.
+                        Tokens are renewed monthly. Plus Plan: 3M tokens/month. Free Plan: 10K tokens/month.
                     </p>
                 </section>
 
@@ -312,9 +312,9 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             <Key size={20} />
                         </div>
                         <div>
-                            <h2 className="settings-section-title">APIs Customizadas</h2>
+                            <h2 className="settings-section-title">Custom APIs</h2>
                             <p className="settings-section-subtitle">
-                                Use suas próprias chaves de API
+                                Use your own API keys
                             </p>
                         </div>
                     </div>
@@ -322,9 +322,9 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     <div className="api-toggle">
                         <div className="api-toggle-info">
                             <div>
-                                <p className="api-toggle-label">Usar API própria</p>
+                                <p className="api-toggle-label">Use own API</p>
                                 <p className="api-toggle-description">
-                                    Substitua nossa API pela sua chave OpenAI
+                                    Replace our API with your OpenAI key
                                 </p>
                             </div>
                         </div>
@@ -337,7 +337,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     {useCustomAPI && (
                         <div className="api-fields">
                             <div className="api-field">
-                                <label className="api-field-label">Chave da API OpenAI</label>
+                                <label className="api-field-label">OpenAI API Key</label>
                                 <input
                                     type="password"
                                     className="api-field-input"
@@ -352,22 +352,22 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                 onClick={handleSaveCustomAPI}
                                 disabled={isSaving || !customOpenAIKey}
                             >
-                                {isSaving ? 'Salvando...' : 'Salvar Configurações'}
+                                {isSaving ? 'Saving...' : 'Save Settings'}
                             </button>
                         </div>
                     )}
                 </section>
 
-                {/* === ATUALIZAÇÕES === */}
+                {/* === UPDATES === */}
                 <section className="settings-section">
                     <div className="settings-section-header">
                         <div className="settings-section-icon blue">
                             <RefreshCw size={20} />
                         </div>
                         <div>
-                            <h2 className="settings-section-title">Atualizações</h2>
+                            <h2 className="settings-section-title">Updates</h2>
                             <p className="settings-section-subtitle">
-                                Verifique novas versões e notas de lançamento
+                                Check for new versions and release notes
                             </p>
                         </div>
                     </div>
@@ -375,7 +375,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     <div className="settings-card" style={{ marginTop: 16 }}>
                         <div className="setting-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div className="setting-info">
-                                <span className="setting-label" style={{ display: 'block', fontWeight: 600 }}>Versão Atual</span>
+                                <span className="setting-label" style={{ display: 'block', fontWeight: 600 }}>Current Version</span>
                                 <span className="setting-description" style={{ color: 'var(--text-secondary)' }}>
                                     Rovena v{appVersion || '...'}
                                 </span>
@@ -383,9 +383,9 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             <button
                                 className="btn btn-secondary"
                                 onClick={handleCheckUpdates}
-                                disabled={updateStatus === 'Checking for updates...' || (typeof updateStatus === 'string' && updateStatus.includes('Baixando'))}
+                                disabled={updateStatus === 'Checking for updates...' || (typeof updateStatus === 'string' && updateStatus.includes('Downloading'))}
                             >
-                                {updateStatus === 'Checking for updates...' ? 'Verificando...' : 'Verificar atualizações'}
+                                {updateStatus === 'Checking for updates...' ? 'Checking...' : 'Check for updates'}
                             </button>
                         </div>
 
@@ -396,7 +396,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                 </div>
 
                                 {/* Actions: Download / Skip / Restart */}
-                                {updateAvailableInfo && !downloadProgress && updateStatus !== 'Atualização pronta! Reinicie o app para instalar.' && (
+                                {updateAvailableInfo && !downloadProgress && updateStatus !== 'Update ready! Restart the app to install.' && (
                                     <div style={{ display: 'flex', gap: '10px', marginTop: 10 }}>
                                         <button
                                             className="btn btn-primary"
@@ -406,24 +406,24 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                                 }
                                             }}
                                         >
-                                            Baixar Atualização (v{updateAvailableInfo.version})
+                                            Download Update (v{updateAvailableInfo.version})
                                         </button>
                                         <button
                                             className="btn btn-secondary"
                                             onClick={() => {
                                                 // Skip logic
                                                 localStorage.setItem('skipped-version', updateAvailableInfo.version);
-                                                setUpdateStatus('Versão ignorada.');
+                                                setUpdateStatus('Version skipped.');
                                                 setUpdateAvailableInfo(null);
                                                 setReleaseNotes(null);
                                             }}
                                         >
-                                            Pular esta versão
+                                            Skip this version
                                         </button>
                                     </div>
                                 )}
 
-                                {updateStatus === 'Atualização pronta! Reinicie o app para instalar.' && (
+                                {updateStatus === 'Update ready! Restart the app to install.' && (
                                     <button
                                         className="btn btn-primary"
                                         style={{ marginTop: 10 }}
@@ -433,7 +433,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                             }
                                         }}
                                     >
-                                        Reiniciar e Instalar
+                                        Restart and Install
                                     </button>
                                 )}
 
@@ -452,17 +452,17 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                     </div>
                                 )}
 
-                                {/* Fallback Download quando auto-update falha ou no macOS manual */}
-                                {(updateStatus === 'Nova versão detectada (Manual)' || (updateError && fallbackReleaseInfo)) && (
+                                {/* Fallback Download when auto-update fails or on macOS manual */}
+                                {(updateStatus === 'New version detected (Manual)' || (updateError && fallbackReleaseInfo)) && (
                                     <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-tertiary)', borderRadius: 8, border: '1px solid var(--accent-blue)' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                                             <Download size={18} style={{ color: 'var(--accent-blue)' }} />
-                                            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Download Manual (Recomendado para macOS)</span>
+                                            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Manual Download (Recommended for macOS)</span>
                                         </div>
                                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
                                             {platform === 'darwin' 
-                                                ? "Como o app ainda não possui certificado assinado no macOS, você deve baixar o novo .dmg, abrir e arrastar para sua pasta de Aplicativos, substituindo a versão atual."
-                                                : "O atualizador automático encontrou um problema. Você pode baixar a nova versão manualmente abaixo."}
+                                                ? "Since the app does not yet have a signed certificate on macOS, you must download the new .dmg, open it, and drag it to your Applications folder, replacing the current version."
+                                                : "The automatic updater encountered an issue. You can download the new version manually below."}
                                         </p>
                                         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                             {fallbackReleaseInfo && fallbackReleaseInfo.dmgUrl && (
@@ -473,7 +473,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                                     }}
                                                 >
                                                     <Download size={16} />
-                                                    Baixar Rovena {fallbackReleaseInfo.version} (.dmg)
+                                                    Download Rovena {fallbackReleaseInfo.version} (.dmg)
                                                 </button>
                                             )}
                                             {fallbackReleaseInfo && fallbackReleaseInfo.releaseUrl && (
@@ -484,7 +484,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                                     }}
                                                 >
                                                     <ExternalLink size={16} />
-                                                    Ver Notas da Versão
+                                                    View Release Notes
                                                 </button>
                                             )}
                                         </div>
@@ -494,7 +494,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                 {/* Release Notes */}
                                 {releaseNotes && (
                                     <div className="release-notes" style={{ marginTop: 16, background: 'var(--bg-secondary)', padding: 12, borderRadius: 8 }}>
-                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Novidades da versão v{updateAvailableInfo?.version}:</h4>
+                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>What's new in v{updateAvailableInfo?.version}:</h4>
                                         <div
                                             style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
                                             dangerouslySetInnerHTML={{ __html: releaseNotes }}
@@ -513,9 +513,9 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                             <LogOut size={20} />
                         </div>
                         <div>
-                            <h2 className="settings-section-title">Conta</h2>
+                            <h2 className="settings-section-title">Account</h2>
                             <p className="settings-section-subtitle">
-                                Gerenciar sua sessão
+                                Manage your session
                             </p>
                         </div>
                     </div>
@@ -523,21 +523,21 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     <div className="account-actions">
                         <div className="account-action">
                             <div className="account-action-info">
-                                <span className="account-action-label">Ver tour do aplicativo</span>
+                                <span className="account-action-label">View app tour</span>
                                 <span className="account-action-description">
-                                    Reveja o tutorial inicial
+                                    Review the initial tutorial
                                 </span>
                             </div>
                             <button className="btn btn-secondary" onClick={onShowOnboarding}>
                                 <BookOpen size={18} />
-                                Ver Tour
+                                View Tour
                             </button>
                         </div>
                         <div className="account-action">
                             <div className="account-action-info">
-                                <span className="account-action-label">Sair da conta</span>
+                                <span className="account-action-label">Sign out</span>
                                 <span className="account-action-description">
-                                    Encerrar sua sessão atual
+                                    End your current session
                                 </span>
                             </div>
                             <button className="btn btn-secondary" onClick={handleLogout}>
@@ -553,26 +553,26 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
             <Modal
                 isOpen={showCancelModal}
                 onClose={() => setShowCancelModal(false)}
-                title="Cancelar Assinatura"
+                title="Cancel Subscription"
                 footer={
                     <>
                         <button className="btn btn-secondary" onClick={() => setShowCancelModal(false)}>
-                            Voltar
+                            Back
                         </button>
                         <button className="btn btn-danger" onClick={handleCancelPlan} disabled={isCanceling}>
-                            {isCanceling ? 'Cancelando...' : 'Sim, Cancelar'}
+                            {isCanceling ? 'Canceling...' : 'Yes, Cancel'}
                         </button>
                     </>
                 }
             >
-                <p>Tem certeza que deseja cancelar seu plano? Você manterá o acesso aos recursos Plus até o final do período atual, mas sua assinatura não será renovada.</p>
+                <p>Are you sure you want to cancel your plan? You will keep access to Plus features until the end of the current period, but your subscription will not be renewed.</p>
             </Modal>
 
             {/* Success Info Modal */}
             <Modal
                 isOpen={showSuccessModal}
                 onClose={() => setShowSuccessModal(false)}
-                title="Sucesso"
+                title="Success"
                 footer={
                     <button className="btn btn-primary" onClick={() => setShowSuccessModal(false)}>
                         OK

@@ -29,6 +29,7 @@ const mainNavItems: NavItem[] = [
     { icon: FileText, label: 'Notes', path: '/notes', badge: 'Beta' },
     { icon: Archive, label: 'Archives', path: '/archives' },
     { icon: BarChart3, label: 'Charts', path: '/charts' },
+    { icon: Presentation, label: 'Presentations', path: '/presentations' },
 ];
 
 const bottomNavItems: NavItem[] = [
@@ -105,10 +106,10 @@ export function Sidebar({
             </nav>
 
             <div className="sidebar-footer">
-                <div className="user-profile" onClick={handleProfileClick} title="Ver perfil">
+                <div className="user-profile" onClick={handleProfileClick} title="View Profile">
                     <div className="user-avatar">
                         {userPhotoURL ? (
-                            <img src={userPhotoURL} alt="Foto de perfil" className="user-avatar-img" />
+                            <img src={userPhotoURL} alt="Profile photo" className="user-avatar-img" />
                         ) : (
                             userEmail ? getInitials(userEmail) : 'U'
                         )}
