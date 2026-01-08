@@ -149,7 +149,7 @@ function App() {
         )
     }
 
-    const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+    const displayName = user?.displayName || user?.email?.split('@')[0] || 'Usuário';
     const userPhotoURL = user?.photoURL || undefined;
 
     return (
@@ -183,14 +183,14 @@ function App() {
                                         <Route path="/presentations" element={<Presentations />} />
                                         <Route path="/presentations-beta" element={
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px' }}>
-                                                <h2 style={{ color: '#888' }}>🚧 In Development</h2>
-                                                <p style={{ color: '#666' }}>This feature is currently under development.</p>
+                                                <h2 style={{ color: '#888' }}>🚧 Em Desenvolvimento</h2>
+                                                <p style={{ color: '#666' }}>Esta funcionalidade está sendo desenvolvida.</p>
                                             </div>
                                         } />
                                         <Route path="/browser" element={
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '16px' }}>
-                                                <h2 style={{ color: '#888' }}>🚧 In Development</h2>
-                                                <p style={{ color: '#666' }}>This feature is currently under development.</p>
+                                                <h2 style={{ color: '#888' }}>🚧 Em Desenvolvimento</h2>
+                                                <p style={{ color: '#666' }}>Esta funcionalidade está sendo desenvolvida.</p>
                                             </div>
                                         } />
                                         <Route path="/notes" element={<Notes />} />
@@ -224,11 +224,11 @@ function App() {
             <Modal
                 isOpen={showUpdateModal}
                 onClose={() => setShowUpdateModal(false)}
-                title="New Version Available"
+                title="Nova Versão Disponível"
                 footer={
                     <>
                         <button className="btn btn-secondary" onClick={() => setShowUpdateModal(false)}>
-                            Install Later
+                            Instalar Depois
                         </button>
                         <button
                             className="btn btn-primary"
@@ -244,12 +244,12 @@ function App() {
                                 }
                             }}
                         >
-                            Restart and Install
+                            Reiniciar e Instalar
                         </button>
                     </>
                 }
             >
-                <p>A new update has been downloaded. Restart the application now to apply the changes.</p>
+                <p>Uma nova atualização foi baixada. Reinicie o aplicativo agora para aplicar as mudanças.</p>
             </Modal>
         </HashRouter>
     );

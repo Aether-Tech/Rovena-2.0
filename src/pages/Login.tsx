@@ -30,7 +30,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
 
         try {
             if (!email || !password) {
-                throw new Error('Please fill in all fields');
+                throw new Error('Fill in all fields');
             }
 
             if (!isLogin) {
@@ -56,7 +56,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                 'auth/weak-password': 'Password must be at least 6 characters',
                 'auth/invalid-email': 'Invalid email',
                 'auth/invalid-credential': 'Invalid credentials',
-                'auth/too-many-requests': 'Too many attempts. Try again later.',
+                'auth/too-many-requests': 'Too many attempts. Please try again later.',
             };
             setError(errorMessages[err.code] || err.message);
         } finally {
@@ -67,7 +67,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
     const handleGoogleAuth = async () => {
         setError('');
         setLoading(true);
-  
+
         try {
             await signInWithPopup(auth, googleProvider);
             onAuthSuccess();
@@ -88,7 +88,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                     <img src="./logo.png?v=2" alt="Rovena" className="login-logo-img" />
                     <h1 className="login-title">Rovena</h1>
                     <p className="login-subtitle">
-                        AI x Human interaction center
+                        AI x Human Interaction Hub
                     </p>
                 </header>
 
@@ -110,7 +110,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                                 setError('');
                             }}
                         >
-                            Create Account
+                            Sign Up
                         </button>
                     </div>
 
@@ -187,7 +187,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
                             ) : isLogin ? (
                                 'Sign In'
                             ) : (
-                                'Create Account'
+                                'Sign Up'
                             )}
                         </button>
                     </form>
@@ -222,7 +222,7 @@ export function Login({ onAuthSuccess }: LoginProps) {
 
                     <p className="login-footer">
                         By continuing, you agree to our{' '}
-                        <a href="#">Terms of Use</a> and{' '}
+                        <a href="#">Terms of Service</a> and{' '}
                         <a href="#">Privacy Policy</a>
                     </p>
                 </div>

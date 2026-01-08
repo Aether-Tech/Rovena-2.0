@@ -129,7 +129,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
 
             (window as any).electronAPI.checkForUpdates();
         } else {
-            alert('Automatic updates are only available in the Desktop version.');
+            alert('Automatic updates available only in the Desktop version.');
         }
     };
 
@@ -155,7 +155,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
         try {
             await cancelSubscription({ subscriptionId });
             setShowCancelModal(false);
-            setSuccessMessage('Plan successfully canceled. You will keep access until the end of the current period.');
+            setSuccessMessage('Plan canceled successfully. You will keep access until the end of the current period.');
             setShowSuccessModal(true);
 
             if (onCancelPlan) {
@@ -171,20 +171,20 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
 
     const handleRefresh = async () => {
         if (onCancelPlan) await onCancelPlan();
-        setSuccessMessage('Data successfully updated!');
+        setSuccessMessage('Data updated successfully!');
         setShowSuccessModal(true);
     };
 
     const handleSaveCustomAPI = async () => {
         if (!customOpenAIKey.startsWith('sk-')) {
-            alert('API key must start with "sk-"');
+            alert('The API key must start with "sk-"');
             return;
         }
 
         setIsSaving(true);
         try {
             localStorage.setItem('rovena-custom-openai-key', customOpenAIKey);
-            setSuccessMessage('Settings successfully saved!');
+            setSuccessMessage('Settings saved successfully!');
             setShowSuccessModal(true);
         } catch (error) {
             console.error('Error saving API key:', error);
@@ -452,7 +452,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                     </div>
                                 )}
 
-                                {/* Fallback Download when auto-update fails or on macOS manual */}
+                                {/* Fallback Download when auto-update fails or on manual macOS */}
                                 {(updateStatus === 'New version detected (Manual)' || (updateError && fallbackReleaseInfo)) && (
                                     <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-tertiary)', borderRadius: 8, border: '1px solid var(--accent-blue)' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -461,7 +461,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                         </div>
                                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
                                             {platform === 'darwin' 
-                                                ? "Since the app does not yet have a signed certificate on macOS, you must download the new .dmg, open it, and drag it to your Applications folder, replacing the current version."
+                                                ? "Since the app doesn't have a signed certificate on macOS yet, you should download the new .dmg, open it and drag it to your Applications folder, replacing the current version."
                                                 : "The automatic updater encountered an issue. You can download the new version manually below."}
                                         </p>
                                         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -494,7 +494,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                                 {/* Release Notes */}
                                 {releaseNotes && (
                                     <div className="release-notes" style={{ marginTop: 16, background: 'var(--bg-secondary)', padding: 12, borderRadius: 8 }}>
-                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>What's new in v{updateAvailableInfo?.version}:</h4>
+                                        <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-primary)' }}>What's new in version v{updateAvailableInfo?.version}:</h4>
                                         <div
                                             style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}
                                             dangerouslySetInnerHTML={{ __html: releaseNotes }}
@@ -535,7 +535,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                         </div>
                         <div className="account-action">
                             <div className="account-action-info">
-                                <span className="account-action-label">Sign out</span>
+                                <span className="account-action-label">Log out</span>
                                 <span className="account-action-description">
                                     End your current session
                                 </span>
@@ -565,7 +565,7 @@ export function Settings({ userEmail, userPlan, tokensUsed, tokensLimit, subscri
                     </>
                 }
             >
-                <p>Are you sure you want to cancel your plan? You will keep access to Plus features until the end of the current period, but your subscription will not be renewed.</p>
+                <p>Are you sure you want to cancel your plan? You will maintain access to Plus features until the end of the current period, but your subscription will not be renewed.</p>
             </Modal>
 
             {/* Success Info Modal */}

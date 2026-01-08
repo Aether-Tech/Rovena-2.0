@@ -43,7 +43,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
 
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
-            setNameError('Image must be at most 5MB');
+            setNameError('The image must be at most 5MB');
             return;
         }
 
@@ -64,7 +64,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
             onProfileUpdate?.();
         } catch (error: any) {
             console.error('Error uploading photo:', error);
-            setNameError('Error sending photo. Please try again.');
+            setNameError('Error uploading photo. Please try again.');
         } finally {
             setIsUploading(false);
         }
@@ -101,7 +101,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
             return;
         }
         if (!newPassword) {
-            setPasswordError('Enter the new password');
+            setPasswordError('Enter your new password');
             return;
         }
         if (newPassword.length < 6) {
@@ -130,7 +130,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
             if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
                 setPasswordError('Incorrect current password');
             } else if (error.code === 'auth/requires-recent-login') {
-                setPasswordError('Please log in again to change the password');
+                setPasswordError('Please log in again to change your password');
             } else {
                 setPasswordError('Error changing password. Please try again.');
             }
@@ -161,7 +161,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                         )}
                         <div className="profile-photo" onClick={handlePhotoClick}>
                             {photoURL ? (
-                                <img src={photoURL} alt="Profile photo" />
+                                <img src={photoURL} alt="Profile picture" />
                             ) : (
                                 <div className="profile-photo-placeholder">
                                     {displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
@@ -268,7 +268,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                                         type={showNewPassword ? 'text' : 'password'}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="Enter the new password"
+                                        placeholder="Enter your new password"
                                         className="form-input"
                                     />
                                     <button
@@ -288,7 +288,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="Enter the new password again"
+                                        placeholder="Type the new password again"
                                         className="form-input"
                                     />
                                     <button
@@ -330,7 +330,7 @@ export function Profile({ onProfileUpdate }: ProfileProps) {
                         <div className="profile-form-section">
                             <div className="google-notice">
                                 <AlertCircle size={18} />
-                                <span>You are logged in with Google. The password is managed by your Google account.</span>
+                                <span>You are logged in with Google. Password is managed by your Google account.</span>
                             </div>
                         </div>
                     </div>

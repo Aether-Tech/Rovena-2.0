@@ -143,7 +143,7 @@ export function Chats() {
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: `Error: ${err.message || 'AI communication failed.'}`,
+                content: `Error: ${err.message || 'Failed to communicate with AI.'}`,
                 timestamp: Date.now(),
             };
             setMessages(prev => [...prev, errorMessage]);
